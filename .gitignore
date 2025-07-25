@@ -32,6 +32,7 @@ google-services.json
 
 # Android Profiling
 *.hprof
+<<<<<<< HEAD
 # Created by https://www.toptal.com/developers/gitignore/api/windows,linux,macos,android
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,linux,macos,android
 
@@ -164,3 +165,5 @@ gradle-app.setting
 # Java heap dump
 
 # End of https://www.toptal.com/developers/gitignore/api/gradle
+=======
+>>>>>>> 7b2c3b7bd8ac14e2a899e98e5458a3b029e2dabc
