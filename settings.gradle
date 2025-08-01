@@ -20,5 +20,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "JYCS-Crafters"
-include(":app")
- 
+include ':app'
