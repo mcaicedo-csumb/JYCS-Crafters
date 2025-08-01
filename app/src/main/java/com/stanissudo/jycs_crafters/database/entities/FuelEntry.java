@@ -5,16 +5,17 @@ import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import com.stanissudo.jycs_crafters.database.FuelEntryDatabase;
+import com.stanissudo.jycs_crafters.database.FuelTrackAppDatabase;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Entity(tableName = FuelEntryDatabase.FUEL_LOG_TABLE)
+@Entity(tableName = FuelTrackAppDatabase.FUEL_LOG_TABLE)
 public class FuelEntry {
     @PrimaryKey(autoGenerate = true)
     private int LogID;
     private int CarID;
+    @NonNull
     private LocalDateTime logDate;
     private int Odometer;
     private double Gallons;
@@ -22,8 +23,10 @@ public class FuelEntry {
     private double TotalCost;
     private String Location;
 
+    public FuelEntry() {}
     public FuelEntry(int carID, int odometer, double gallons, double pricePerGallon) {
         CarID = carID;
+        logDate = LocalDateTime.now();
         Odometer = odometer;
         Gallons = gallons;
         TotalCost = gallons * pricePerGallon;
@@ -32,6 +35,7 @@ public class FuelEntry {
 
     public FuelEntry(int carID, int odometer, double gallons, double pricePerGallon, String location) {
         CarID = carID;
+        logDate = LocalDateTime.now();
         Odometer = odometer;
         Gallons = gallons;
         PricePerGallon = pricePerGallon;
@@ -39,7 +43,7 @@ public class FuelEntry {
         Location = location;
     }
 
-    public FuelEntry(int carID, LocalDateTime logDate, int odometer, double gallons, double pricePerGallon, String location) {
+    public FuelEntry(int carID, @NonNull LocalDateTime logDate, int odometer, double gallons, double pricePerGallon, String location) {
         CarID = carID;
         this.logDate = logDate;
         Odometer = odometer;
@@ -49,7 +53,7 @@ public class FuelEntry {
         Location = location;
     }
 
-    public FuelEntry(int carID, double pricePerGallon, double gallons, int odometer, LocalDateTime logDate) {
+    public FuelEntry(int carID, double pricePerGallon, double gallons, int odometer, @NonNull LocalDateTime logDate) {
         CarID = carID;
         PricePerGallon = pricePerGallon;
         TotalCost = gallons * pricePerGallon;
@@ -89,9 +93,9 @@ public class FuelEntry {
         return LogID;
     }
 
-//    public void setLogID(int logID) {
-//        LogID = logID;
-//    }
+    public void setLogID(int logID) {
+        LogID = logID;
+    }
 
     public int getCarID() {
         return CarID;
