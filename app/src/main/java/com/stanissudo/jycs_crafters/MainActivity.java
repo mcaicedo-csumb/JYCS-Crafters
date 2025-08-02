@@ -11,29 +11,28 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.fragments.HomeFragment;
 import com.stanissudo.jycs_crafters.fragments.SettingsFragment;
 
 public class MainActivity extends AppCompatActivity {
-
     private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
-    private Toolbar toolbar;
-    private ActionBarDrawerToggle drawerToggle;
+    private FuelTrackAppRepository repository;
+    public static final String TAG = "FuelTrackApp_Log";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
 
         // Add burger icon toggle
-        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
@@ -74,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                         .replace(R.id.fragment_container, new SettingsFragment())
                         .commit();
             }else if (id == R.id.nav_fuel_entry) {
-                // ✅ Open new activity
+                // Open new activity
                 Intent intent = new Intent(MainActivity.this, AddFuelEntryActivity.class);
                 startActivity(intent);
             }
