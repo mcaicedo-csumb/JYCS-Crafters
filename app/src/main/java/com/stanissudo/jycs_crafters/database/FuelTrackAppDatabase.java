@@ -86,4 +86,8 @@ public abstract class FuelTrackAppDatabase extends RoomDatabase {
             );
         }
     };
+
+    public abstract FuelEntryDAO fuelEntryDAO();
+
+    //TODO: Add your DAO instances here
 }
