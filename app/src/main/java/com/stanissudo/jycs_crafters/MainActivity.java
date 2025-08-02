@@ -11,19 +11,25 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.stanissudo.jycs_crafters.database.FuelTrackAppDatabase;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.fragments.HomeFragment;
 import com.stanissudo.jycs_crafters.fragments.SettingsFragment;
+import com.stanissudo.jycs_crafters.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
+    private ActivityMainBinding binding;
     private FuelTrackAppRepository repository;
     public static final String TAG = "FuelTrackApp_Log";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        repository = FuelTrackAppRepository.getRepository(getApplication());
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
