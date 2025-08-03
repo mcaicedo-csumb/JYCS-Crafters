@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    // ✅ Apply the Firebase plugin here (must match project-level declaration)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -22,6 +24,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
@@ -33,7 +36,6 @@ android {
 }
 
 dependencies {
-
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
@@ -42,7 +44,14 @@ dependencies {
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
+    // ✅ Room
     def room_version = "2.7.2"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
+
+    // ✅ Google Sign-In (OAuth)
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+
+    // ✅ Firebase Authentication
+    implementation 'com.google.firebase:firebase-auth:22.3.1'
 }
