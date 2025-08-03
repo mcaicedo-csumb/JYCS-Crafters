@@ -11,7 +11,7 @@
         android:id="@+id/loginTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Car Gas & Mileage Log"
+        android:text="Car Gas &amp; Mileage Log"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textAlignment="center"

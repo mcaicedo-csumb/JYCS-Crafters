@@ -2,4 +2,7 @@
     <string name="app_name">JYCS-Crafters</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="default_web_client_id">1044064229113-v06rrb28ghe96dgtgj3hrts35qflbtc9.apps.googleusercontent.com</string>
+
+
 </resources>

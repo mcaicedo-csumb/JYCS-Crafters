@@ -11,6 +11,7 @@ import androidx.lifecycle.LiveData;
 
 import com.google.android.gms.auth.api.signin.*;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.*;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.database.entities.User;
@@ -81,15 +82,27 @@ public class LoginActivity extends AppCompatActivity {
         firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        FirebaseUser user = firebaseAuth.getCurrentUser();
-                        if (user != null) {
-                            startActivity(LandingPageActivity.intentFactory(this, user.getEmail(), false));
+                        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                        if (firebaseUser != null) {
+                            String email = firebaseUser.getEmail();
+                            LiveData<User> userLiveData = repository.getUserByUsername(email);
+                            userLiveData.observe(this, user -> {
+                                if (user == null) {
+                                    // First time Google login → create user in Room
+                                    User newUser = new User(email, "oauth_dummy");
+                                    repository.insertUser(newUser); // You must create this insert method if not already done
+                                    showToast("New Google user added.");
+                                }
+
+                                startActivity(LandingPageActivity.intentFactory(this, email, false));
+                            });
                         }
                     } else {
                         showToast("Google login failed.");
                     }
                 });
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
