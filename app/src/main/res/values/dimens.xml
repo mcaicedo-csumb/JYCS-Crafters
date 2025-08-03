@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- EditText Controls for Activity Add Fuel Entry -->
+    <dimen name="input_width_afe">280dp</dimen>
+    <dimen name="input_height_afe">48dp</dimen>
+    <dimen name="margin_top_large_afe">32dp</dimen>
+    <dimen name="input_padding_afe">8dp</dimen>
+    <dimen name="input_text_size_afe">16sp</dimen>
+
+    <!-- TextView Labels for Activity Add Fuel Entry -->
+    <dimen name="label_width_afe">76dp</dimen>
+    <dimen name="label_height_afe">18dp</dimen>
+    <dimen name="label_margin_start_afe">16dp</dimen>
+    <dimen name="label_margin_bottom_afe">4dp</dimen>
+    <dimen name="label_text_size_afe">14sp</dimen>
+
+    <!-- TextView Labels for Activity Add Fuel Entry -->
+    <dimen name="date_width_afe">140dp</dimen>
+    <dimen name="time_width_afe">110dp</dimen>
+        <dimen name="datetime_margin_side_afe">16dp</dimen>
+    <dimen name="datetime_padding">4dp</dimen>
+
+</resources>
