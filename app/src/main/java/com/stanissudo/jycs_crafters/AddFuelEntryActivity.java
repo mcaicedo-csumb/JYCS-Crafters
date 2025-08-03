@@ -2,23 +2,37 @@ package com.stanissudo.jycs_crafters;
 
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
-public class AddFuelEntryActivity extends AppCompatActivity {
+import com.google.android.material.navigation.NavigationView;
+import com.stanissudo.jycs_crafters.databinding.ActivityAddFuelEntryBinding;
+
+public class AddFuelEntryActivity extends BaseDrawerActivity {
+
+    private ActivityAddFuelEntryBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_add_fuel_entry);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        binding = ActivityAddFuelEntryBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        setSupportActionBar(binding.toolbar);
+    }
+
+    @Override
+    protected DrawerLayout getDrawerLayout() {
+        return binding.drawerLayout;
+    }
+
+    @Override
+    protected NavigationView getNavigationView() {
+        return binding.navView;
+    }
+
+    @Override
+    protected Toolbar getToolbar() {
+        return binding.toolbar;
     }
 }
