@@ -47,15 +47,17 @@ public class LoginActivity extends AppCompatActivity {
 
         binding.loginButton.setOnClickListener(v -> verifyUser());
 
-        binding.googleLoginButton.setOnClickListener(v -> {
+        // FIXED ID: googleSignInButton
+        binding.googleSignInButton.setOnClickListener(v -> {
             Intent signInIntent = googleSignInClient.getSignInIntent();
             startActivityForResult(signInIntent, RC_SIGN_IN);
         });
     }
 
     private void verifyUser() {
-        String username = binding.usernameEditText.getText().toString().trim();
-        String password = binding.passwordEditText.getText().toString().trim();
+        // FIXED ID: usernameInput and passwordInput
+        String username = binding.usernameInput.getText().toString().trim();
+        String password = binding.passwordInput.getText().toString().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
             showToast("Please enter username and password");
@@ -88,12 +90,10 @@ public class LoginActivity extends AppCompatActivity {
                             LiveData<User> userLiveData = repository.getUserByUsername(email);
                             userLiveData.observe(this, user -> {
                                 if (user == null) {
-                                    // First time Google login → create user in Room
                                     User newUser = new User(email, "oauth_dummy");
-                                    repository.insertUser(newUser); // You must create this insert method if not already done
+                                    repository.insertUser(newUser);
                                     showToast("New Google user added.");
                                 }
-
                                 startActivity(LandingPageActivity.intentFactory(this, email, false));
                             });
                         }
@@ -102,7 +102,6 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
