@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services") // ✅ Firebase plugin
 }
 
 android {
@@ -22,6 +23,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
@@ -33,16 +35,31 @@ android {
 }
 
 dependencies {
-
+    // ✅ Core libraries
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
     implementation libs.constraintlayout
-    testImplementation libs.junit
-    androidTestImplementation libs.ext.junit
-    androidTestImplementation libs.espresso.core
+    implementation libs.firebase.firestore
+    implementation libs.core
 
+    // ✅ Room
     def room_version = "2.7.2"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
+
+    // ✅ Google Sign-In
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+
+    // ✅ Firebase Auth
+    implementation 'com.google.firebase:firebase-auth:22.3.1'
+
+    // ✅ Unit Testing (fixes red underline in your UserDAOTest.java)
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'androidx.test:core:1.5.0'
+
+    // ✅ Instrumented Testing
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+    androidTestImplementation 'androidx.test:core:1.5.0'
 }
