@@ -7,6 +7,11 @@
     android:layout_height="match_parent"
     tools:context=".AddFuelEntryActivity">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
     <!-- Main content with Toolbar -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,6 +24,24 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            android:layout_marginTop="8dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/toolbarDropdown"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/car_selector_height"
+                android:focusable="false"
+                android:clickable="true"
+                android:gravity="center"
+                android:hint="Selected Car"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -202,26 +225,29 @@
                     android:padding="@dimen/datetime_padding" />
             </com.google.android.material.textfield.TextInputLayout>
 
-
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/saveEntryButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="540dp"
+                android:layout_width="@dimen/input_width_afe"
+                android:layout_height="@dimen/input_height_afe"
+                android:layout_marginTop="@dimen/margin_top_large_afe"
                 android:text="Save"
+                app:cornerRadius="8dp"
+                app:backgroundTint="?attr/colorPrimary"
+                android:textColor="?attr/colorOnPrimary"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.823"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/timeInputLayout" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
-
+</ScrollView>
     <!-- Navigation Drawer -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/menu_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"

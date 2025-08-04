@@ -3,6 +3,7 @@ package com.stanissudo.jycs_crafters;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.widget.AutoCompleteTextView;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -12,6 +13,7 @@ import java.util.Locale;
 
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.databinding.ActivityAddFuelEntryBinding;
+import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
 
 public class AddFuelEntryActivity extends BaseDrawerActivity {
 
@@ -22,6 +24,9 @@ public class AddFuelEntryActivity extends BaseDrawerActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityAddFuelEntryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
+        CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
 
         setSupportActionBar(binding.toolbar);
         Calendar calendar = Calendar.getInstance();
@@ -67,7 +72,11 @@ public class AddFuelEntryActivity extends BaseDrawerActivity {
             timePickerDialog.show();
         });
     }
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
+    }
     @Override
     protected DrawerLayout getDrawerLayout() {
         return binding.drawerLayout;

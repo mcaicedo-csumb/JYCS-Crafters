@@ -1,6 +1,9 @@
 package com.stanissudo.jycs_crafters;
 
 import android.os.Bundle;
+import android.view.MotionEvent;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.Toolbar;
@@ -12,6 +15,11 @@ import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityMainBinding;
 import com.stanissudo.jycs_crafters.fragments.HomeFragment;
 import com.stanissudo.jycs_crafters.fragments.SettingsFragment;
+import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends BaseDrawerActivity {
 
@@ -46,19 +54,23 @@ public class MainActivity extends BaseDrawerActivity {
             showHomeFragment();
             binding.navView.setCheckedItem(R.id.nav_home);
         }
+        AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
+        CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
     }
 
     public void showSettingsFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new SettingsFragment())
-                .commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SettingsFragment()).commit();
         binding.navView.setCheckedItem(R.id.nav_settings);
     }
 
     private void showHomeFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new HomeFragment())
-                .commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
         binding.navView.setCheckedItem(R.id.nav_home);
     }
 
