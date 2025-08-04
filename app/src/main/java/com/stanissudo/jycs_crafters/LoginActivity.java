@@ -69,8 +69,10 @@ public class LoginActivity extends AppCompatActivity {
             if (user != null) {
                 if (user.getPassword().equals(password)) {
                     saveUserSession(user.getId());
+                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show(); // ✅ Add this line
                     startActivity(LandingPageActivity.intentFactory(this, user.getUsername(), user.isAdmin()));
-                } else {
+                }
+                else {
                     showToast("Incorrect password");
                 }
             } else {
@@ -87,7 +89,12 @@ public class LoginActivity extends AppCompatActivity {
                         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                         if (firebaseUser != null) {
                             String email = firebaseUser.getEmail();
+                            if (email == null) {
+                                showToast("Google account has no email associated.");
+                                return;
+                            }
                             LiveData<User> userLiveData = repository.getUserByUsername(email);
+
                             userLiveData.observe(this, user -> {
                                 if (user == null) {
                                     User newUser = new User(email, "oauth_dummy");

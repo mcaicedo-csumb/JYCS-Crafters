@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import com.stanissudo.jycs_crafters.databinding.ActivityLandingPageBinding;
 
@@ -25,6 +27,9 @@ public class LandingPageActivity extends AppCompatActivity {
 
         binding.greetingText.setText("Welcome, " + username);
 
+        // ✅ Add this toast to confirm the activity opened
+        Toast.makeText(this, "Welcome to the Landing Page!", Toast.LENGTH_SHORT).show();
+
         if (isAdmin) {
             binding.adminCheckButton.setOnClickListener(v -> {
                 startActivity(AdminCheckActivity.intentFactory(this));
@@ -34,6 +39,7 @@ public class LandingPageActivity extends AppCompatActivity {
             binding.adminCheckButton.setEnabled(false);
         }
     }
+
 
     public static Intent intentFactory(Context context, String username, boolean isAdmin) {
         Intent intent = new Intent(context, LandingPageActivity.class);
