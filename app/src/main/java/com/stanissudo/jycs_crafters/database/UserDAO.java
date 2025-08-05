@@ -28,4 +28,7 @@ public interface UserDAO {
 
     @Query("SELECT * FROM " + FuelTrackAppDatabase.USER_TABLE + " WHERE id = :userId")
     LiveData<User> getUserById(int userId);
+
+    @Query("SELECT * FROM " + FuelTrackAppDatabase.USER_TABLE + " WHERE username = :username")
+    User getUserByUsernameNow(String username);  // Synchronous version for testing
 }
