@@ -69,15 +69,24 @@ public class LoginActivity extends AppCompatActivity {
             if (user != null) {
                 if (user.getPassword().equals(password)) {
                     saveUserSession(user.getId());
-                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show(); // ✅ Add this line
-                    startActivity(LandingPageActivity.intentFactory(this, user.getUsername(), user.isAdmin()));
-                }
-                else {
+                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
+
+                    if (user.isAdmin()) {
+                        // Admins → LandingPageActivity
+                        startActivity(LandingPageActivity.intentFactory(this, user.getUsername(), true));
+                    } else {
+                        // Regular users → MainActivity
+                        Intent intent = new Intent(this, MainActivity.class);
+                        intent.putExtra("username", user.getUsername());
+                        startActivity(intent);
+                    }
+                } else {
                     showToast("Incorrect password");
                 }
             } else {
                 showToast("User not found");
             }
+
         });
     }
 
