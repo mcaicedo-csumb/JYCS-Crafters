@@ -6,42 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-<!-- <<<<<<< vehicle_groundwork
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="100dp"
-        android:layout_height="25dp"
-        android:gravity="center"
-        android:text="@string/main_activity"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/logDisplayRecyclerView"
-        android:layout_width="0dp"
-        android:layout_height="500dp"
-        android:layout_marginTop="16dp"
-        android:padding="2dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/fuel_log_recycler_item" />
-
-    <Button
-        android:id="@+id/logButton"
-        android:layout_width="300dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/main_button_add_car"
-        android:textSize="36sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/logDisplayRecyclerView"
-
-        />
-
-</androidx.constraintlayout.widget.ConstraintLayout> -->
-=======
     <!-- Main content with Toolbar -->
     <LinearLayout
         android:layout_width="match_parent"

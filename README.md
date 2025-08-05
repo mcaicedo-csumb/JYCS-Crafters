@@ -1,11 +1,3 @@
 # JYCS-Crafters
 Android app for CST 338 Project 2 by Team 4: Jose, Ysabelle, Camila, Stan
-
-Gas Mileage Log: 
-<p>Our team is planning to develop a mobile application that enables users 
-to track their vehicle’s gas usage and mileage easily. The goal of the project is to provide 
-a clean, simple, and user-friendly tool for logging fuel purchases and monitoring fuel 
-efficiency over time. Users will be able to enter details such as the date of fill-up, 
-odometer reading, amount of fuel added, and cost per gallon. Based on this data, the app 
-will calculate fuel economy and provide users with a quick overview of their average mileage 
-and spending habits.</p>
+Gas Mileage Log: Our team is planning to develop a mobile application that enables users to track their vehicle’s gas usage and mileage easily. The goal of the project is to provide a clean, simple, and user-friendly tool for logging fuel purchases and monitoring fuel efficiency over time. Users will be able to enter details such as the date of fill-up, odometer reading, amount of fuel added, and cost per gallon. Based on this data, the app will calculate fuel economy and provide users with a quick overview of their average mileage and spending habits.
