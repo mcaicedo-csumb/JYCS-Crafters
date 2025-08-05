@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.stanissudo.jycs_crafters"
-        minSdk 34
+        minSdk 31
         targetSdk 35
         versionCode 1
         versionName "1.0"
@@ -28,8 +28,6 @@ android {
     }
     buildFeatures{
         dataBinding = true
-        viewBinding = true
-    }
 }
 
 dependencies {
