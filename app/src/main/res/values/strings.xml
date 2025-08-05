@@ -2,4 +2,5 @@
     <string name="app_name">Fuel Track</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="fuel_entry_recycler_item_placeholder">fuel entry recycler item</string>
 </resources>

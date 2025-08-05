@@ -1,5 +1,7 @@
 package com.stanissudo.jycs_crafters;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.widget.ArrayAdapter;
@@ -26,6 +28,7 @@ public class MainActivity extends BaseDrawerActivity {
     private ActivityMainBinding binding;
     private FuelTrackAppRepository repository;
     public static final String TAG = "FuelTrackApp_Log";
+    private static final String MAIN_ACTIVITY_USER_ID = "com.stanissudo.jycs_crafters.MAIN_ACTIVITY_USER_ID";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,5 +90,12 @@ public class MainActivity extends BaseDrawerActivity {
     @Override
     protected Toolbar getToolbar() {
         return binding.toolbar;
+    }
+
+
+    static Intent mainActivityIntentFactory(Context context, int userID) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(MAIN_ACTIVITY_USER_ID, userID);
+        return intent;
     }
 }
