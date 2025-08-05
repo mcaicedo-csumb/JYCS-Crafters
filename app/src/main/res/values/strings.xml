@@ -8,4 +8,5 @@
     <string name="vehicle_year">year</string>
     <string name="vehicle_button_save">Save!</string>
     <string name="vehicle_button_back">Back</string>
+    <string name="main_button_add_car">Add New Car</string>
 </resources>
