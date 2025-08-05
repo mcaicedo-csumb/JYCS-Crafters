@@ -31,11 +31,27 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sharedPreferences = getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
+
+        // ✅ If already logged in, skip login screen
+        if (sharedPreferences.contains("userId")) {
+            String username = sharedPreferences.getString("username", "User");
+            boolean isAdmin = false; // default, should ideally come from DB
+
+            if (isAdmin) {
+                startActivity(LandingPageActivity.intentFactory(this, username, true));
+            } else {
+                startActivity(new Intent(this, MainActivity.class));
+            }
+            finish();
+            return;
+        }
+
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         repository = FuelTrackAppRepository.getRepository(getApplication());
-        sharedPreferences = getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
         firebaseAuth = FirebaseAuth.getInstance();
 
         // Google Sign-In config
@@ -148,4 +164,3 @@ public class LoginActivity extends AppCompatActivity {
         return new Intent(context, LoginActivity.class);
     }
 }
-

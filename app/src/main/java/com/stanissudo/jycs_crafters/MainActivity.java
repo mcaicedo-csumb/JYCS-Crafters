@@ -11,7 +11,11 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.stanissudo.jycs_crafters.databinding.ActivityMainBinding;
 import com.stanissudo.jycs_crafters.fragments.HomeFragment;
 import com.stanissudo.jycs_crafters.fragments.SettingsFragment;
@@ -88,11 +92,26 @@ public class MainActivity extends BaseDrawerActivity {
     }
 
     private void logout() {
+        // Sign out from Firebase (works for both email/password and Google sign-in)
+        FirebaseAuth.getInstance().signOut();
+
+        // Also sign out from Google (to fully clear Google session)
+        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(
+                this,
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
+        );
+        googleSignInClient.signOut();
+
         // Clear saved user session
         sharedPreferences.edit().clear().apply();
-        startActivity(new Intent(this, LoginActivity.class));
+
+        // Go back to login screen
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Prevent going back
+        startActivity(intent);
         finish();
     }
+
 
     @Override
     protected DrawerLayout getDrawerLayout() {
