@@ -1,7 +1,5 @@
 package com.stanissudo.jycs_crafters;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.widget.ArrayAdapter;
@@ -28,8 +26,6 @@ public class MainActivity extends BaseDrawerActivity {
     private ActivityMainBinding binding;
     private FuelTrackAppRepository repository;
     public static final String TAG = "FuelTrackApp_Log";
-    private static final String MAIN_ACTIVITY_USER_ID = "com.example.wk05hw03_gymlog.MAIN_ACTIVITY_USER_ID";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,12 +58,6 @@ public class MainActivity extends BaseDrawerActivity {
         CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
     }
 
-    static Intent mainActivityIntentFactory(Context context, int userID) {
-        Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra(MAIN_ACTIVITY_USER_ID, userID);
-        return intent;
-    }
-        
     @Override
     protected void onResume() {
         super.onResume();
