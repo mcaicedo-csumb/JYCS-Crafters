@@ -23,8 +23,10 @@
     <!-- Logout option for regular users -->
     <item
         android:id="@+id/nav_logout"
-        android:icon="@android:drawable/ic_lock_power_off"
         android:title="Logout"
-        android:titleTextColor="@android:color/holo_red_light" />
+        android:icon="@android:drawable/ic_lock_power_off"
+        android:iconTint="@android:color/holo_red_dark"
+        android:titleTextColor="@android:color/holo_red_dark" />
+
 
 </menu>

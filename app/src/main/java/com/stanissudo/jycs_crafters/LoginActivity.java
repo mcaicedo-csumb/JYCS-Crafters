@@ -40,14 +40,13 @@ public class LoginActivity extends AppCompatActivity {
 
         // Google Sign-In config
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))  // From google-services.json
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
 
         binding.loginButton.setOnClickListener(v -> verifyUser());
 
-        // FIXED ID: googleSignInButton
         binding.googleSignInButton.setOnClickListener(v -> {
             Intent signInIntent = googleSignInClient.getSignInIntent();
             startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -55,7 +54,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void verifyUser() {
-        // FIXED ID: usernameInput and passwordInput
         String username = binding.usernameInput.getText().toString().trim();
         String password = binding.passwordInput.getText().toString().trim();
 
@@ -68,25 +66,22 @@ public class LoginActivity extends AppCompatActivity {
         userLiveData.observe(this, user -> {
             if (user != null) {
                 if (user.getPassword().equals(password)) {
-                    saveUserSession(user.getId());
+                    saveUserSession(user.getId(), user.getUsername());
+
                     Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
 
                     if (user.isAdmin()) {
-                        // Admins → LandingPageActivity
                         startActivity(LandingPageActivity.intentFactory(this, user.getUsername(), true));
                     } else {
-                        // Regular users → MainActivity
-                        Intent intent = new Intent(this, MainActivity.class);
-                        intent.putExtra("username", user.getUsername());
-                        startActivity(intent);
+                        startActivity(new Intent(this, MainActivity.class));
                     }
+                    finish();
                 } else {
                     showToast("Incorrect password");
                 }
             } else {
                 showToast("User not found");
             }
-
         });
     }
 
@@ -109,8 +104,13 @@ public class LoginActivity extends AppCompatActivity {
                                     User newUser = new User(email, "oauth_dummy");
                                     repository.insertUser(newUser);
                                     showToast("New Google user added.");
+                                    saveUserSession(newUser.getId(), email);
+                                    startActivity(new Intent(this, MainActivity.class));
+                                } else {
+                                    saveUserSession(user.getId(), user.getUsername());
+                                    startActivity(new Intent(this, MainActivity.class));
                                 }
-                                startActivity(LandingPageActivity.intentFactory(this, email, false));
+                                finish();
                             });
                         }
                     } else {
@@ -133,9 +133,10 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void saveUserSession(int userId) {
+    private void saveUserSession(int userId, String username) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("userId", userId);
+        editor.putString("username", username);
         editor.apply();
     }
 
@@ -147,3 +148,4 @@ public class LoginActivity extends AppCompatActivity {
         return new Intent(context, LoginActivity.class);
     }
 }
+

@@ -3,7 +3,6 @@ package com.stanissudo.jycs_crafters;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -29,16 +28,17 @@ public class MainActivity extends BaseDrawerActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Get saved username from SharedPreferences
         sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
         String username = sharedPreferences.getString("username", "User");
 
-        // Set username in drawer header
+        // Display username in drawer header
         NavigationView navView = binding.navView;
         View headerView = navView.getHeaderView(0);
         TextView usernameText = headerView.findViewById(R.id.nav_header_username);
         usernameText.setText(username);
 
-        // Handle navigation item clicks
+        // Navigation item clicks
         navView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
@@ -54,7 +54,7 @@ public class MainActivity extends BaseDrawerActivity {
             return true;
         });
 
-        // Back button handling
+        // Handle back button presses
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -68,7 +68,7 @@ public class MainActivity extends BaseDrawerActivity {
             }
         });
 
-        // Default fragment
+        // Show home fragment by default
         if (savedInstanceState == null) {
             showHomeFragment();
             navView.setCheckedItem(R.id.nav_home);
@@ -88,6 +88,7 @@ public class MainActivity extends BaseDrawerActivity {
     }
 
     private void logout() {
+        // Clear saved user session
         sharedPreferences.edit().clear().apply();
         startActivity(new Intent(this, LoginActivity.class));
         finish();
