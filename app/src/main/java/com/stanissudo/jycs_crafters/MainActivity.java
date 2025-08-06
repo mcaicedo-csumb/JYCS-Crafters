@@ -45,16 +45,30 @@ public class MainActivity extends BaseDrawerActivity {
         // Navigation item clicks
         navView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_home) {
-                showHomeFragment();
-            } else if (id == R.id.nav_fuel_entry) {
-                startActivity(new Intent(this, AddFuelEntryActivity.class));
-            } else if (id == R.id.nav_settings) {
-                showSettingsFragment();
-            } else if (id == R.id.nav_logout) {
+
+            if (id == R.id.nav_logout) {
+                // Logout instantly without closing the drawer
                 logout();
+                return true;
             }
+
+            // For other menu items, close drawer and wait until it's closed
             binding.drawerLayout.closeDrawer(GravityCompat.START);
+            binding.drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+                @Override
+                public void onDrawerClosed(View drawerView) {
+                    binding.drawerLayout.removeDrawerListener(this);
+
+                    if (id == R.id.nav_home) {
+                        showHomeFragment();
+                    } else if (id == R.id.nav_fuel_entry) {
+                        startActivity(new Intent(MainActivity.this, AddFuelEntryActivity.class));
+                    } else if (id == R.id.nav_settings) {
+                        showSettingsFragment();
+                    }
+                }
+            });
+
             return true;
         });
 
@@ -91,27 +105,31 @@ public class MainActivity extends BaseDrawerActivity {
                 .commit();
     }
 
-    private void logout() {
-        // Sign out from Firebase (works for both email/password and Google sign-in)
+    public void logout() {
+        // Sign out from Firebase (covers email/password and Google accounts)
         FirebaseAuth.getInstance().signOut();
 
-        // Also sign out from Google (to fully clear Google session)
+        // Also sign out from Google
         GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(
                 this,
                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
         );
-        googleSignInClient.signOut();
 
-        // Clear saved user session
-        sharedPreferences.edit().clear().apply();
+        googleSignInClient.signOut().addOnCompleteListener(task -> {
+            // Mark user as logged out
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("isLoggedIn", false);
+            editor.remove("username");
+            editor.remove("isAdmin");
+            editor.apply();
 
-        // Go back to login screen
-        Intent intent = new Intent(this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Prevent going back
-        startActivity(intent);
-        finish();
+            // Redirect to login screen
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
     }
-
 
     @Override
     protected DrawerLayout getDrawerLayout() {

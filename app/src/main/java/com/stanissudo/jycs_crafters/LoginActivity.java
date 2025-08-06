@@ -34,10 +34,11 @@ public class LoginActivity extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
 
-        // ✅ If already logged in, skip login screen
-        if (sharedPreferences.contains("userId")) {
-            String username = sharedPreferences.getString("username", "User");
-            boolean isAdmin = false; // default, should ideally come from DB
+        // ✅ Auto-login check
+        boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
+        if (isLoggedIn) {
+            String username = sharedPreferences.getString("username", "");
+            boolean isAdmin = sharedPreferences.getBoolean("isAdmin", false);
 
             if (isAdmin) {
                 startActivity(LandingPageActivity.intentFactory(this, username, true));
@@ -45,7 +46,7 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(this, MainActivity.class));
             }
             finish();
-            return;
+            return; // Stop loading login UI
         }
 
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
@@ -82,7 +83,7 @@ public class LoginActivity extends AppCompatActivity {
         userLiveData.observe(this, user -> {
             if (user != null) {
                 if (user.getPassword().equals(password)) {
-                    saveUserSession(user.getId(), user.getUsername());
+                    saveUserSession(user.getId(), user.getUsername(), user.isAdmin());
 
                     Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
 
@@ -120,11 +121,15 @@ public class LoginActivity extends AppCompatActivity {
                                     User newUser = new User(email, "oauth_dummy");
                                     repository.insertUser(newUser);
                                     showToast("New Google user added.");
-                                    saveUserSession(newUser.getId(), email);
+                                    saveUserSession(newUser.getId(), email, false);
                                     startActivity(new Intent(this, MainActivity.class));
                                 } else {
-                                    saveUserSession(user.getId(), user.getUsername());
-                                    startActivity(new Intent(this, MainActivity.class));
+                                    saveUserSession(user.getId(), user.getUsername(), user.isAdmin());
+                                    if (user.isAdmin()) {
+                                        startActivity(LandingPageActivity.intentFactory(this, user.getUsername(), true));
+                                    } else {
+                                        startActivity(new Intent(this, MainActivity.class));
+                                    }
                                 }
                                 finish();
                             });
@@ -149,10 +154,13 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void saveUserSession(int userId, String username) {
+    // ✅ Save login state for persistence
+    private void saveUserSession(int userId, String username, boolean isAdmin) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("userId", userId);
         editor.putString("username", username);
+        editor.putBoolean("isAdmin", isAdmin);
+        editor.putBoolean("isLoggedIn", true);
         editor.apply();
     }
 
