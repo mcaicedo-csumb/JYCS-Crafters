@@ -36,7 +36,7 @@ public abstract class FuelTrackAppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     FuelTrackAppDatabase.class, DATABASE_NAME)
-                            //.addMigrations(MIGRATION_1_2) // Only for Development Environment
+                            .addMigrations(MIGRATION_1_2) // Only for Development Environment
                             .addCallback(addDefaultValues)
                             .build();
                 }
