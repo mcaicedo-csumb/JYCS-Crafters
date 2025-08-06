@@ -2,9 +2,14 @@ package com.stanissudo.jycs_crafters;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.view.MotionEvent;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.Toolbar;
@@ -19,18 +24,27 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.stanissudo.jycs_crafters.databinding.ActivityMainBinding;
 import com.stanissudo.jycs_crafters.fragments.HomeFragment;
 import com.stanissudo.jycs_crafters.fragments.SettingsFragment;
+import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends BaseDrawerActivity {
 
     private ActivityMainBinding binding;
+    private FuelTrackAppRepository repository;
     private SharedPreferences sharedPreferences;
     public static final String TAG = "FuelTrackApp_Log";
+    private static final String MAIN_ACTIVITY_USER_ID = "com.stanissudo.jycs_crafters.MAIN_ACTIVITY_USER_ID";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        repository = FuelTrackAppRepository.getRepository(getApplication());
 
         // Get saved username from SharedPreferences
         sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
@@ -52,27 +66,7 @@ public class MainActivity extends BaseDrawerActivity {
                 return true;
             }
 
-            // For other menu items, close drawer and wait until it's closed
-            binding.drawerLayout.closeDrawer(GravityCompat.START);
-            binding.drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
-                @Override
-                public void onDrawerClosed(View drawerView) {
-                    binding.drawerLayout.removeDrawerListener(this);
-
-                    if (id == R.id.nav_home) {
-                        showHomeFragment();
-                    } else if (id == R.id.nav_fuel_entry) {
-                        startActivity(new Intent(MainActivity.this, AddFuelEntryActivity.class));
-                    } else if (id == R.id.nav_settings) {
-                        showSettingsFragment();
-                    }
-                }
-            });
-
-            return true;
-        });
-
-        // Handle back button presses
+        // Back button handling
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -86,49 +80,33 @@ public class MainActivity extends BaseDrawerActivity {
             }
         });
 
-        // Show home fragment by default
+        // Default fragment
         if (savedInstanceState == null) {
             showHomeFragment();
-            navView.setCheckedItem(R.id.nav_home);
+            binding.navView.setCheckedItem(R.id.nav_home);
         }
+        AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
+        CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
     }
 
     public void showSettingsFragment() {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, new SettingsFragment())
                 .commit();
+        binding.navView.setCheckedItem(R.id.nav_settings);
     }
 
     private void showHomeFragment() {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, new HomeFragment())
                 .commit();
-    }
-
-    public void logout() {
-        // Sign out from Firebase (covers email/password and Google accounts)
-        FirebaseAuth.getInstance().signOut();
-
-        // Also sign out from Google
-        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(
-                this,
-                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
-        );
-
-        googleSignInClient.signOut().addOnCompleteListener(task -> {
-            // Mark user as logged out
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("isLoggedIn", false);
-            editor.remove("username");
-            editor.remove("isAdmin");
-            editor.apply();
-
-            // Redirect to login screen
-            Intent intent = new Intent(this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
+        binding.navView.setCheckedItem(R.id.nav_home);
     }
 
     @Override
@@ -144,5 +122,43 @@ public class MainActivity extends BaseDrawerActivity {
     @Override
     protected Toolbar getToolbar() {
         return binding.toolbar;
+    }
+        private void showHomeFragment() {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new HomeFragment())
+                    .commit();
+        }
+
+        public void logout() {
+            // Sign out from Firebase (covers email/password and Google accounts)
+            FirebaseAuth.getInstance().signOut();
+
+            // Also sign out from Google
+            GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(
+                    this,
+                    new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
+            );
+
+            googleSignInClient.signOut().addOnCompleteListener(task -> {
+                // Mark user as logged out
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("isLoggedIn", false);
+                editor.remove("username");
+                editor.remove("isAdmin");
+                editor.apply();
+
+                // Redirect to login screen
+                Intent intent = new Intent(this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            });
+        }
+
+
+    static Intent mainActivityIntentFactory(Context context, int userID) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(MAIN_ACTIVITY_USER_ID, userID);
+        return intent;
     }
 }

@@ -1,8 +1,16 @@
 <resources>
-    <string name="app_name">JYCS-Crafters</string>
+    <string name="app_name">Fuel Track</string>
+
+    <string name="fuel_log_prompt">Enter a new fuel log.</string>
+    <string name="vehicle_name">name</string>
+    <string name="vehicle_make">make</string>
+    <string name="vehicle_model">model</string>
+    <string name="vehicle_year">year</string>
+    <string name="vehicle_button_save">Save!</string>
+    <string name="vehicle_button_back">Back</string>
+    <string name="main_button_add_car">Add New Car</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="default_web_client_id">1044064229113-v06rrb28ghe96dgtgj3hrts35qflbtc9.apps.googleusercontent.com</string>
-
-
+    <string name="fuel_entry_recycler_item_placeholder">fuel entry recycler item</string>
 </resources>

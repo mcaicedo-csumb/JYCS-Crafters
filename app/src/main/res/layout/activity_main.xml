@@ -19,6 +19,24 @@
             android:background="?attr/colorPrimary"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            android:layout_marginTop="8dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/toolbarDropdown"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/car_selector_height"
+                android:focusable="false"
+                android:clickable="true"
+                android:gravity="center"
+                android:hint="Selected Car"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
@@ -41,9 +59,12 @@
     <!-- Navigation Drawer -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/menu_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        app:itemHorizontalPadding="8dp"
+        app:itemIconPadding="8dp"
+        app:itemIconSize="24dp"
         app:menu="@menu/drawer_menu"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header"/>

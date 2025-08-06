@@ -16,9 +16,20 @@
 
 
     <item
+        android:id="@+id/nav_fuel_entry"
+        android:icon="@android:drawable/ic_input_add"
+        android:title="Add Fuel Entry" />
+    <item
+        android:id="@+id/nav_garage"
+        android:icon="@android:drawable/ic_menu_today"
+        android:title="Garage" />
+    <item
         android:id="@+id/nav_settings"
         android:icon="@android:drawable/ic_menu_preferences"
         android:title="Settings" />
+    <item
+        android:id="@+id/nav_fuel_entry"
+        android:title="Add Fuel Entry" />
 
     <!-- Logout option for regular users -->
     <item
@@ -27,6 +38,4 @@
         android:icon="@android:drawable/ic_lock_power_off"
         android:iconTint="@android:color/holo_red_dark"
         android:titleTextColor="@android:color/holo_red_dark" />
-
-
 </menu>

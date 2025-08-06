@@ -14,7 +14,9 @@ import com.google.android.material.navigation.NavigationView;
 public abstract class BaseDrawerActivity extends AppCompatActivity {
 
     protected abstract DrawerLayout getDrawerLayout();
+
     protected abstract NavigationView getNavigationView();
+
     protected abstract Toolbar getToolbar();
 
     @Override
@@ -57,6 +59,11 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
             } else if (id == R.id.nav_fuel_entry) {
                 if (!(this instanceof AddFuelEntryActivity)) {
                     Intent intent = new Intent(this, AddFuelEntryActivity.class);
+                    startActivity(intent);
+                }
+            } else if (id == R.id.nav_garage) {
+                if (!(this instanceof AddFuelEntryActivity)) {
+                    Intent intent = new Intent(this, VehicleActivity.class);
                     startActivity(intent);
                 }
             } else if (id == R.id.nav_settings && this instanceof MainActivity) {
