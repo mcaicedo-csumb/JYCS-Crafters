@@ -68,4 +68,17 @@ public class FuelTrackAppRepository {
     public void deleteAllUsers() {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(userDAO::deleteAll);
     }
+
+    public void deleteUserByUsername(String username) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> userDAO.deleteByUsername(username));
+    }
+
+    public void updatePassword(String username, String newPassword) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> userDAO.updatePassword(username, newPassword));
+    }
+
+    public LiveData<List<User>> getAllUsers() {
+        return userDAO.getAllUsers();
+    }
+
 }

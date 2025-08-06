@@ -31,4 +31,15 @@ public interface UserDAO {
 
     @Query("SELECT * FROM " + FuelTrackAppDatabase.USER_TABLE + " WHERE username = :username")
     User getUserByUsernameNow(String username);  // Synchronous version for testing
+
+    @Query("DELETE FROM " + FuelTrackAppDatabase.USER_TABLE + " WHERE username = :username")
+    void deleteByUsername(String username);
+
+    @Query("UPDATE " + FuelTrackAppDatabase.USER_TABLE + " SET password = :newPassword WHERE username = :username")
+    void updatePassword(String username, String newPassword);
+
+    @Query("SELECT * FROM " + FuelTrackAppDatabase.USER_TABLE + " ORDER BY username ASC")
+    LiveData<List<User>> getAllUsers();
+
+
 }
