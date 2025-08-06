@@ -1,3 +1,6 @@
+//Author: Jose Caicedo
+// Date: 08/05/2025
+
 package com.stanissudo.jycs_crafters;
 
 import android.content.Context;
