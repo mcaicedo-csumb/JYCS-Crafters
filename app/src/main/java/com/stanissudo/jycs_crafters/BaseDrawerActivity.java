@@ -41,6 +41,14 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
         getNavigationView().setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
 
+            if (id == R.id.nav_logout) {
+                // ✅ Call logout directly if this is MainActivity
+                if (this instanceof MainActivity) {
+                    ((MainActivity) this).logout();
+                }
+                return true; // handled, no animation
+            }
+
             if (id == R.id.nav_home) {
                 if (!(this instanceof MainActivity)) {
                     Intent intent = new Intent(this, MainActivity.class);

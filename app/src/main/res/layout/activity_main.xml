@@ -66,5 +66,7 @@
         app:itemIconPadding="8dp"
         app:itemIconSize="24dp"
         app:menu="@menu/drawer_menu"
-        android:fitsSystemWindows="true" />
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header"/>
+
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -12,16 +12,18 @@ import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
+import com.stanissudo.jycs_crafters.database.entities.User;
 import com.stanissudo.jycs_crafters.database.typeConverters.LocalDataTypeConverter;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @TypeConverters(LocalDataTypeConverter.class)
-@Database(entities = {FuelEntry.class}, version = 1, exportSchema = false)
+@Database(entities = {FuelEntry.class, User.class}, version = 1, exportSchema = false)
 public abstract class FuelTrackAppDatabase extends RoomDatabase {
     private static final String DATABASE_NAME = "FuelTrackDatabase";
     public static final String FUEL_LOG_TABLE = "FuelEntryTable";
+    public static final String USER_TABLE = "UserTable";
 
     //TODO: Add more tables here
     private static volatile FuelTrackAppDatabase INSTANCE;
@@ -34,14 +36,32 @@ public abstract class FuelTrackAppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     FuelTrackAppDatabase.class, DATABASE_NAME)
-                            .addMigrations(MIGRATION_1_2) // Only for Development Environment
-//                            .addCallback(addDefaultValues)
+                            //.addMigrations(MIGRATION_1_2) // Only for Development Environment
+                            .addCallback(addDefaultValues)
                             .build();
                 }
             }
         }
         return INSTANCE;
     }
+
+    private static final RoomDatabase.Callback addDefaultValues = new RoomDatabase.Callback() {
+        @Override
+        public void onCreate(@NonNull SupportSQLiteDatabase db) {
+            super.onCreate(db);
+            databaseWriteExecutor.execute(() -> {
+                UserDAO dao = INSTANCE.userDAO();
+                dao.deleteAll();
+
+                User admin = new User("admin", "admin");
+                admin.setAdmin(true);
+                dao.insert(admin);
+
+                User testUser = new User("testuser", "testuser");
+                dao.insert(testUser);
+            });
+        }
+    };
 
 //    private static final RoomDatabase.Callback addDefaultValues = new RoomDatabase.Callback() {
 //        @Override
@@ -84,10 +104,21 @@ public abstract class FuelTrackAppDatabase extends RoomDatabase {
                             "TotalCost REAL NOT NULL, " +
                             "Location TEXT)"
             );
+
+            // Recreate User table
+            database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS User (" +
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "username TEXT NOT NULL, " +
+                            "password TEXT NOT NULL, " +
+                            "isAdmin INTEGER NOT NULL DEFAULT 0" +
+                            ")"
+            );
         }
     };
 
     public abstract FuelEntryDAO fuelEntryDAO();
+    public abstract UserDAO userDAO();
 
     //TODO: Add your DAO instances here
 }
