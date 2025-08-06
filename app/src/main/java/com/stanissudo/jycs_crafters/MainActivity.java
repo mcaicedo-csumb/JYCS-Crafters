@@ -21,6 +21,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityMainBinding;
 import com.stanissudo.jycs_crafters.fragments.HomeFragment;
 import com.stanissudo.jycs_crafters.fragments.SettingsFragment;
@@ -65,6 +66,8 @@ public class MainActivity extends BaseDrawerActivity {
                 logout();
                 return true;
             }
+            return false;
+        });
 
         // Back button handling
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -123,37 +126,32 @@ public class MainActivity extends BaseDrawerActivity {
     protected Toolbar getToolbar() {
         return binding.toolbar;
     }
-        private void showHomeFragment() {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new HomeFragment())
-                    .commit();
-        }
 
-        public void logout() {
-            // Sign out from Firebase (covers email/password and Google accounts)
-            FirebaseAuth.getInstance().signOut();
+    public void logout() {
+        // Sign out from Firebase (covers email/password and Google accounts)
+        FirebaseAuth.getInstance().signOut();
 
-            // Also sign out from Google
-            GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(
-                    this,
-                    new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
-            );
+        // Also sign out from Google
+        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(
+                this,
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
+        );
 
-            googleSignInClient.signOut().addOnCompleteListener(task -> {
-                // Mark user as logged out
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean("isLoggedIn", false);
-                editor.remove("username");
-                editor.remove("isAdmin");
-                editor.apply();
+        googleSignInClient.signOut().addOnCompleteListener(task -> {
+            // Mark user as logged out
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("isLoggedIn", false);
+            editor.remove("username");
+            editor.remove("isAdmin");
+            editor.apply();
 
-                // Redirect to login screen
-                Intent intent = new Intent(this, LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
-            });
-        }
+            // Redirect to login screen
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+    }
 
 
     static Intent mainActivityIntentFactory(Context context, int userID) {
