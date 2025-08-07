@@ -64,6 +64,9 @@ public class FuelTrackAppRepository {
   public LiveData<List<FuelEntry>> getAllLogs() {
       return fuelEntryDAO.getAllRecords();
   }
+    public void insertFuelEntry(FuelEntry fuelEntry) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> fuelEntryDAO.insert(fuelEntry));
+    }
 
     // =================== User Methods ===================
     public LiveData<User> getUserByUsername(String username) {

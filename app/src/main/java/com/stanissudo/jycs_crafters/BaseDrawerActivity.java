@@ -1,5 +1,7 @@
 package com.stanissudo.jycs_crafters;
 
+import static com.stanissudo.jycs_crafters.AddFuelEntryActivity.addFuelEntryIntentFactory;
+
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -58,7 +60,7 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
                 }
             } else if (id == R.id.nav_fuel_entry) {
                 if (!(this instanceof AddFuelEntryActivity)) {
-                    Intent intent = new Intent(this, AddFuelEntryActivity.class);
+                    Intent intent = AddFuelEntryActivity.addFuelEntryIntentFactory(getApplicationContext(), -1);
                     startActivity(intent);
                 }
             } else if (id == R.id.nav_garage) {

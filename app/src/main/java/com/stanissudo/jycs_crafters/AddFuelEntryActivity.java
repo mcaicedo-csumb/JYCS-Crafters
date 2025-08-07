@@ -1,29 +1,52 @@
 package com.stanissudo.jycs_crafters;
 
+import static com.stanissudo.jycs_crafters.MainActivity.TAG;
+
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
+import android.view.View;
 import android.widget.AutoCompleteTextView;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.type.DateTime;
+import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
+import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.databinding.ActivityAddFuelEntryBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
 
 public class AddFuelEntryActivity extends BaseDrawerActivity {
 
     private ActivityAddFuelEntryBinding binding;
+    private static final String FUEL_ENTRY_USER_ID = "com.stanissudo.gymlog.FUEL_ENTRY_USER_ID";
+    FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
+    int loggedInUserId = -1;
+    private int odometer = -1;
+    private double gasGal = -1.0;
+    private double pricePerGal = -1.0;
+    private double totalPrice = -1.0;
+    private DateTime dateTime;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityAddFuelEntryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        loggedInUserId = getIntent().getIntExtra(FUEL_ENTRY_USER_ID, -1);
 
         AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
         CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
@@ -71,12 +94,74 @@ public class AddFuelEntryActivity extends BaseDrawerActivity {
             );
             timePickerDialog.show();
         });
+
+        binding.saveEntryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(AddFuelEntryActivity.this, "It worked!", Toast.LENGTH_SHORT).show();
+                getInformationFromDisplay();
+                insertRecord();
+                Intent intent = MainActivity.mainActivityIntentFactory(getApplicationContext(), -1);
+                startActivity(intent);
+                // updateDisplay();
+            }
+        });
     }
+
+    private void getInformationFromDisplay() {
+        String odometerText = binding.odometerInputEditText.getText().toString().trim();
+        if (!odometerText.isEmpty()) {
+            try {
+                odometer = Integer.parseInt(odometerText);
+            } catch (NumberFormatException e) {
+                Log.d(TAG, "Invalid number format in Odometer input");
+            }
+        } else {
+            Log.d(TAG, "Odometer input is empty");
+            Toast.makeText(AddFuelEntryActivity.this, "Odometer cannot be empty!", Toast.LENGTH_SHORT).show();
+        }
+        String gasVolumeText = binding.gasVolumeInputEditText.getText().toString().trim();
+        if (!gasVolumeText.isEmpty()) {
+            try {
+                gasGal = Double.parseDouble(gasVolumeText);
+            } catch (NumberFormatException e) {
+                Log.d(TAG, "Error reading value from Gas Gallons edit text.");
+            }
+        } else {
+            Log.d(TAG, "Gas Volume input is empty");
+            Toast.makeText(AddFuelEntryActivity.this, "Gas Volume cannot be empty!", Toast.LENGTH_SHORT).show();
+        }
+        String gasPricePerGalText = binding.pricePerGallonInputEditText.getText().toString().trim();
+        if (!gasPricePerGalText.isEmpty()) {
+            try {
+                pricePerGal = Double.parseDouble(gasPricePerGalText);
+            } catch (NumberFormatException e) {
+                Log.d(TAG, "Error reading value from Gas Price per Gallon edit text.");
+            }
+        } else {
+            Log.d(TAG, "Gas Price per Gallon input is empty");
+            Toast.makeText(AddFuelEntryActivity.this, "Gas Price per Gallon cannot be empty!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void insertRecord(){
+        FuelEntry fuelLog = new FuelEntry(loggedInUserId, odometer, gasGal, pricePerGal);
+        repository.insertFuelEntry(fuelLog);
+    }
+
+
+    static Intent addFuelEntryIntentFactory(Context context, int userId) {
+        Intent intent = new Intent(context, AddFuelEntryActivity.class);
+        intent.putExtra(FUEL_ENTRY_USER_ID, userId);
+        return intent;
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
     }
+
     @Override
     protected DrawerLayout getDrawerLayout() {
         return binding.drawerLayout;
