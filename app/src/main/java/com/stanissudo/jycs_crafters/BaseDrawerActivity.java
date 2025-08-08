@@ -63,11 +63,16 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
                     Intent intent = AddFuelEntryActivity.addFuelEntryIntentFactory(getApplicationContext(), -1);
                     startActivity(intent);
                 }
+            } else if (id == R.id.nav_fuel_log) {
+                if (!(this instanceof FuelLogActivity)) {
+                    Intent intent = FuelLogActivity.fuelLogIntentFactory(getApplicationContext(), -1);
+                    startActivity(intent);
+                }
             } else if (id == R.id.nav_garage) {
                 //if (!(this instanceof VehicleActivity)) {
-                    Intent intent = new Intent(this, VehicleActivity.class);
-                    startActivity(intent);
-               // }
+                Intent intent = new Intent(this, VehicleActivity.class);
+                startActivity(intent);
+                // }
             } else if (id == R.id.nav_settings && this instanceof MainActivity) {
                 ((MainActivity) this).showSettingsFragment();
             }

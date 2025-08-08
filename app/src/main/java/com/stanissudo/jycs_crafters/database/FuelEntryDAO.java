@@ -15,8 +15,8 @@ public interface FuelEntryDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(FuelEntry fuelEntry);
 
-    @Query("SELECT * FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " ORDER BY logDate DESC")
-    LiveData<List<FuelEntry>> getAllRecords();
+    @Query("SELECT * FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE CarID = :carId ORDER BY logDate DESC")
+    LiveData<List<FuelEntry>> getEntriesForCar(int carId);
 
     @Query("SELECT * FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE  LogID = :logId ORDER BY logDate DESC")
     LiveData<List<FuelEntry>> getRecordsById(int logId);
