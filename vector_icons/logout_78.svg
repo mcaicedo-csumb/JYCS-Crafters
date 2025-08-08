@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="78" height="78" viewBox="0 0 24 24">
+  <!-- Door / screen -->
+  <path fill="#000000" d="M5 4 H13 A2 2 0 0 1 15 6 V18 A2 2 0 0 1 13 20 H5 Z"/>
+  <!-- Arrow -->
+  <path fill="#000000" d="M14 12 l5 -3 v2 h3 v2 h-3 v2 Z"/>
+  <!-- Cutout gap to suggest exit -->
+  <path fill="#ffffff" d="M13 11 H17 V13 H13 Z"/>
+</svg>
