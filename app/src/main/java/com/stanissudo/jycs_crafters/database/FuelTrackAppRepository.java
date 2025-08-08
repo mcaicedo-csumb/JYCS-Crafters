@@ -97,4 +97,8 @@ public class FuelTrackAppRepository {
         return userDAO.getAllUsers();
     }
 
+    public LiveData<List<FuelEntry>> getAllLogsByUserId(int loggedInUserId) {
+        return fuelEntryDAO.getRecordsById(loggedInUserId);
+    }
+
 }
