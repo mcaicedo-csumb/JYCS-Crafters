@@ -44,41 +44,10 @@
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fuelRecycler"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:layout_width="@dimen/label_width_afe"
-                    android:layout_height="@dimen/label_height_afe"
-                    android:layout_marginStart="@dimen/label_margin_start_afe"
-                    android:layout_marginBottom="@dimen/label_margin_bottom_afe"
-                    android:text="Odometer"
-                    android:textSize="@dimen/label_text_size_afe"
-                    app:layout_constraintBottom_toTopOf="@+id/odometerInputEditText"
-                    app:layout_constraintStart_toStartOf="@+id/odometerInputEditText"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="1.0" />
-
-                <EditText
-                    android:id="@+id/odometerInputEditText"
-                    style="@style/Widget.Material3.TextInputEditText.FilledBox"
-                    android:layout_width="@dimen/input_width_afe"
-                    android:layout_height="@dimen/input_height_afe"
-                    android:layout_marginTop="@dimen/margin_top_large_afe"
-                    android:autofillHints=""
-                    android:background="@drawable/edit_text_style"
-                    android:hint="Miles"
-                    android:inputType="number"
-                    android:padding="@dimen/input_padding_afe"
-                    android:textSize="@dimen/input_text_size_afe"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_height="match_parent" />
 
         </LinearLayout>
     </ScrollView>
