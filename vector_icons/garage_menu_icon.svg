@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <!-- Garage outline with open doorway (uses even-odd to punch out the interior) -->
+  <path fill="#000000" fill-rule="evenodd" d="
+    M3 10 L12 3 L21 10 V21 H3 Z
+    M5 12 H19 V21 H5 Z
+  "/>
+  <!-- Car inside the garage -->
+  <path fill="#000000" d="M9 14 H15 V15 H9 Z"/>
+  <path fill="#000000" d="M7 15 H17 V17 H7 Z"/>
+  <!-- Wheels -->
+  <circle cx="9" cy="19" r="1" fill="#000000"/>
+  <circle cx="15" cy="19" r="1" fill="#000000"/>
+</svg>

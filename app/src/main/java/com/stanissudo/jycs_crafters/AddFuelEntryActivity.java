@@ -7,6 +7,8 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +19,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -36,8 +41,7 @@ public class AddFuelEntryActivity extends BaseDrawerActivity {
     private int odometer = -1;
     private double gasGal = -1.0;
     private double pricePerGal = -1.0;
-    private double totalPrice = -1.0;
-    private DateTime dateTime;
+    private LocalDateTime dateTime;
 
 
     @Override
@@ -45,6 +49,8 @@ public class AddFuelEntryActivity extends BaseDrawerActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityAddFuelEntryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        binding.gasVolumeInputEditText.addTextChangedListener(simpleWatcher);
+        binding.pricePerGallonInputEditText.addTextChangedListener(simpleWatcher);
 
         loggedInUserId = getIntent().getIntExtra(FUEL_ENTRY_USER_ID, -1);
 
@@ -98,7 +104,7 @@ public class AddFuelEntryActivity extends BaseDrawerActivity {
         binding.saveEntryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(AddFuelEntryActivity.this, "It worked!", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(AddFuelEntryActivity.this, "It worked!", Toast.LENGTH_SHORT).show();
                 getInformationFromDisplay();
                 insertRecord();
                 Intent intent = MainActivity.mainActivityIntentFactory(getApplicationContext(), -1);
@@ -106,6 +112,7 @@ public class AddFuelEntryActivity extends BaseDrawerActivity {
                 // updateDisplay();
             }
         });
+
     }
 
     private void getInformationFromDisplay() {
@@ -142,10 +149,40 @@ public class AddFuelEntryActivity extends BaseDrawerActivity {
             Log.d(TAG, "Gas Price per Gallon input is empty");
             Toast.makeText(AddFuelEntryActivity.this, "Gas Price per Gallon cannot be empty!", Toast.LENGTH_SHORT).show();
         }
+
+// 📅 Read date & time fields and assign to LocalDateTime
+        String dateStr = binding.editTextDateFuelEntry.getText().toString().trim();
+        String timeStr = binding.editTextTimeFuelEntry.getText().toString().trim();
+
+        if (!dateStr.isEmpty() && !timeStr.isEmpty()) {
+            try {
+                // Match the format used in display
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a", Locale.US);
+                dateTime = LocalDateTime.parse(dateStr + " " + timeStr, formatter);
+
+            } catch (DateTimeParseException e) {
+                Log.d(TAG, "Invalid date/time format", e);
+            }
+        } else {
+            Log.d(TAG, "Date or Time is empty");
+            Toast.makeText(this, "Date and Time cannot be empty!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void insertRecord(){
-        FuelEntry fuelLog = new FuelEntry(loggedInUserId, odometer, gasGal, pricePerGal);
+        int selectedCarId = -1;
+        try {
+            selectedCarId = CarSelectorHelper.getSelectedOptionKey();
+            if (selectedCarId == -1) {
+                throw new IllegalArgumentException("Invalid selected car ID");
+            }
+        }
+        catch (Exception e){
+            Log.d(TAG, "Error getting selected car ID", e);
+            Toast.makeText(this, "Error creating a record. Did you select your Car?", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        FuelEntry fuelLog = new FuelEntry(selectedCarId, odometer, gasGal, pricePerGal, dateTime);
         repository.insertFuelEntry(fuelLog);
     }
 
@@ -175,5 +212,40 @@ public class AddFuelEntryActivity extends BaseDrawerActivity {
     @Override
     protected Toolbar getToolbar() {
         return binding.toolbar;
+    }
+
+    private final TextWatcher simpleWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            updateTotalPrice();
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {}
+    };
+
+    private void updateTotalPrice() {
+        String gasVolumeStr = binding.gasVolumeInputEditText.getText().toString().trim();
+        String pricePerGalStr = binding.pricePerGallonInputEditText.getText().toString().trim();
+
+        if (!gasVolumeStr.isEmpty() && !pricePerGalStr.isEmpty()) {
+            try {
+                double gasVol = Double.parseDouble(gasVolumeStr);
+                double pricePerGal = Double.parseDouble(pricePerGalStr);
+                double total = gasVol * pricePerGal;
+
+                // Optional: round to 2 decimal places
+                binding.totalPriceInputEditText.setText(String.format(Locale.US, "%.2f", total));
+            } catch (NumberFormatException e) {
+                // Ignore if invalid numbers are entered
+                binding.totalPriceInputEditText.setText("");
+            }
+        } else {
+            // Clear if one of them is empty
+            binding.totalPriceInputEditText.setText("");
+        }
     }
 }

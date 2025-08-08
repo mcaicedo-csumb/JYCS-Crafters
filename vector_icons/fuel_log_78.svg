@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="78" height="78" viewBox="0 0 24 24">
+  <!-- Compact pump -->
+  <path fill="#000000" d="M5 7 H12.5 V17.5 H5 Z"/>
+  <!-- Screen -->
+  <path fill="#ffffff" d="M6.6 8.7 H11 V11.7 H6.6 Z"/>
+  <!-- Base -->
+  <rect x="4" y="18" width="10" height="2" rx="1" fill="#000000"/>
+  <!-- Hose + nozzle -->
+  <path fill="#000000" d="M12.5 9 h1.6 a2.2 2.2 0 0 1 2.2 2.2 V17.5 H15.6 V11.4 a0.6 0.6 0 0 0 -.6 -.6 H12.5 Z"/>
+  <!-- Log badge (circle with check) -->
+  <circle cx="18.2" cy="18.2" r="3.2" fill="#000000"/>
+  <path fill="#ffffff" d="M16.8 18.2 l1.0 1.0 1.9-2.1"/>
+</svg>

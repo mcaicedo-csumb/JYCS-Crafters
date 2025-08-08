@@ -8,12 +8,22 @@ import com.stanissudo.jycs_crafters.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CarSelectorHelper {
 
-    private static final List<String> fullOptions = new ArrayList<>(Arrays.asList("BMW", "Mercedes", "Porsche"));
-    private static String selectedOption = fullOptions.get(0); // default value
+    //private static final List<String> fullOptions = new ArrayList<>(Arrays.asList("BMW", "Mercedes", "Porsche"));
+    private static final Map<Integer, String> fullOptions = new LinkedHashMap<>();
+
+    static {
+        fullOptions.put(1, "BMW");
+        fullOptions.put(2, "Mercedes");
+        fullOptions.put(3, "Porsche");
+    }
+    //private static String selectedOption = fullOptions.get(0); // default value
+    private static String selectedOption = fullOptions.entrySet().iterator().next().getValue();
 
     public static void setupDropdown(Activity activity, AutoCompleteTextView dropdown) {
 
@@ -24,10 +34,16 @@ public class CarSelectorHelper {
             String selected = dropdown.getText().toString();
 
             // Filter out the selected item
+            //           List<String> filteredOptions = new ArrayList<>();
+//            for (String option : fullOptions) {
+//                if (!option.equals(selected)) {
+//                    filteredOptions.add(option);
+//                }
+//            }
             List<String> filteredOptions = new ArrayList<>();
-            for (String option : fullOptions) {
-                if (!option.equals(selected)) {
-                    filteredOptions.add(option);
+            for (Map.Entry<Integer, String> entry : fullOptions.entrySet()) {
+                if (!entry.getValue().equals(selected)) {
+                    filteredOptions.add(entry.getValue());
                 }
             }
 
@@ -62,6 +78,15 @@ public class CarSelectorHelper {
     }
     public static String getSelectedOption() {
         return selectedOption;
+    }
+
+    public static Integer getSelectedOptionKey() {
+        for (Map.Entry<Integer, String> entry : fullOptions.entrySet()) {
+            if (entry.getValue().equals(selectedOption)) {
+                return entry.getKey();
+            }
+        }
+        return -1;
     }
 
     public static void setSelectedOption(String option) {

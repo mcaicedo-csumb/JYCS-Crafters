@@ -53,7 +53,7 @@ public class FuelEntry {
         Location = location;
     }
 
-    public FuelEntry(int carID, double pricePerGallon, double gallons, int odometer, @NonNull LocalDateTime logDate) {
+    public FuelEntry(int carID, int odometer, double pricePerGallon, double gallons,  @NonNull LocalDateTime logDate) {
         CarID = carID;
         PricePerGallon = pricePerGallon;
         TotalCost = gallons * pricePerGallon;
