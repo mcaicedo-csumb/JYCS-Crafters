@@ -153,7 +153,12 @@ public class MainActivity extends BaseDrawerActivity {
         });
     }
 
-
+    /**
+     * intentFactory for MainActivity
+     * @param context context
+     * @param userID int
+     * @return intent to change activity
+     */
     static Intent mainActivityIntentFactory(Context context, int userID) {
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(MAIN_ACTIVITY_USER_ID, userID);

@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">Fuel Track</string>
 
-    <string name="fuel_log_prompt">Enter a new fuel log.</string>
-    <string name="vehicle_name">name</string>
-    <string name="vehicle_make">make</string>
-    <string name="vehicle_model">model</string>
-    <string name="vehicle_year">year</string>
+    <string name="vehicle_prompt">Enter your new car\'s information:</string>
+    <string name="vehicle_name">Vehicle Name</string>
+    <string name="vehicle_make">Vehicle Make</string>
+    <string name="vehicle_model">Vehicle Model</string>
+    <string name="vehicle_year">Vehicle Year</string>
     <string name="vehicle_button_save">Save!</string>
     <string name="vehicle_button_back">Back</string>
     <string name="main_button_add_car">Add New Car</string>
