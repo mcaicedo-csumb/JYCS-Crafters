@@ -59,10 +59,10 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
                     finish();
                 }
             } else if (id == R.id.nav_fuel_entry) {
-                if (!(this instanceof AddFuelEntryActivity)) {
+                //if (!(this instanceof AddFuelEntryActivity)) {
                     Intent intent = AddFuelEntryActivity.addFuelEntryIntentFactory(getApplicationContext(), -1);
                     startActivity(intent);
-                }
+               // }
             } else if (id == R.id.nav_fuel_log) {
                 if (!(this instanceof FuelLogActivity)) {
                     Intent intent = FuelLogActivity.fuelLogIntentFactory(getApplicationContext(), -1);

@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -32,12 +33,12 @@ import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.databinding.ActivityAddFuelEntryBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
 
-public class AddFuelEntryActivity extends BaseDrawerActivity {
+public class AddFuelEntryActivity extends AppCompatActivity {
 
     private ActivityAddFuelEntryBinding binding;
-    private static final String FUEL_ENTRY_USER_ID = "com.stanissudo.gymlog.FUEL_ENTRY_USER_ID";
+    //private static final String FUEL_ENTRY_USER_ID = "com.stanissudo.gymlog.FUEL_ENTRY_USER_ID";
     FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
-    int loggedInUserId = -1;
+   // int loggedInUserId = -1;
     private int odometer = -1;
     private double gasGal = -1.0;
     private double pricePerGal = -1.0;
@@ -52,7 +53,7 @@ public class AddFuelEntryActivity extends BaseDrawerActivity {
         binding.gasVolumeInputEditText.addTextChangedListener(simpleWatcher);
         binding.pricePerGallonInputEditText.addTextChangedListener(simpleWatcher);
 
-        loggedInUserId = getIntent().getIntExtra(FUEL_ENTRY_USER_ID, -1);
+        //loggedInUserId = getIntent().getIntExtra(FUEL_ENTRY_USER_ID, -1);
 
         AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
         CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
@@ -189,7 +190,7 @@ public class AddFuelEntryActivity extends BaseDrawerActivity {
 
     static Intent addFuelEntryIntentFactory(Context context, int userId) {
         Intent intent = new Intent(context, AddFuelEntryActivity.class);
-        intent.putExtra(FUEL_ENTRY_USER_ID, userId);
+        //intent.putExtra(FUEL_ENTRY_USER_ID, userId);
         return intent;
     }
 
@@ -199,20 +200,20 @@ public class AddFuelEntryActivity extends BaseDrawerActivity {
         CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
     }
 
-    @Override
-    protected DrawerLayout getDrawerLayout() {
-        return binding.drawerLayout;
-    }
+//    @Override
+//    protected DrawerLayout getDrawerLayout() {
+//        return binding.drawerLayout;
+//    }
+//
+//    @Override
+//    protected NavigationView getNavigationView() {
+//        return binding.navView;
+//    }
 
-    @Override
-    protected NavigationView getNavigationView() {
-        return binding.navView;
-    }
-
-    @Override
-    protected Toolbar getToolbar() {
-        return binding.toolbar;
-    }
+//    @Override
+//    protected Toolbar getToolbar() {
+//        return binding.toolbar;
+//    }
 
     private final TextWatcher simpleWatcher = new TextWatcher() {
         @Override
