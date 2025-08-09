@@ -29,7 +29,7 @@ public class FuelTrackAppRepository {
         FuelTrackAppDatabase db = FuelTrackAppDatabase.getDatabase(application);
         this.fuelEntryDAO = db.fuelEntryDAO();
         this.userDAO = db.userDAO();
-        this.allLogs = this.fuelEntryDAO.getAllRecords();
+        //this.allLogs = this.fuelEntryDAO.getAllRecords();
     }
 
     /**
@@ -59,13 +59,14 @@ public class FuelTrackAppRepository {
         return null;
     }
 
-  //TODO: Insert your DB methods here
-  // =================== FuelEntry Methods ===================
-  public LiveData<List<FuelEntry>> getAllLogs() {
-      return fuelEntryDAO.getAllRecords();
-  }
+    //TODO: Insert your DB methods here
+    // =================== FuelEntry Methods ===================
     public void insertFuelEntry(FuelEntry fuelEntry) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> fuelEntryDAO.insert(fuelEntry));
+    }
+
+    public LiveData<List<FuelEntry>> getEntriesForCar(int carId) {
+        return fuelEntryDAO.getEntriesForCar(carId);
     }
 
     // =================== User Methods ===================
