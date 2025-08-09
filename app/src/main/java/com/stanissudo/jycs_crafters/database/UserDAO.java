@@ -1,7 +1,7 @@
 // Author: Jose Caicedo
 // Date: 08/05/2025
 
-package com.stanissudo.jycs_crafters.database;
+package com.stanissudo.jycs_crafters.database.DAO;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
