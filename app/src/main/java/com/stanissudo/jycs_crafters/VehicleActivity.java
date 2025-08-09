@@ -10,6 +10,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding;
 
 /**
@@ -23,8 +24,7 @@ import com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding;
 public class VehicleActivity extends AppCompatActivity {
     private com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding binding;
 
-    // change to be the Repository type
-    //private <<GasAppRepository>> repository;
+    private FuelTrackAppRepository repository;
 
     /**
      * onCreate() creates Vehicle activity to add vehicles

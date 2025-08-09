@@ -1,102 +1,190 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".VehicleActivity">
 
-
-    <Button
-        android:id="@+id/addCarBackButton"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:layout_margin="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/vehicle_button_back"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.051"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/addCarTextView"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_marginTop="50dp"
-        android:gravity="center"
-        android:text="@string/fuel_log_prompt"
-        android:textSize="36sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-    <EditText
-        android:id="@+id/addCarNameEditText"
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:layout_margin="16dp"
-        android:autofillHints="Vehicle name"
-        android:gravity="center"
-        android:hint="@string/vehicle_name"
-        android:inputType="text"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addCarTextView" />
+        <!-- Main content with Toolbar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/addCarMakeEditText"
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:layout_margin="16dp"
-        android:autofillHints="Vehicle make"
-        android:gravity="center"
-        android:hint="@string/vehicle_make"
-        android:inputType="textPassword"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addCarNameEditText" />
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <EditText
-        android:id="@+id/addCarModelEditText"
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:layout_margin="16dp"
-        android:autofillHints="Vehicle model"
-        android:gravity="center"
-        android:hint="@string/vehicle_model"
-        android:inputType="textPassword"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addCarMakeEditText" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:boxBackgroundMode="outline"
+                android:layout_marginTop="8dp">
 
-    <EditText
-        android:id="@+id/addCarYearEditText"
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:layout_margin="16dp"
-        android:autofillHints="Vehicle year"
-        android:gravity="center"
-        android:hint="@string/vehicle_year"
-        android:inputType="textPassword"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addCarModelEditText" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
-        android:id="@+id/addCarLogButton"
-        android:layout_width="match_parent"
-        android:layout_height="105dp"
-        android:layout_margin="16dp"
-        android:text="@string/vehicle_button_save"
-        android:textSize="32sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/addCarYearEditText" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="300dp"
+                    android:id="@+id/vehiclePromptTextView"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="15dp"
+                    android:text="@string/vehicle_prompt"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toTopOf="@+id/vehicleNameEditText"
+                    app:layout_constraintStart_toStartOf="@+id/vehicleNameEditText"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1.0" />
+
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="@dimen/label_height_afe"
+                    android:layout_marginStart="@dimen/label_margin_start_afe"
+                    android:layout_marginBottom="@dimen/label_margin_bottom_afe"
+                    android:text="@string/vehicle_name"
+                    android:textSize="@dimen/label_text_size_afe"
+                    app:layout_constraintBottom_toTopOf="@+id/vehicleNameEditText"
+                    app:layout_constraintStart_toStartOf="@+id/vehicleNameEditText"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1.0" />
+
+                <EditText
+                    android:id="@+id/vehicleNameEditText"
+                    style="@style/Widget.Material3.TextInputEditText.FilledBox"
+                    android:layout_width="@dimen/input_width_afe"
+                    android:layout_height="@dimen/input_height_afe"
+                    android:layout_marginTop="@dimen/margin_top_large_afe"
+                    android:autofillHints=""
+                    android:background="@drawable/edit_text_style"
+                    android:inputType="text"
+                    android:padding="@dimen/input_padding_afe"
+                    android:textSize="@dimen/input_text_size_afe"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/vehiclePromptTextView" />
+
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="@dimen/label_height_afe"
+                    android:layout_marginStart="@dimen/label_margin_start_afe"
+                    android:layout_marginBottom="@dimen/label_margin_bottom_afe"
+                    android:text="@string/vehicle_make"
+                    android:textSize="@dimen/label_text_size_afe"
+                    app:layout_constraintBottom_toTopOf="@+id/vehicleMakeEditText"
+                    app:layout_constraintStart_toStartOf="@+id/vehicleMakeEditText"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <EditText
+                    android:id="@+id/vehicleMakeEditText"
+                    style="@style/Widget.Material3.AutoCompleteTextView.FilledBox"
+                    android:layout_width="@dimen/input_width_afe"
+                    android:layout_height="@dimen/input_height_afe"
+                    android:layout_marginTop="@dimen/margin_top_large_afe"
+                    android:autofillHints=""
+                    android:background="@drawable/edit_text_style"
+                    android:inputType="text"
+                    android:padding="@dimen/input_padding_afe"
+                    android:textSize="@dimen/input_text_size_afe"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/vehicleNameEditText" />
+
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="@dimen/label_height_afe"
+                    android:layout_marginStart="@dimen/label_margin_start_afe"
+                    android:layout_marginBottom="@dimen/label_margin_bottom_afe"
+                    android:text="@string/vehicle_model"
+                    android:textSize="@dimen/label_text_size_afe"
+                    app:layout_constraintBottom_toTopOf="@+id/vehicleModelEditText"
+                    app:layout_constraintStart_toStartOf="@+id/vehicleModelEditText"
+                    app:layout_constraintVertical_bias="0.0" />
+
+
+                <EditText
+                    android:id="@+id/vehicleModelEditText"
+                    style="@style/Widget.Material3.AutoCompleteTextView.FilledBox"
+                    android:layout_width="@dimen/input_width_afe"
+                    android:layout_height="@dimen/input_height_afe"
+                    android:layout_marginTop="@dimen/margin_top_large_afe"
+                    android:autofillHints=""
+                    android:background="@drawable/edit_text_style"
+                    android:inputType="text"
+                    android:padding="@dimen/input_padding_afe"
+                    android:textSize="@dimen/input_text_size_afe"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/vehicleMakeEditText" />
+
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="@dimen/label_height_afe"
+                    android:layout_marginStart="@dimen/label_margin_start_afe"
+                    android:layout_marginBottom="@dimen/label_margin_bottom_afe"
+                    android:text="@string/vehicle_year"
+                    android:textSize="@dimen/label_text_size_afe"
+                    app:layout_constraintBottom_toTopOf="@+id/vehicleYearEditText"
+                    app:layout_constraintStart_toStartOf="@+id/vehicleYearEditText"
+                    app:layout_constraintVertical_bias="0.0" />
+
+
+                <EditText
+                    android:id="@+id/vehicleYearEditText"
+                    style="@style/Widget.Material3.AutoCompleteTextView.FilledBox"
+                    android:layout_width="@dimen/input_width_afe"
+                    android:layout_height="@dimen/input_height_afe"
+                    android:layout_marginTop="@dimen/margin_top_large_afe"
+                    android:autofillHints=""
+                    android:background="@drawable/edit_text_style"
+                    android:inputType="number"
+                    android:padding="@dimen/input_padding_afe"
+                    android:textSize="@dimen/input_text_size_afe"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/vehicleModelEditText" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/vehicleSaveButton"
+                    android:layout_width="@dimen/input_width_afe"
+                    android:layout_height="@dimen/input_height_afe"
+                    android:layout_marginTop="@dimen/margin_top_large_afe"
+                    android:text="@string/vehicle_button_save"
+                    app:cornerRadius="8dp"
+                    app:backgroundTint="?attr/colorPrimary"
+                    android:textColor="?attr/colorOnPrimary"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/vehicleYearEditText" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+    </ScrollView>
+    <!-- Navigation Drawer -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="@dimen/menu_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:menu="@menu/drawer_menu" />
+</androidx.drawerlayout.widget.DrawerLayout>
