@@ -3,15 +3,20 @@ package com.stanissudo.jycs_crafters;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.AutoCompleteTextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding;
+import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
+
+import java.util.InputMismatchException;
 
 /**
  * @author Ysabelle Kim
@@ -21,10 +26,14 @@ import com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding;
  * @since 1.0.0
  * Explanation: VehicleActivity handles adding new vehicles to a user's account
  */
-public class VehicleActivity extends AppCompatActivity {
+public class VehicleActivity extends BaseDrawerActivity {
     private com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding binding;
-
     private FuelTrackAppRepository repository;
+    int loggedInUserId = -1;
+    private String vehicleName = "";
+    private String vehicleMake = "";
+    private String vehicleModel = "";
+    private int vehicleYear = 0;
 
     /**
      * onCreate() creates Vehicle activity to add vehicles
@@ -36,34 +45,36 @@ public class VehicleActivity extends AppCompatActivity {
         binding = ActivityVehicleBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // TODO: remake to use Repository
-        // repository = GymLogRepository.getRepository(getApplication());
+        repository = FuelTrackAppRepository.getRepository(getApplication());
 
-        // TODO: remake to use vehicleLogButton
-        /*binding.loginButton.setOnClickListener(new View.OnClickListener() {
+        setSupportActionBar(binding.toolbar);
+
+        binding.vehicleSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                verifyUser();
+                getInformationFromDisplay();
+                // TODO: create Vehicle entity to insert record into
+                //insertRecord();
+                // TODO: use loggedInUserId rather than -1 for mainActivityIntentFactory
+                Intent intent = MainActivity.mainActivityIntentFactory(getApplicationContext(), -1);
+                startActivity(intent);
             }
-        });*/
+        });
     }
 
     /**
      * getInformationFromDisplay() sets the user's input from application fields to variables
      */
     private void getInformationFromDisplay() {
-        // TODO: implement try-catch blocks for user input
-        /*mExercise = binding.exerciseInputEditText.getText().toString();
+
         try {
-            mWeight = Double.parseDouble(binding.weightInputEditText.getText().toString());
-        } catch (NumberFormatException e) {
-            Log.e(TAG, "Error reading value from Weight edit text.");
+            vehicleName = binding.vehicleNameEditText.getText().toString();
+            vehicleMake = binding.vehicleMakeEditText.getText().toString();
+            vehicleModel = binding.vehicleModelEditText.getText().toString();
+            vehicleYear = Integer.parseInt(binding.vehicleYearEditText.getText().toString());
+        } catch (InputMismatchException e) {
+            Log.e("TAG", "Error reading values.");
         }
-        try {
-            mReps = Integer.parseInt(binding.repInputEditText.getText().toString());
-        } catch (NumberFormatException e) {
-            Log.e(TAG, "Error reading value from Reps edit text.");
-        }*/
     }
 
     /**
@@ -73,5 +84,20 @@ public class VehicleActivity extends AppCompatActivity {
      */
     static Intent vehicleIntentFactory(Context context) {
         return new Intent(context, VehicleActivity.class);
+    }
+
+    @Override
+    protected DrawerLayout getDrawerLayout() {
+        return binding.drawerLayout;
+    }
+
+    @Override
+    protected NavigationView getNavigationView() {
+        return binding.navView;
+    }
+
+    @Override
+    protected Toolbar getToolbar() {
+        return binding.toolbar;
     }
 }
