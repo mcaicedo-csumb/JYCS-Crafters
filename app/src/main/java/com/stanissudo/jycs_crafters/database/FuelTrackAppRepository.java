@@ -21,6 +21,7 @@ import java.util.concurrent.Future;
 
 public class FuelTrackAppRepository {
     private static FuelTrackAppRepository repository;
+    // TODO: Add your DAO variable here
     private final FuelEntryDAO fuelEntryDAO;
     private final UserDAO userDAO;
     private LiveData<List<FuelEntry>> allLogs;
@@ -29,6 +30,7 @@ public class FuelTrackAppRepository {
         FuelTrackAppDatabase db = FuelTrackAppDatabase.getDatabase(application);
         this.fuelEntryDAO = db.fuelEntryDAO();
         this.userDAO = db.userDAO();
+        //TODO: Assign your DAO Variable here
         //this.allLogs = this.fuelEntryDAO.getAllRecords();
     }
 
