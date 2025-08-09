@@ -3,8 +3,12 @@ package com.stanissudo.jycs_crafters.viewHolders;
 import android.app.Application;
 
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
+import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
+
+import java.util.List;
 
 /**
  * @author Ysabelle Kim
@@ -22,13 +26,9 @@ public class FuelEntryViewModel extends AndroidViewModel {
         repository = FuelTrackAppRepository.getRepository(application);
     }
 
-    // TODO: create getAllLogsByUserID(int) in FuelTrackAppRepository
-    /*public LiveData<List<FuelEntry>> getAllLogsByID(int userID) {
-        return repository.getAllLogsByUserID(userID);
-    }*/
+    public LiveData<List<FuelEntry>> getAllLogsByUserId(int userId) {
+        return repository.getAllLogsByUserId(userId);
+    }
 
-    // TODO: create insert(FuelEntry) in FuelTrackAppRepository
-    /*public void insert(FuelEntry entry) {
-        repository.insertGymLog(entry);
-    }*/
+    public void insert(FuelEntry entry) { repository.insertFuelEntry(entry); }
 }

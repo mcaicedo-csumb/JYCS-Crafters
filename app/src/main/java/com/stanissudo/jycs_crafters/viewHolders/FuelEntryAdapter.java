@@ -34,7 +34,7 @@ public class FuelEntryAdapter extends ListAdapter<FuelEntry, FuelEntryViewHolder
         holder.bind(current.toString());
     }
 
-    public static class fuelEntryDiff extends DiffUtil.ItemCallback<FuelEntry> {
+    public static class FuelEntryDiff extends DiffUtil.ItemCallback<FuelEntry> {
         @Override
         public boolean areItemsTheSame(@NonNull FuelEntry oldItem, @NonNull FuelEntry newItem) {
             return oldItem == newItem;

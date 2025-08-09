@@ -101,8 +101,8 @@ protected void onCreate(Bundle savedInstanceState) {
 
     // RecyclerView
     FuelLogAdapter adapter = new FuelLogAdapter();
-    binding.fuelRecycler.setLayoutManager(new LinearLayoutManager(this));
-    binding.fuelRecycler.setAdapter(adapter);
+    binding.logDisplayRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+    binding.logDisplayRecyclerView.setAdapter(adapter);
 
     // ViewModel
     FuelLogViewModel vm = new ViewModelProvider(this).get(FuelLogViewModel.class);
