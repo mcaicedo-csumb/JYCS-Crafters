@@ -26,7 +26,7 @@ public class LandingPageActivity extends AppCompatActivity {
 
         binding.greetingText.setText("Welcome, " + username);
 
-        // ✅ Add this toast to confirm the activity opened
+        // Add this toast to confirm the activity opened
         Toast.makeText(this, "Welcome to the Landing Page!", Toast.LENGTH_SHORT).show();
 
         if (isAdmin) {

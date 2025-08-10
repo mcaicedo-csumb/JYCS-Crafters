@@ -105,8 +105,6 @@ public class MainActivity extends BaseDrawerActivity {
         return binding.toolbar;
     }
 
-
-
     /**
      * intentFactory for MainActivity
      * @param context context
