@@ -43,6 +43,11 @@ public class AddFuelEntryActivity extends AppCompatActivity {
     private double gasGal = -1.0;
     private double pricePerGal = -1.0;
     private LocalDateTime dateTime;
+    private int priority = 1;
+    private int gasVolumePriority = 0;
+    private int pricePerGalPriority = 0;
+    private int totalPricePriority = 0;
+    private boolean isUpdating = false;
 
 
     @Override
@@ -50,8 +55,9 @@ public class AddFuelEntryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityAddFuelEntryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        binding.gasVolumeInputEditText.addTextChangedListener(simpleWatcher);
-        binding.pricePerGallonInputEditText.addTextChangedListener(simpleWatcher);
+        binding.gasVolumeInputEditText.addTextChangedListener(volumeWatcher);
+        binding.pricePerGallonInputEditText.addTextChangedListener(pricePerGalWatcher);
+        binding.totalPriceInputEditText.addTextChangedListener(totalPriceWatcher);
 
         //loggedInUserId = getIntent().getIntExtra(FUEL_ENTRY_USER_ID, -1);
 
@@ -199,35 +205,136 @@ public class AddFuelEntryActivity extends AppCompatActivity {
         super.onResume();
         CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
     }
-
-//    @Override
-//    protected DrawerLayout getDrawerLayout() {
-//        return binding.drawerLayout;
-//    }
-//
-//    @Override
-//    protected NavigationView getNavigationView() {
-//        return binding.navView;
-//    }
-
-//    @Override
-//    protected Toolbar getToolbar() {
-//        return binding.toolbar;
-//    }
-
-    private final TextWatcher simpleWatcher = new TextWatcher() {
+    private final TextWatcher volumeWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (isUpdating) return;
+            isUpdating = true;
+            try {
+            gasVolumePriority = priority++;
+            if(pricePerGalPriority < totalPricePriority)
+            {
+                updatePricePerGallon();
+            }
+            else {
             updateTotalPrice();
-        }
+            }
+    } finally {
+        isUpdating = false;
+    }}
 
         @Override
         public void afterTextChanged(Editable s) {}
     };
 
+    private final TextWatcher pricePerGalWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (isUpdating) return;
+            isUpdating = true;
+            try {
+            pricePerGalPriority = priority++;
+            if(gasVolumePriority < totalPricePriority)
+            {
+                updateGallons();
+            }
+            else {
+                updateTotalPrice();
+            }
+        } finally {
+            isUpdating = false;
+        }}
+
+        @Override
+        public void afterTextChanged(Editable s) {}
+    };
+
+    private final TextWatcher totalPriceWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (isUpdating) return;
+            isUpdating = true;
+            try {
+            totalPricePriority = priority++;
+            if(pricePerGalPriority < gasVolumePriority)
+            {
+                updatePricePerGallon();
+            }
+            else {
+                updateTotalPrice();
+            }
+        } finally {
+            isUpdating = false;
+        }
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {}
+    };
+//    private final TextWatcher simpleWatcher = new TextWatcher() {
+//        @Override
+//        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+//
+//        @Override
+//        public void onTextChanged(CharSequence s, int start, int before, int count) {
+//            updateTotalPrice();
+//        }
+//
+//        @Override
+//        public void afterTextChanged(Editable s) {}
+//    };
+
+    private void updateGallons() {
+        String pricePerGalStr = binding.pricePerGallonInputEditText.getText().toString().trim();
+        String totalPriceStr = binding.totalPriceInputEditText.getText().toString().trim();
+
+        if (!pricePerGalStr.isEmpty() && !totalPriceStr.isEmpty()) {
+            try {
+                double pricePerGal = Double.parseDouble(pricePerGalStr);
+                double totalPrice = Double.parseDouble(totalPriceStr);
+                double gasVolume = totalPrice / pricePerGal;
+
+                // Optional: round to 2 decimal places
+                binding.gasVolumeInputEditText.setText(String.format(Locale.US, "%.2f", gasVolume));
+            } catch (NumberFormatException e) {
+                // Ignore if invalid numbers are entered
+                binding.gasVolumeInputEditText.setText("");
+            }
+        } else {
+            // Clear if one of them is empty
+            binding.gasVolumeInputEditText.setText("");
+        }
+    }
+    private void updatePricePerGallon() {
+        String gasVolumeStr = binding.gasVolumeInputEditText.getText().toString().trim();
+        String totalPriceStr = binding.totalPriceInputEditText.getText().toString().trim();
+
+        if (!gasVolumeStr.isEmpty() && !totalPriceStr.isEmpty()) {
+            try {
+                double gasVol = Double.parseDouble(gasVolumeStr);
+                double totalPrice = Double.parseDouble(totalPriceStr);
+                double pricePerGal = totalPrice / gasVol;
+
+                // Optional: round to 2 decimal places
+                binding.pricePerGallonInputEditText.setText(String.format(Locale.US, "%.2f", pricePerGal));
+            } catch (NumberFormatException e) {
+                // Ignore if invalid numbers are entered
+                binding.pricePerGallonInputEditText.setText("");
+            }
+        } else {
+            // Clear if one of them is empty
+            binding.pricePerGallonInputEditText.setText("");
+        }
+    }
     private void updateTotalPrice() {
         String gasVolumeStr = binding.gasVolumeInputEditText.getText().toString().trim();
         String pricePerGalStr = binding.pricePerGallonInputEditText.getText().toString().trim();
