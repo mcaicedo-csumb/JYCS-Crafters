@@ -15,6 +15,7 @@ import androidx.lifecycle.LiveData;
 import com.stanissudo.jycs_crafters.MainActivity;
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.database.entities.User;
+import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,6 +30,7 @@ public class FuelTrackAppRepository {
     // TODO: Add your DAO variable here
     private final FuelEntryDAO fuelEntryDAO;
     private final UserDAO userDAO;
+    private final VehicleDAO vehicleDAO;
     private LiveData<List<FuelEntry>> allLogs;
     private final Handler main = new Handler(Looper.getMainLooper());
 
@@ -36,6 +38,7 @@ public class FuelTrackAppRepository {
         void onResult(boolean ok, @androidx.annotation.Nullable Integer prev,
                       @androidx.annotation.Nullable Integer next);
     }
+
     public void checkOdometerAsync(int carId, java.time.LocalDateTime when, int value,
                                    OdometerCheckCallback cb) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> {
@@ -45,10 +48,12 @@ public class FuelTrackAppRepository {
             main.post(() -> cb.onResult(ok, prev, next));
         });
     }
+
     private FuelTrackAppRepository(Application application) {
         FuelTrackAppDatabase db = FuelTrackAppDatabase.getDatabase(application);
         this.fuelEntryDAO = db.fuelEntryDAO();
         this.userDAO = db.userDAO();
+        this.vehicleDAO = db.vehicleDAO();
         //TODO: Assign your DAO Variable here
         //this.allLogs = this.fuelEntryDAO.getAllRecords();
     }
@@ -75,7 +80,7 @@ public class FuelTrackAppRepository {
             return future.get();
 
         } catch (InterruptedException | ExecutionException e) {
-            Log.d(MainActivity.TAG, "Problem getting GymRepository, thread error.");
+            Log.d(MainActivity.TAG, "Problem getting FuelTrackAppRepository, thread error.");
         }
         return null;
     }
@@ -85,13 +90,19 @@ public class FuelTrackAppRepository {
     public void insertFuelEntry(FuelEntry fuelEntry) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> fuelEntryDAO.insert(fuelEntry));
     }
-    interface BoolCallback { void onResult(boolean ok); }
+
+    interface BoolCallback {
+        void onResult(boolean ok);
+    }
+
     public Integer getPreviousOdometer(int carId, LocalDateTime logDate) {
         return fuelEntryDAO.getPreviousOdometer(carId, logDate);
     }
+
     public Integer getNextOdometer(int carId, LocalDateTime logDate) {
         return fuelEntryDAO.getNextOdometer(carId, logDate);
     }
+
     public LiveData<List<FuelEntry>> getEntriesForCar(int carId) {
         return fuelEntryDAO.getEntriesForCar(carId);
     }
@@ -127,6 +138,19 @@ public class FuelTrackAppRepository {
 
     public LiveData<List<FuelEntry>> getAllLogsByUserId(int loggedInUserId) {
         return fuelEntryDAO.getRecordsById(loggedInUserId);
+    }
+
+    // =================== Vehicle Methods ===================
+    public void insertVehicle(Vehicle vehicle) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.insert(vehicle));
+    }
+
+    public void deleteVehicleByVehicleName(String name) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.deleteByVehicleName(name));
+    }
+
+    public LiveData<List<Vehicle>> getAllVehicles() {
+        return vehicleDAO.getAllVehicles();
     }
 
 }
