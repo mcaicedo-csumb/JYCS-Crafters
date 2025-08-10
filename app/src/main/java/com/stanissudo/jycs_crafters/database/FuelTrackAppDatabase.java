@@ -1,7 +1,6 @@
 package com.stanissudo.jycs_crafters.database;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
@@ -13,12 +12,12 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.database.entities.User;
-import com.stanissudo.jycs_crafters.database.typeConverters.LocalDataTypeConverter;
+import com.stanissudo.jycs_crafters.database.typeConverters.LocalDateTypeConverter;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@TypeConverters(LocalDataTypeConverter.class)
+@TypeConverters({LocalDateTypeConverter.class})
 @Database(entities = {FuelEntry.class, User.class}, version = 1, exportSchema = false)
 public abstract class FuelTrackAppDatabase extends RoomDatabase {
     private static final String DATABASE_NAME = "FuelTrackDatabase";

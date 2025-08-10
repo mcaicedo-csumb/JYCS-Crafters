@@ -6,6 +6,8 @@
 package com.stanissudo.jycs_crafters.database;
 
 import android.app.Application;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -14,9 +16,12 @@ import com.stanissudo.jycs_crafters.MainActivity;
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.database.entities.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class FuelTrackAppRepository {
@@ -25,7 +30,21 @@ public class FuelTrackAppRepository {
     private final FuelEntryDAO fuelEntryDAO;
     private final UserDAO userDAO;
     private LiveData<List<FuelEntry>> allLogs;
+    private final Handler main = new Handler(Looper.getMainLooper());
 
+    public interface OdometerCheckCallback {
+        void onResult(boolean ok, @androidx.annotation.Nullable Integer prev,
+                      @androidx.annotation.Nullable Integer next);
+    }
+    public void checkOdometerAsync(int carId, java.time.LocalDateTime when, int value,
+                                   OdometerCheckCallback cb) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> {
+            Integer prev = fuelEntryDAO.getPreviousOdometer(carId, when);
+            Integer next = fuelEntryDAO.getNextOdometer(carId, when);
+            boolean ok = (prev == null || value > prev) && (next == null || value < next);
+            main.post(() -> cb.onResult(ok, prev, next));
+        });
+    }
     private FuelTrackAppRepository(Application application) {
         FuelTrackAppDatabase db = FuelTrackAppDatabase.getDatabase(application);
         this.fuelEntryDAO = db.fuelEntryDAO();
@@ -66,7 +85,13 @@ public class FuelTrackAppRepository {
     public void insertFuelEntry(FuelEntry fuelEntry) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> fuelEntryDAO.insert(fuelEntry));
     }
-
+    interface BoolCallback { void onResult(boolean ok); }
+    public Integer getPreviousOdometer(int carId, LocalDateTime logDate) {
+        return fuelEntryDAO.getPreviousOdometer(carId, logDate);
+    }
+    public Integer getNextOdometer(int carId, LocalDateTime logDate) {
+        return fuelEntryDAO.getNextOdometer(carId, logDate);
+    }
     public LiveData<List<FuelEntry>> getEntriesForCar(int carId) {
         return fuelEntryDAO.getEntriesForCar(carId);
     }

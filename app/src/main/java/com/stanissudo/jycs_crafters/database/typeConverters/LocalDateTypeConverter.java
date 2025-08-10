@@ -20,9 +20,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-public class LocalDataTypeConverter {
+public class LocalDateTypeConverter {
     @TypeConverter
-    public  long convertDateToLong(LocalDateTime date){
+    public  Long convertDateToLong(LocalDateTime date){
         ZonedDateTime zdt = ZonedDateTime.of(date, ZoneId.systemDefault());
         return zdt.toInstant().toEpochMilli();
 
