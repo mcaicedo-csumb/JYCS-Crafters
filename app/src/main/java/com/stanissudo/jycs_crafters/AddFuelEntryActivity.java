@@ -37,7 +37,7 @@ public class AddFuelEntryActivity extends AppCompatActivity {
 
     private ActivityAddFuelEntryBinding binding;
     //private static final String FUEL_ENTRY_USER_ID = "com.stanissudo.gymlog.FUEL_ENTRY_USER_ID";
-    FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
+    FuelTrackAppRepository repository;
     // int loggedInUserId = -1;
     private int odometer = -1;
     private double gasGal = -1.0;
@@ -55,6 +55,9 @@ public class AddFuelEntryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityAddFuelEntryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        repository = FuelTrackAppRepository.getRepository(getApplication());
+
         binding.gasVolumeInputEditText.addTextChangedListener(volumeWatcher);
         binding.pricePerGallonInputEditText.addTextChangedListener(pricePerGalWatcher);
         binding.totalPriceInputEditText.addTextChangedListener(totalPriceWatcher);
@@ -113,10 +116,10 @@ public class AddFuelEntryActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //Toast.makeText(AddFuelEntryActivity.this, "It worked!", Toast.LENGTH_SHORT).show();
                 getInformationFromDisplay();
-                insertRecord();
-                Intent intent = MainActivity.mainActivityIntentFactory(getApplicationContext(), -1);
-                startActivity(intent);
-                // updateDisplay();
+                if(insertRecord()) {
+                    Intent intent = MainActivity.mainActivityIntentFactory(getApplicationContext(), -1);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -176,7 +179,7 @@ public class AddFuelEntryActivity extends AppCompatActivity {
         }
     }
 
-    private void insertRecord() {
+    private boolean insertRecord() {
         int selectedCarId = -1;
         try {
             selectedCarId = CarSelectorHelper.getSelectedOptionKey();
@@ -186,12 +189,27 @@ public class AddFuelEntryActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.d(TAG, "Error getting selected car ID", e);
             Toast.makeText(this, "Error creating a record. Did you select your Car?", Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
+        if( odometer < 0 || gasGal < 0 || pricePerGal <0){
+            Log.d(TAG, "odometer, gasGal, pricePerGal must be positive");
+            Toast.makeText(this, "Missing value.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (!isValidOdometer()){
+            Log.d(TAG, "Wrong odometer or Date reading");
+            Toast.makeText(this, "Odometer out of bounds. Check odometer or date value.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
         FuelEntry fuelLog = new FuelEntry(selectedCarId, odometer, gasGal, pricePerGal, dateTime);
         repository.insertFuelEntry(fuelLog);
+        return true;
     }
 
+    private boolean isValidOdometer(){
+        return true;
+    }
 
     static Intent addFuelEntryIntentFactory(Context context, int userId) {
         Intent intent = new Intent(context, AddFuelEntryActivity.class);
@@ -283,18 +301,6 @@ public class AddFuelEntryActivity extends AppCompatActivity {
         public void afterTextChanged(Editable s) {
         }
     };
-//    private final TextWatcher simpleWatcher = new TextWatcher() {
-//        @Override
-//        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-//
-//        @Override
-//        public void onTextChanged(CharSequence s, int start, int before, int count) {
-//            updateTotalPrice();
-//        }
-//
-//        @Override
-//        public void afterTextChanged(Editable s) {}
-//    };
 
     private void updateGallons() {
         String pricePerGalStr = binding.pricePerGallonInputEditText.getText().toString().trim();
@@ -307,7 +313,7 @@ public class AddFuelEntryActivity extends AppCompatActivity {
                 double gasVolume = totalPrice / pricePerGal;
 
                 // Optional: round to 2 decimal places
-                binding.gasVolumeInputEditText.setText(String.format(Locale.US, "%.2f", gasVolume));
+                binding.gasVolumeInputEditText.setText(String.format(Locale.US, "%.3f", gasVolume));
             } catch (NumberFormatException e) {
                 // Ignore if invalid numbers are entered
                 binding.gasVolumeInputEditText.setText("");
