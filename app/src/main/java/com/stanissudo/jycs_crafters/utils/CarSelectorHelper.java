@@ -52,7 +52,7 @@ public class CarSelectorHelper {
     public static void setupDropdown(Activity activity, AutoCompleteTextView dropdown) {
 
         dropdown.setText(selectedOption, false);
-        final boolean[] isDropdownOpen = {false}; // Track open/close state
+        //final boolean[] isDropdownOpen = {false}; // Track open/close state
 
         dropdown.setOnClickListener(v -> {
             String selected = dropdown.getText().toString();
@@ -72,23 +72,24 @@ public class CarSelectorHelper {
                     filteredOptions
             );
             dropdown.setAdapter(adapter);
+            dropdown.showDropDown();
 
-            // Toggle dropdown manually
-            if (isDropdownOpen[0]) {
-                dropdown.dismissDropDown();
-            } else {
-                dropdown.showDropDown();
-            }
-
-            isDropdownOpen[0] = !isDropdownOpen[0];
-        });
-
-        // Reset dropdown state when user selects an item
-        dropdown.setOnItemClickListener((parent, view, position, id) -> {
-            String newSelected = parent.getItemAtPosition(position).toString();
-            setSelectedOption(activity, newSelected);
-            dropdown.setText(newSelected, false);
-            isDropdownOpen[0] = false;
+//            // Toggle dropdown manually
+//            if (isDropdownOpen[0]) {
+//                dropdown.dismissDropDown();
+//            } else {
+//                dropdown.showDropDown();
+//            }
+//
+//            isDropdownOpen[0] = !isDropdownOpen[0];
+//        });
+//
+//        // Reset dropdown state when user selects an item
+//        dropdown.setOnItemClickListener((parent, view, position, id) -> {
+//            String newSelected = parent.getItemAtPosition(position).toString();
+//            setSelectedOption(activity, newSelected);
+//            dropdown.setText(newSelected, false);
+//            isDropdownOpen[0] = false;
         });
     }
     public static void updateDropdownText(AutoCompleteTextView dropdown) {
