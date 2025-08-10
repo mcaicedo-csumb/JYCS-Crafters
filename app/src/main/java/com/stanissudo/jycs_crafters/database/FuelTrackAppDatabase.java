@@ -13,19 +13,17 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.database.entities.User;
-import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 import com.stanissudo.jycs_crafters.database.typeConverters.LocalDataTypeConverter;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @TypeConverters(LocalDataTypeConverter.class)
-@Database(entities = {FuelEntry.class, User.class, Vehicle.class}, version = 1, exportSchema = false)
+@Database(entities = {FuelEntry.class, User.class}, version = 1, exportSchema = false)
 public abstract class FuelTrackAppDatabase extends RoomDatabase {
     private static final String DATABASE_NAME = "FuelTrackDatabase";
     public static final String FUEL_LOG_TABLE = "FuelEntryTable";
     public static final String USER_TABLE = "UserTable";
-    public static final String VEHICLE_TABLE = "VehicleTable";
 
     //TODO: Add more tables here
     private static volatile FuelTrackAppDatabase INSTANCE;
@@ -89,7 +87,7 @@ public abstract class FuelTrackAppDatabase extends RoomDatabase {
             // Drop old tables
             //TODO: Drop your tables for migration
 //            database.execSQL("DROP TABLE IF EXISTS " + userTable");
-            database.execSQL("DROP TABLE IF EXISTS " + VEHICLE_TABLE);
+//            database.execSQL("DROP TABLE IF EXISTS " + carTable");
             database.execSQL("DROP TABLE IF EXISTS " + FUEL_LOG_TABLE);
 
             //TODO: Recreate your tables for migration
@@ -116,23 +114,11 @@ public abstract class FuelTrackAppDatabase extends RoomDatabase {
                             "isAdmin INTEGER NOT NULL DEFAULT 0" +
                             ")"
             );
-
-            // Recreate Vehicle table
-            database.execSQL(
-                    "CREATE TABLE IF NOT EXISTS Vehicle (" +
-                            "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-                            "Name TEXT NOT NULL, " +
-                            "Make TEXT NOT NULL, " +
-                            "Model TEXT NOT NULL, " +
-                            "Year INTEGER NOT NULL" +
-                            ")"
-            );
         }
     };
 
     public abstract FuelEntryDAO fuelEntryDAO();
     public abstract UserDAO userDAO();
-    public abstract VehicleDAO vehicleDAO();
 
     //TODO: Add your DAO instances here
 }
