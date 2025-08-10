@@ -3,6 +3,7 @@ package com.stanissudo.jycs_crafters;
 import static com.stanissudo.jycs_crafters.AddFuelEntryActivity.addFuelEntryIntentFactory;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -13,6 +14,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
 
+// NEW imports for logout:
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+
 public abstract class BaseDrawerActivity extends AppCompatActivity {
 
     protected abstract DrawerLayout getDrawerLayout();
@@ -20,6 +27,42 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
     protected abstract NavigationView getNavigationView();
 
     protected abstract Toolbar getToolbar();
+
+
+    // Shared logout for ALL drawer screens
+    protected void logout() {
+        // Firebase sign out (covers email/pw + Google-linked Firebase session)
+        FirebaseAuth.getInstance().signOut();
+
+        // Google sign out
+        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(
+                this,
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
+        );
+
+        SharedPreferences prefs = getSharedPreferences("login_prefs", MODE_PRIVATE);
+
+        googleSignInClient.signOut().addOnCompleteListener(task -> {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("isLoggedIn", false);
+            editor.remove("username");
+            editor.remove("isAdmin");
+            editor.apply();
+
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+    }
+
+
+
+
+
+
+
+
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -44,11 +87,9 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
             int id = item.getItemId();
 
             if (id == R.id.nav_logout) {
-                // Call logout directly if this is MainActivity
-                if (this instanceof MainActivity) {
-                    ((MainActivity) this).logout();
-                }
-                return true; // handled, no animation
+                // works from ANY activity now
+                logout();
+                return true;
             }
 
             if (id == R.id.nav_home) {
