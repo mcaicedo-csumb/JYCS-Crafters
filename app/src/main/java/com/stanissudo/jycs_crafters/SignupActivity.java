@@ -1,3 +1,5 @@
+//author: jose
+
 package com.stanissudo.jycs_crafters;
 
 import android.content.Context;
