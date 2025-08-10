@@ -98,11 +98,12 @@ public class FuelEntry {
         LogID = logID;
     }
 
-    public int getCarID() {
+    @NonNull
+    public Integer getCarID() {
         return CarID;
     }
 
-    public void setCarID(int carID) {
+    public void setCarID(@NonNull Integer carID) {
         CarID = carID;
     }
 
@@ -115,35 +116,35 @@ public class FuelEntry {
         this.logDate = logDate;
     }
 
-    public int getOdometer() {
+    public Integer getOdometer() {
         return Odometer;
     }
 
-    public void setOdometer(int odometer) {
+    public void setOdometer(Integer odometer) {
         Odometer = odometer;
     }
 
-    public double getGallons() {
+    public Double getGallons() {
         return Gallons;
     }
 
-    public void setGallons(double gallons) {
+    public void setGallons(Double gallons) {
         Gallons = gallons;
     }
 
-    public double getPricePerGallon() {
+    public Double getPricePerGallon() {
         return PricePerGallon;
     }
 
-    public void setPricePerGallon(double pricePerGallon) {
+    public void setPricePerGallon(Double pricePerGallon) {
         PricePerGallon = pricePerGallon;
     }
 
-    public double getTotalCost() {
+    public Double getTotalCost() {
         return TotalCost;
     }
 
-    public void setTotalCost(double totalCost) {
+    public void setTotalCost(Double totalCost) {
         TotalCost = totalCost;
     }
 
