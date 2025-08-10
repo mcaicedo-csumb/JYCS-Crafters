@@ -11,10 +11,13 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -56,6 +59,11 @@ public class AddFuelEntryActivity extends AppCompatActivity {
         binding = ActivityAddFuelEntryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        //Add cancel icon
+        setSupportActionBar(binding.toolbar);
+        // Click = cancel/close
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+
         repository = FuelTrackAppRepository.getRepository(getApplication());
 
         binding.gasVolumeInputEditText.addTextChangedListener(volumeWatcher);
@@ -67,7 +75,6 @@ public class AddFuelEntryActivity extends AppCompatActivity {
         AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
         CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
 
-        setSupportActionBar(binding.toolbar);
         Calendar calendar = Calendar.getInstance();
         // Format date and time
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
@@ -124,7 +131,22 @@ public class AddFuelEntryActivity extends AppCompatActivity {
         });
 
     }
-
+//    //Cancel icon
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.cancel_item, menu);
+//        return true;
+//    }
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        int id = item.getItemId();
+//        if (id == R.id.action_cancel) {
+//            finish();
+//            return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
+//    //End Cancel icon
     private void getInformationFromDisplay() {
         String odometerText = binding.odometerInputEditText.getText().toString().trim();
         if (!odometerText.isEmpty()) {
@@ -367,4 +389,6 @@ public class AddFuelEntryActivity extends AppCompatActivity {
             binding.totalPriceInputEditText.setText("");
         }
     }
+
+
 }

@@ -44,7 +44,7 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
             int id = item.getItemId();
 
             if (id == R.id.nav_logout) {
-                // ✅ Call logout directly if this is MainActivity
+                // Call logout directly if this is MainActivity
                 if (this instanceof MainActivity) {
                     ((MainActivity) this).logout();
                 }
