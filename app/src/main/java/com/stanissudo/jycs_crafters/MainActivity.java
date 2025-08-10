@@ -6,8 +6,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-import android.view.MotionEvent;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -15,20 +13,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.auth.FirebaseAuth;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityMainBinding;
 import com.stanissudo.jycs_crafters.fragments.HomeFragment;
 import com.stanissudo.jycs_crafters.fragments.SettingsFragment;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class MainActivity extends BaseDrawerActivity {
 
