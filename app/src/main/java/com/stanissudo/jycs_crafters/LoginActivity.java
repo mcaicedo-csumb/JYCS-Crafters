@@ -77,6 +77,9 @@ public class LoginActivity extends AppCompatActivity {
 
         binding.loginButton.setOnClickListener(v -> verifyUser());
 
+        binding.signUpButton.setOnClickListener(v ->
+                startActivity(SignupActivity.intentFactory(this)));
+
         binding.googleSignInButton.setOnClickListener(v -> {
             Intent signInIntent = googleSignInClient.getSignInIntent();
             startActivityForResult(signInIntent, RC_SIGN_IN);
