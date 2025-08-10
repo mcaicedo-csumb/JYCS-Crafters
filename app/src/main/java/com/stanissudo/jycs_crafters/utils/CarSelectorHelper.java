@@ -14,6 +14,7 @@ import java.util.Map;
 
 public class CarSelectorHelper {
 
+
     //private static final List<String> fullOptions = new ArrayList<>(Arrays.asList("BMW", "Mercedes", "Porsche"));
     private static final Map<Integer, String> fullOptions = new LinkedHashMap<>();
 

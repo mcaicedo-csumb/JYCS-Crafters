@@ -14,13 +14,14 @@ import java.util.Objects;
 public class FuelEntry {
     @PrimaryKey(autoGenerate = true)
     private int LogID;
-    private int CarID;
     @NonNull
-    private LocalDateTime logDate;
-    private int Odometer;
-    private double Gallons;
-    private double PricePerGallon;
-    private double TotalCost;
+    private Integer CarID = -1;
+    @NonNull
+    private LocalDateTime logDate = LocalDateTime.now();;
+    private Integer Odometer;
+    private Double Gallons;
+    private Double PricePerGallon;
+    private Double TotalCost;
     private String Location;
 
     public FuelEntry() {}
@@ -105,11 +106,12 @@ public class FuelEntry {
         CarID = carID;
     }
 
+    @NonNull
     public LocalDateTime getLogDate() {
         return logDate;
     }
 
-    public void setLogDate(LocalDateTime logDate) {
+    public void setLogDate(@NonNull LocalDateTime logDate) {
         this.logDate = logDate;
     }
 

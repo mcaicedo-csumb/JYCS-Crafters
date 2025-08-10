@@ -1,5 +1,6 @@
 package com.stanissudo.jycs_crafters.database.entities;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -19,6 +20,8 @@ import java.util.Objects;
 public class Vehicle {
     @PrimaryKey(autoGenerate = true)
     private int VehicleID;
+    @NonNull
+    private Integer UserId = -1;
     private String Name;
     private String Make;
     private String Model;
@@ -36,25 +39,36 @@ public class Vehicle {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Vehicle)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Vehicle vehicle = (Vehicle) o;
-        return VehicleID == vehicle.VehicleID && Year == vehicle.Year && Objects.equals(Name, vehicle.Name) && Objects.equals(Make, vehicle.Make) && Objects.equals(Model, vehicle.Model);
+        return VehicleID == vehicle.VehicleID && Year == vehicle.Year && Objects.equals(UserId, vehicle.UserId) && Objects.equals(Name, vehicle.Name) && Objects.equals(Make, vehicle.Make) && Objects.equals(Model, vehicle.Model);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(VehicleID, Name, Make, Model, Year);
+        return Objects.hash(VehicleID, UserId, Name, Make, Model, Year);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Vehicle{" +
                 "VehicleID=" + VehicleID +
+                ", UserId=" + UserId +
                 ", Name='" + Name + '\'' +
                 ", Make='" + Make + '\'' +
                 ", Model='" + Model + '\'' +
                 ", Year=" + Year +
                 '}';
+    }
+
+    @NonNull
+    public Integer getUserId() {
+        return UserId;
+    }
+
+    public void setUserId(@NonNull Integer userId) {
+        UserId = userId;
     }
 
     public int getVehicleID() {
