@@ -35,7 +35,7 @@ android {
 }
 
 dependencies {
-    // ✅ Core libraries
+    // Core libraries
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
@@ -43,22 +43,27 @@ dependencies {
     implementation libs.firebase.firestore
     implementation libs.core
 
-    // ✅ Room
+    // Room
     def room_version = "2.7.2"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
 
-    // ✅ Google Sign-In
+    // Google Sign-In
     implementation 'com.google.android.gms:play-services-auth:20.7.0'
 
-    // ✅ Firebase Auth
+    // Firebase Auth
     implementation 'com.google.firebase:firebase-auth:22.3.1'
 
-    // ✅ Unit Testing (fixes red underline in your UserDAOTest.java)
+    // ADDED THESE NEW DEPENDENCIES
+    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+
+    // Unit Testing
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'androidx.test:core:1.5.0'
 
-    // ✅ Instrumented Testing
+    // Instrumented Testing
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
     androidTestImplementation 'androidx.test:core:1.5.0'
