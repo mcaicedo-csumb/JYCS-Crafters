@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
+    android:layout_marginBottom="12dp"
     app:cardCornerRadius="18dp"
     app:cardElevation="3dp"
     app:strokeWidth="1dp"
@@ -20,34 +20,42 @@
             android:id="@+id/txtTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="username"
+            android:text="Vehicle #1"
             android:textStyle="bold"
             android:textSize="16sp"
             android:textColor="?attr/colorOnSurface" />
+
+        <TextView
+            android:id="@+id/txtSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="userId=1 • active"
+            android:textSize="13sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:layout_marginTop="4dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="6dp">
+            android:gravity="end"
+            android:layout_marginTop="10dp">
 
-            <TextView
-                android:id="@+id/txtSubtitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="id=1 • admin • active"
-                android:textSize="13sp"
-                android:textColor="?attr/colorOnSurfaceVariant" />
-
-            <!-- action button (kept id) -->
+            <!-- Keep IDs: your adapter toggles these texts and clicks -->
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnToggle"
+                android:id="@+id/btnPrimary"
                 style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Deactivate" />
+                android:text="Soft Delete" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSecondary"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete Permanently"
+                android:layout_marginStart="12dp" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

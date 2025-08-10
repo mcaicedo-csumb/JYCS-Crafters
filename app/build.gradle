@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("com.google.gms.google-services") // ✅ Firebase plugin
+    id "com.google.gms.google-services" // ✅ Firebase plugin
 }
 
 android {
@@ -30,7 +30,7 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true
+        viewBinding true   // ← only change
     }
 }
 
@@ -43,7 +43,7 @@ dependencies {
     implementation libs.firebase.firestore
     implementation libs.core
 
-    // ✅ Room
+    // ✅ Room (leaving your version as-is)
     def room_version = "2.7.2"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
@@ -54,7 +54,7 @@ dependencies {
     // ✅ Firebase Auth
     implementation 'com.google.firebase:firebase-auth:22.3.1'
 
-    // ✅ Unit Testing (fixes red underline in your UserDAOTest.java)
+    // ✅ Unit Testing
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'androidx.test:core:1.5.0'
 

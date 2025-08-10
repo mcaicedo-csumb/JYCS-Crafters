@@ -20,25 +20,40 @@
             android:exported="false" />
         <activity
             android:name=".VehicleActivity"
-            android:exported="false" /> <!-- ✅ ADD THESE TWO: -->
+            android:exported="false" />
         <activity
             android:name=".LandingPageActivity"
             android:exported="false" />
         <activity
             android:name=".AdminCheckActivity"
             android:exported="false" />
+
+        <!-- Camila: admin tools (internal only) -->
+        <activity
+            android:name=".AdminLandingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UserManagementActivity"
+            android:exported="false" />
+        <activity
+            android:name=".VehicleReviewActivity"
+            android:exported="false" />
+
+        <!-- Not launcher; keep internal -->
         <activity
             android:name=".MainActivity"
-            android:exported="true" />
+            android:exported="false" />
+
+        <!-- Launcher -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

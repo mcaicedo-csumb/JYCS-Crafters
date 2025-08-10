@@ -29,7 +29,7 @@ public class FuelTrackAppRepository {
         FuelTrackAppDatabase db = FuelTrackAppDatabase.getDatabase(application);
         this.fuelEntryDAO = db.fuelEntryDAO();
         this.userDAO = db.userDAO();
-        //this.allLogs = this.fuelEntryDAO.getAllRecords();
+        // this.allLogs = this.fuelEntryDAO.getAllRecords();
     }
 
     /**
@@ -45,21 +45,59 @@ public class FuelTrackAppRepository {
         Future<FuelTrackAppRepository> future = FuelTrackAppDatabase.databaseWriteExecutor.submit(
                 new Callable<FuelTrackAppRepository>() {
                     @Override
-                    public FuelTrackAppRepository call() throws Exception {
+                    public FuelTrackAppRepository call() {
                         return new FuelTrackAppRepository(application);
                     }
                 }
         );
         try {
-            return future.get();
-
+            repository = future.get();
+            return repository;
         } catch (InterruptedException | ExecutionException e) {
-            Log.d(MainActivity.TAG, "Problem getting GymRepository, thread error.");
+            Log.d(MainActivity.TAG, "Problem getting GymRepository, thread error.", e);
         }
         return null;
     }
 
-    //TODO: Insert your DB methods here
+    // ------------------------------------------------------------
+    // Small additions for Login / Sign-Up flows
+    // ------------------------------------------------------------
+
+    /** Simple callback type for async DAO results. */
+    public interface Callback<T> { void onResult(T value); }
+
+    /** Background login: returns user or null on bad creds. */
+    public void loginAsync(String username, String password, Callback<User> cb) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> {
+            User u = userDAO.loginNow(username, password); // requires UserDAO.loginNow(..)
+            cb.onResult(u);
+        });
+    }
+
+    /** Background fetch by username (used to check if username exists). */
+    public void getUserNowAsync(String username, Callback<User> cb) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> {
+            User u = userDAO.getUserByUsernameNow(username); // requires UserDAO.getUserByUsernameNow(..)
+            cb.onResult(u);
+        });
+    }
+
+    /** Background insert that reports success/failure. */
+    public void insertUserAsync(User user, Callback<Boolean> cb) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                userDAO.insert(user);
+                cb.onResult(true);
+            } catch (Exception e) {
+                cb.onResult(false);
+            }
+        });
+    }
+
+    // ------------------------------------------------------------
+    // Existing methods (unchanged)
+    // ------------------------------------------------------------
+
     // =================== FuelEntry Methods ===================
     public void insertFuelEntry(FuelEntry fuelEntry) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> fuelEntryDAO.insert(fuelEntry));
@@ -98,4 +136,11 @@ public class FuelTrackAppRepository {
         return userDAO.getAllUsers();
     }
 
+    /** NEW: flip active/inactive for a user (used by UserManagementActivity). */
+    //camila added this below
+    public void setUserActive(int userId, boolean active) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> userDAO.setUserActive(userId, active));
+
+
+    }
 }
