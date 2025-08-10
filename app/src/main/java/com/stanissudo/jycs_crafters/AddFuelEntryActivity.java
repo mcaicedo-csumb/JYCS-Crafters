@@ -38,7 +38,7 @@ public class AddFuelEntryActivity extends AppCompatActivity {
     private ActivityAddFuelEntryBinding binding;
     //private static final String FUEL_ENTRY_USER_ID = "com.stanissudo.gymlog.FUEL_ENTRY_USER_ID";
     FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
-   // int loggedInUserId = -1;
+    // int loggedInUserId = -1;
     private int odometer = -1;
     private double gasGal = -1.0;
     private double pricePerGal = -1.0;
@@ -176,15 +176,14 @@ public class AddFuelEntryActivity extends AppCompatActivity {
         }
     }
 
-    private void insertRecord(){
+    private void insertRecord() {
         int selectedCarId = -1;
         try {
             selectedCarId = CarSelectorHelper.getSelectedOptionKey();
             if (selectedCarId == -1) {
                 throw new IllegalArgumentException("Invalid selected car ID");
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             Log.d(TAG, "Error getting selected car ID", e);
             Toast.makeText(this, "Error creating a record. Did you select your Car?", Toast.LENGTH_SHORT).show();
             return;
@@ -205,80 +204,84 @@ public class AddFuelEntryActivity extends AppCompatActivity {
         super.onResume();
         CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
     }
+
     private final TextWatcher volumeWatcher = new TextWatcher() {
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             if (isUpdating) return;
             isUpdating = true;
             try {
-            gasVolumePriority = priority++;
-            if(pricePerGalPriority < totalPricePriority)
-            {
-                updatePricePerGallon();
+                gasVolumePriority = priority++;
+                if (pricePerGalPriority < totalPricePriority) {
+                    updatePricePerGallon();
+                } else {
+                    updateTotalPrice();
+                }
+            } finally {
+                isUpdating = false;
             }
-            else {
-            updateTotalPrice();
-            }
-    } finally {
-        isUpdating = false;
-    }}
+        }
 
         @Override
-        public void afterTextChanged(Editable s) {}
+        public void afterTextChanged(Editable s) {
+        }
     };
 
     private final TextWatcher pricePerGalWatcher = new TextWatcher() {
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             if (isUpdating) return;
             isUpdating = true;
             try {
-            pricePerGalPriority = priority++;
-            if(gasVolumePriority < totalPricePriority)
-            {
-                updateGallons();
+                pricePerGalPriority = priority++;
+                if (gasVolumePriority < totalPricePriority) {
+                    updateGallons();
+                } else {
+                    updateTotalPrice();
+                }
+            } finally {
+                isUpdating = false;
             }
-            else {
-                updateTotalPrice();
-            }
-        } finally {
-            isUpdating = false;
-        }}
+        }
 
         @Override
-        public void afterTextChanged(Editable s) {}
+        public void afterTextChanged(Editable s) {
+        }
     };
 
     private final TextWatcher totalPriceWatcher = new TextWatcher() {
         @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             if (isUpdating) return;
             isUpdating = true;
             try {
-            totalPricePriority = priority++;
-            if(pricePerGalPriority < gasVolumePriority)
-            {
-                updatePricePerGallon();
+                totalPricePriority = priority++;
+                if (pricePerGalPriority < gasVolumePriority) {
+                    updatePricePerGallon();
+                } else {
+                    updateGallons();
+                }
+
+            } finally {
+                isUpdating = false;
             }
-            else {
-                updateTotalPrice();
-            }
-        } finally {
-            isUpdating = false;
-        }
         }
 
         @Override
-        public void afterTextChanged(Editable s) {}
+        public void afterTextChanged(Editable s) {
+        }
     };
 //    private final TextWatcher simpleWatcher = new TextWatcher() {
 //        @Override
@@ -314,6 +317,7 @@ public class AddFuelEntryActivity extends AppCompatActivity {
             binding.gasVolumeInputEditText.setText("");
         }
     }
+
     private void updatePricePerGallon() {
         String gasVolumeStr = binding.gasVolumeInputEditText.getText().toString().trim();
         String totalPriceStr = binding.totalPriceInputEditText.getText().toString().trim();
@@ -335,6 +339,7 @@ public class AddFuelEntryActivity extends AppCompatActivity {
             binding.pricePerGallonInputEditText.setText("");
         }
     }
+
     private void updateTotalPrice() {
         String gasVolumeStr = binding.gasVolumeInputEditText.getText().toString().trim();
         String pricePerGalStr = binding.pricePerGallonInputEditText.getText().toString().trim();
