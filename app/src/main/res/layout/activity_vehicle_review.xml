@@ -32,7 +32,6 @@
             <!-- Keep your original ids for Java code triggers -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnShowInactive"
-                style="@style/Widget.Material3.Button.Segmented"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -40,7 +39,6 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnShowActive"
-                style="@style/Widget.Material3.Button.Segmented"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

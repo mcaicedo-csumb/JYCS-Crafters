@@ -19,7 +19,7 @@ public class User {
     @ColumnInfo(name = "is_admin")
     private boolean isAdmin;
 
-    @ColumnInfo(name = "is_active")
+    @ColumnInfo(name = "isActive")
     private boolean isActive = true; // default active
 
     // ===== Constructors =====

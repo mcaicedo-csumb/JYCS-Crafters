@@ -61,8 +61,8 @@
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:src="@android:drawable/ic_menu_manage"
-                        android:contentDescription="@string/untitled"
-                        android:tint="?attr/colorPrimary" />
+                        android:contentDescription="untitled"
+                        app:tint="?attr/colorPrimary" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -117,7 +117,7 @@
                         android:layout_height="40dp"
                         android:src="@android:drawable/ic_menu_sort_by_size"
                         android:contentDescription="@string/untitled"
-                        android:tint="?attr/colorPrimary" />
+                        app:tint="?attr/colorPrimary" />
 
                     <LinearLayout
                         android:layout_width="0dp"

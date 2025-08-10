@@ -46,6 +46,9 @@ public interface UserDAO {
     @Query("SELECT * FROM " + FuelTrackAppDatabase.USER_TABLE + " WHERE username = :username LIMIT 1")
     User getUserByUsernameNow(String username);
 
+    @Query("SELECT * FROM " + FuelTrackAppDatabase.USER_TABLE + " WHERE username = :username LIMIT 1")
+    LiveData<User> getUserByUsername(String username);
+
     // Camila: admin toggle
     @Query("UPDATE " + FuelTrackAppDatabase.USER_TABLE + " SET isActive = :active WHERE id = :userId")
     void setUserActive(int userId, boolean active);
@@ -56,4 +59,7 @@ public interface UserDAO {
 
     @Query("UPDATE " + FuelTrackAppDatabase.USER_TABLE + " SET password = :newPassword WHERE username = :username")
     void updatePassword(String username, String newPassword);
+
+    @Query("UPDATE " + FuelTrackAppDatabase.USER_TABLE + " SET isActive = :active WHERE id = :userId")
+    void setActive(int userId, boolean active);
 }
