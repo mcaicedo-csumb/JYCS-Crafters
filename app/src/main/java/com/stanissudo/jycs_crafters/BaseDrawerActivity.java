@@ -56,14 +56,6 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
         });
     }
 
-
-
-
-
-
-
-
-
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
