@@ -125,7 +125,7 @@ protected void onCreate(Bundle savedInstanceState) {
     // On change
     drop.setOnItemClickListener((parent, view, position, id) -> {
         String name = (String) parent.getItemAtPosition(position);
-        CarSelectorHelper.setSelectedOption(name);
+        CarSelectorHelper.setSelectedOption(this, name);
         Integer newCarId = CarSelectorHelper.getSelectedOptionKey();
         if (newCarId == null || newCarId <= 0) {
             Toast.makeText(this, "Invalid car selection", Toast.LENGTH_SHORT).show();

@@ -56,7 +56,7 @@ public class MainActivity extends BaseDrawerActivity {
         vehicleViewModel.getUserVehicles().observe(this, vehicles -> {
             if (vehicles != null) {
                 // 1. First, load the data into the helper.
-                CarSelectorHelper.loadVehicleData(vehicles);
+                CarSelectorHelper.loadVehicleData(this, vehicles);
 
                 // 2. NOW that the helper has data, set up the dropdown.
                 AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
@@ -94,11 +94,11 @@ public class MainActivity extends BaseDrawerActivity {
 //        CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
-//    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
+    }
 
     public void showSettingsFragment() {
         getSupportFragmentManager().beginTransaction()

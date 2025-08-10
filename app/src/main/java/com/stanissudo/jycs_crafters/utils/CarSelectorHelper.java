@@ -1,6 +1,8 @@
 package com.stanissudo.jycs_crafters.utils;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
@@ -15,15 +17,6 @@ import java.util.Map;
 
 public class CarSelectorHelper {
 
-//    private static final Map<Integer, String> fullOptions = new LinkedHashMap<>();
-//
-//    static {
-//        fullOptions.put(1, "BMW");
-//        fullOptions.put(2, "Mercedes");
-//        fullOptions.put(3, "Porsche");
-//    }
-//    private static String selectedOption = fullOptions.entrySet().iterator().next().getValue();
-
     private static final Map<Integer, String> fullOptions = new LinkedHashMap<>();
     private static String selectedOption = "No Vehicle"; // Default value
 
@@ -32,17 +25,26 @@ public class CarSelectorHelper {
      * Call this from your MainActivity or after login.
      * @param vehicles The list of vehicles from the database.
      */
-    public static void loadVehicleData(List<Vehicle> vehicles) {
+    public static void loadVehicleData(Context context, List<Vehicle> vehicles) {
         fullOptions.clear(); // Clear old data
         if (vehicles != null && !vehicles.isEmpty()) {
             for (Vehicle vehicle : vehicles) {
                 // Populate the map with the real ID and Name
                 fullOptions.put(vehicle.getVehicleID(), vehicle.getName());
             }
-            // Set the default selected option to the first car
-            selectedOption = vehicles.get(0).getName();
+
+            // Restore the last saved vehicle ID
+            SharedPreferences prefs = context.getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
+            int lastSelectedId = prefs.getInt("lastSelectedVehicleId", -1);
+            String lastSelectedName = fullOptions.get(lastSelectedId);
+
+            if (lastSelectedName != null) {
+                selectedOption = lastSelectedName; // Restore saved selection
+            } else {
+                selectedOption = vehicles.get(0).getName(); // Default to first car
+            }
+
         } else {
-            // Handle case where user has no vehicles
             selectedOption = "No Vehicle";
         }
     }
@@ -50,7 +52,7 @@ public class CarSelectorHelper {
     public static void setupDropdown(Activity activity, AutoCompleteTextView dropdown) {
 
         dropdown.setText(selectedOption, false);
-        final boolean[] isDropdownOpen = {false}; // Track open/close state
+        //final boolean[] isDropdownOpen = {false}; // Track open/close state
 
         dropdown.setOnClickListener(v -> {
             String selected = dropdown.getText().toString();
@@ -70,23 +72,24 @@ public class CarSelectorHelper {
                     filteredOptions
             );
             dropdown.setAdapter(adapter);
+            dropdown.showDropDown();
 
-            // Toggle dropdown manually
-            if (isDropdownOpen[0]) {
-                dropdown.dismissDropDown();
-            } else {
-                dropdown.showDropDown();
-            }
-
-            isDropdownOpen[0] = !isDropdownOpen[0];
-        });
-
-        // Reset dropdown state when user selects an item
-        dropdown.setOnItemClickListener((parent, view, position, id) -> {
-            String newSelected = parent.getItemAtPosition(position).toString();
-            setSelectedOption(newSelected);
-            dropdown.setText(newSelected, false);
-            isDropdownOpen[0] = false;
+//            // Toggle dropdown manually
+//            if (isDropdownOpen[0]) {
+//                dropdown.dismissDropDown();
+//            } else {
+//                dropdown.showDropDown();
+//            }
+//
+//            isDropdownOpen[0] = !isDropdownOpen[0];
+//        });
+//
+//        // Reset dropdown state when user selects an item
+//        dropdown.setOnItemClickListener((parent, view, position, id) -> {
+//            String newSelected = parent.getItemAtPosition(position).toString();
+//            setSelectedOption(activity, newSelected);
+//            dropdown.setText(newSelected, false);
+//            isDropdownOpen[0] = false;
         });
     }
     public static void updateDropdownText(AutoCompleteTextView dropdown) {
@@ -105,7 +108,12 @@ public class CarSelectorHelper {
         return -1;
     }
 
-    public static void setSelectedOption(String option) {
+    public static void setSelectedOption(Context context, String option) {
         selectedOption = option;
+        Integer key = getSelectedOptionKey();
+        if (key != -1) {
+            SharedPreferences prefs = context.getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
+            prefs.edit().putInt("lastSelectedVehicleId", key).apply();
+        }
     }
 }
