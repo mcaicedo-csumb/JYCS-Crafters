@@ -105,7 +105,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-
     private void verifyUser() {
         String username = binding.usernameInput.getText().toString().trim();
         String password = binding.passwordInput.getText().toString().trim();
