@@ -3,7 +3,6 @@ package com.stanissudo.jycs_crafters;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,7 +26,7 @@ public class LandingPageActivity extends AppCompatActivity {
 
         binding.greetingText.setText("Welcome, " + username);
 
-        // ✅ Add this toast to confirm the activity opened
+        // Add this toast to confirm the activity opened
         Toast.makeText(this, "Welcome to the Landing Page!", Toast.LENGTH_SHORT).show();
 
         if (isAdmin) {

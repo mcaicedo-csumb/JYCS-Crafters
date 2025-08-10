@@ -10,8 +10,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -36,7 +34,6 @@ public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
     private FuelTrackAppRepository repository;
     private SharedPreferences sharedPreferences;
-
     private GoogleSignInClient googleSignInClient;
     private FirebaseAuth firebaseAuth;
 
@@ -46,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
 
-        // ✅ Auto-login check
+        // Auto-login check
         boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
         if (isLoggedIn) {
             String username = sharedPreferences.getString("username", "");
@@ -189,7 +186,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    // ✅ Save login state for persistence
+    // Save login state for persistence
     private void saveUserSession(int userId, String username, boolean isAdmin) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("userId", userId);
