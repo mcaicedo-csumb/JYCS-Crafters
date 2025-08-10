@@ -31,4 +31,7 @@ public interface VehicleDAO {
 
     @Query("SELECT * FROM " + FuelTrackAppDatabase.VEHICLE_TABLE + " ORDER BY name ASC")
     LiveData<List<Vehicle>> getAllVehicles();
+
+    @Query("SELECT * FROM " + FuelTrackAppDatabase.VEHICLE_TABLE + " WHERE UserId = :userId ORDER BY VehicleID")
+    LiveData<List<Vehicle>> getVehiclesForUser(int userId);
 }

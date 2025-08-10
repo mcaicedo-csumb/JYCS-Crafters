@@ -12,6 +12,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
@@ -19,6 +20,7 @@ import com.stanissudo.jycs_crafters.databinding.ActivityMainBinding;
 import com.stanissudo.jycs_crafters.fragments.HomeFragment;
 import com.stanissudo.jycs_crafters.fragments.SettingsFragment;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
+import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
 
 public class MainActivity extends BaseDrawerActivity {
 
@@ -27,6 +29,8 @@ public class MainActivity extends BaseDrawerActivity {
     private SharedPreferences sharedPreferences;
     public static final String TAG = "FuelTrackApp_Log";
     private static final String MAIN_ACTIVITY_USER_ID = "com.stanissudo.jycs_crafters.MAIN_ACTIVITY_USER_ID";
+
+    private VehicleViewModel vehicleViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +43,26 @@ public class MainActivity extends BaseDrawerActivity {
         // Get saved username from SharedPreferences
         sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
         String username = sharedPreferences.getString("username", "User");
+        int userId = sharedPreferences.getInt("userId", -1);
+
+        // 1. Get the ViewModel
+        vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
+
+
+        // 3. Tell the ViewModel to load the vehicles for this user
+        vehicleViewModel.loadUserVehicles(userId);
+
+        // 4. Observe the data. When it arrives from the database, populate the helper.
+        vehicleViewModel.getUserVehicles().observe(this, vehicles -> {
+            if (vehicles != null) {
+                // 1. First, load the data into the helper.
+                CarSelectorHelper.loadVehicleData(vehicles);
+
+                // 2. NOW that the helper has data, set up the dropdown.
+                AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
+                CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
+            }
+        });
 
         // Display username in drawer header
         NavigationView navView = binding.navView;
@@ -66,15 +90,15 @@ public class MainActivity extends BaseDrawerActivity {
             showHomeFragment();
             binding.navView.setCheckedItem(R.id.nav_home);
         }
-        AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
-        CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
+//        AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
+//        CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
+//    }
 
     public void showSettingsFragment() {
         getSupportFragmentManager().beginTransaction()

@@ -153,4 +153,8 @@ public class FuelTrackAppRepository {
         return vehicleDAO.getAllVehicles();
     }
 
+    public LiveData<List<Vehicle>> getVehiclesForUser(int userId) {
+        return vehicleDAO.getVehiclesForUser(userId);
+    }
+
 }
