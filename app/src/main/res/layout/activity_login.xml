@@ -76,4 +76,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
 
+    <!-- QUOTE OF THE DAY -->
+    <TextView
+        android:id="@+id/quoteText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Loading quote of the day..."
+        android:textAlignment="center"
+        android:paddingTop="16dp"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/googleSignInButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

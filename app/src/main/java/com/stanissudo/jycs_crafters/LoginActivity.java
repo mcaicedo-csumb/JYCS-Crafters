@@ -3,6 +3,15 @@
 
 package com.stanissudo.jycs_crafters;
 
+import com.stanissudo.jycs_crafters.network.AdviceResponse;
+import com.stanissudo.jycs_crafters.network.AdviceService;
+import com.stanissudo.jycs_crafters.network.RetrofitClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -55,6 +64,10 @@ public class LoginActivity extends AppCompatActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+
+        loadAdviceInto(binding.quoteText);
+
+
         repository = FuelTrackAppRepository.getRepository(getApplication());
         firebaseAuth = FirebaseAuth.getInstance();
 
@@ -70,6 +83,25 @@ public class LoginActivity extends AppCompatActivity {
         binding.googleSignInButton.setOnClickListener(v -> {
             Intent signInIntent = googleSignInClient.getSignInIntent();
             startActivityForResult(signInIntent, RC_SIGN_IN);
+        });
+    }
+
+    private void loadAdviceInto(android.widget.TextView target) {
+        AdviceService service = RetrofitClient.getInstance().create(AdviceService.class);
+        service.getAdvice().enqueue(new Callback<AdviceResponse>() {
+            @Override
+            public void onResponse(Call<AdviceResponse> call, Response<AdviceResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getSlip() != null) {
+                    String text = "“" + response.body().getSlip().getAdvice() + "”";
+                    target.setText(text);
+                } else {
+                    target.setText("Could not load advice.");
+                }
+            }
+            @Override
+            public void onFailure(Call<AdviceResponse> call, Throwable t) {
+                target.setText("Error: " + (t.getMessage() != null ? t.getMessage() : "Unknown"));
+            }
         });
     }
 
