@@ -3,13 +3,13 @@
 
 package com.stanissudo.jycs_crafters;
 
-import android.widget.TextView;
 import com.stanissudo.jycs_crafters.network.AdviceResponse;
-import com.stanissudo.jycs_crafters.network.QuoteService;
+import com.stanissudo.jycs_crafters.network.AdviceService;
 import com.stanissudo.jycs_crafters.network.RetrofitClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
 
 
 import android.content.Context;
@@ -65,8 +65,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
 
-        TextView quoteText = findViewById(R.id.quoteText);
-        loadQuoteInto(quoteText);
+        loadAdviceInto(binding.quoteText);
 
 
         repository = FuelTrackAppRepository.getRepository(getApplication());
@@ -87,24 +86,25 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void loadQuoteInto(TextView target) {
-        QuoteService service = RetrofitClient.getInstance().create(QuoteService.class);
-        service.getRandomQuote().enqueue(new Callback<AdviceResponse>() {
+    private void loadAdviceInto(android.widget.TextView target) {
+        AdviceService service = RetrofitClient.getInstance().create(AdviceService.class);
+        service.getAdvice().enqueue(new Callback<AdviceResponse>() {
             @Override
             public void onResponse(Call<AdviceResponse> call, Response<AdviceResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    String text = "“" + response.body().getContent() + "” — " + response.body().getAuthor();
+                if (response.isSuccessful() && response.body() != null && response.body().getSlip() != null) {
+                    String text = "“" + response.body().getSlip().getAdvice() + "”";
                     target.setText(text);
                 } else {
-                    target.setText("Could not load quote.");
+                    target.setText("Could not load advice.");
                 }
             }
             @Override
             public void onFailure(Call<AdviceResponse> call, Throwable t) {
-                target.setText("Error loading quote.");
+                target.setText("Error: " + (t.getMessage() != null ? t.getMessage() : "Unknown"));
             }
         });
     }
+
 
     private void verifyUser() {
         String username = binding.usernameInput.getText().toString().trim();
