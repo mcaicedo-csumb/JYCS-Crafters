@@ -1,11 +1,14 @@
 package com.stanissudo.jycs_crafters;
 
+import static com.stanissudo.jycs_crafters.MainActivity.TAG;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -13,6 +16,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
+import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
+import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 import com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
 
@@ -53,10 +58,8 @@ public class VehicleActivity extends BaseDrawerActivity {
             @Override
             public void onClick(View v) {
                 getInformationFromDisplay();
-                // TODO: create Vehicle entity to insert record into
-                //insertRecord();
-                // TODO: use loggedInUserId rather than -1 for mainActivityIntentFactory
-                Intent intent = MainActivity.mainActivityIntentFactory(getApplicationContext(), -1);
+                insertRecord();
+                Intent intent = MainActivity.mainActivityIntentFactory(getApplicationContext(), loggedInUserId);
                 startActivity(intent);
             }
         });
@@ -75,6 +78,14 @@ public class VehicleActivity extends BaseDrawerActivity {
         } catch (InputMismatchException e) {
             Log.e("TAG", "Error reading values.");
         }
+    }
+
+    /**
+     * insertRecord() inserts a Vehicle record into the database
+     */
+    private void insertRecord(){
+        Vehicle vehicle = new Vehicle(vehicleName, vehicleMake, vehicleModel, vehicleYear);
+        repository.insertVehicle(vehicle);
     }
 
     /**
