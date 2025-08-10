@@ -13,6 +13,7 @@ import androidx.lifecycle.LiveData;
 import com.stanissudo.jycs_crafters.MainActivity;
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.database.entities.User;
+import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -23,12 +24,14 @@ public class FuelTrackAppRepository {
     private static FuelTrackAppRepository repository;
     private final FuelEntryDAO fuelEntryDAO;
     private final UserDAO userDAO;
+    private final VehicleDAO vehicleDAO;
     private LiveData<List<FuelEntry>> allLogs;
 
     private FuelTrackAppRepository(Application application) {
         FuelTrackAppDatabase db = FuelTrackAppDatabase.getDatabase(application);
         this.fuelEntryDAO = db.fuelEntryDAO();
         this.userDAO = db.userDAO();
+        this.vehicleDAO = db.vehicleDAO();
         //this.allLogs = this.fuelEntryDAO.getAllRecords();
     }
 
@@ -54,7 +57,7 @@ public class FuelTrackAppRepository {
             return future.get();
 
         } catch (InterruptedException | ExecutionException e) {
-            Log.d(MainActivity.TAG, "Problem getting GymRepository, thread error.");
+            Log.d(MainActivity.TAG, "Problem getting FuelTrackAppRepository, thread error.");
         }
         return null;
     }
@@ -102,4 +105,16 @@ public class FuelTrackAppRepository {
         return fuelEntryDAO.getRecordsById(loggedInUserId);
     }
 
+    // =================== Vehicle Methods ===================
+    public void insertVehicle(Vehicle vehicle) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.insert(vehicle));
+    }
+
+    public void deleteVehicleByVehicleName(String name) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.deleteByVehicleName(name));
+    }
+
+    public LiveData<List<Vehicle>> getAllVehicles() {
+        return vehicleDAO.getAllVehicles();
+    }
 }
