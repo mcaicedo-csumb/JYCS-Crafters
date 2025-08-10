@@ -4,6 +4,7 @@ import static com.stanissudo.jycs_crafters.MainActivity.TAG;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -34,7 +35,7 @@ import java.util.InputMismatchException;
 public class VehicleActivity extends BaseDrawerActivity {
     private com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding binding;
     private FuelTrackAppRepository repository;
-    int loggedInUserId = -1;
+    private SharedPreferences sharedPreferences;
     private String vehicleName = "";
     private String vehicleMake = "";
     private String vehicleModel = "";
@@ -54,12 +55,15 @@ public class VehicleActivity extends BaseDrawerActivity {
 
         setSupportActionBar(binding.toolbar);
 
+        sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
+        int userId = sharedPreferences.getInt("userId", -1);
+
         binding.vehicleSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getInformationFromDisplay();
-                insertRecord();
-                Intent intent = MainActivity.mainActivityIntentFactory(getApplicationContext(), loggedInUserId);
+                insertRecord(userId);
+                Intent intent = MainActivity.mainActivityIntentFactory(getApplicationContext(), userId);
                 startActivity(intent);
             }
         });
@@ -83,8 +87,8 @@ public class VehicleActivity extends BaseDrawerActivity {
     /**
      * insertRecord() inserts a Vehicle record into the database
      */
-    private void insertRecord(){
-        Vehicle vehicle = new Vehicle(vehicleName, vehicleMake, vehicleModel, vehicleYear);
+    private void insertRecord(int userId){
+        Vehicle vehicle = new Vehicle(userId, vehicleName, vehicleMake, vehicleModel, vehicleYear);
         repository.insertVehicle(vehicle);
     }
 

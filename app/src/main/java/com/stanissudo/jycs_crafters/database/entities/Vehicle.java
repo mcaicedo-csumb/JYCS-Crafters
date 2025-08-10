@@ -30,7 +30,8 @@ public class Vehicle {
     public Vehicle() {
     }
 
-    public Vehicle(String name, String make, String model, int year) {
+    public Vehicle(int userId, String name, String make, String model, int year) {
+        UserId = userId;
         Name = name;
         Make = make;
         Model = model;

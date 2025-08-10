@@ -5,6 +5,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
 import com.stanissudo.jycs_crafters.R;
+import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,17 +15,37 @@ import java.util.Map;
 
 public class CarSelectorHelper {
 
+//    private static final Map<Integer, String> fullOptions = new LinkedHashMap<>();
+//
+//    static {
+//        fullOptions.put(1, "BMW");
+//        fullOptions.put(2, "Mercedes");
+//        fullOptions.put(3, "Porsche");
+//    }
+//    private static String selectedOption = fullOptions.entrySet().iterator().next().getValue();
 
-    //private static final List<String> fullOptions = new ArrayList<>(Arrays.asList("BMW", "Mercedes", "Porsche"));
     private static final Map<Integer, String> fullOptions = new LinkedHashMap<>();
+    private static String selectedOption = "No Vehicle"; // Default value
 
-    static {
-        fullOptions.put(1, "BMW");
-        fullOptions.put(2, "Mercedes");
-        fullOptions.put(3, "Porsche");
+    /**
+     * NEW METHOD: This populates the static map with real vehicle data.
+     * Call this from your MainActivity or after login.
+     * @param vehicles The list of vehicles from the database.
+     */
+    public static void loadVehicleData(List<Vehicle> vehicles) {
+        fullOptions.clear(); // Clear old data
+        if (vehicles != null && !vehicles.isEmpty()) {
+            for (Vehicle vehicle : vehicles) {
+                // Populate the map with the real ID and Name
+                fullOptions.put(vehicle.getVehicleID(), vehicle.getName());
+            }
+            // Set the default selected option to the first car
+            selectedOption = vehicles.get(0).getName();
+        } else {
+            // Handle case where user has no vehicles
+            selectedOption = "No Vehicle";
+        }
     }
-    //private static String selectedOption = fullOptions.get(0); // default value
-    private static String selectedOption = fullOptions.entrySet().iterator().next().getValue();
 
     public static void setupDropdown(Activity activity, AutoCompleteTextView dropdown) {
 
@@ -34,13 +55,7 @@ public class CarSelectorHelper {
         dropdown.setOnClickListener(v -> {
             String selected = dropdown.getText().toString();
 
-            // Filter out the selected item
-            //           List<String> filteredOptions = new ArrayList<>();
-//            for (String option : fullOptions) {
-//                if (!option.equals(selected)) {
-//                    filteredOptions.add(option);
-//                }
-//            }
+
             List<String> filteredOptions = new ArrayList<>();
             for (Map.Entry<Integer, String> entry : fullOptions.entrySet()) {
                 if (!entry.getValue().equals(selected)) {
