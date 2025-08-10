@@ -9,18 +9,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -28,8 +22,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import com.google.android.material.navigation.NavigationView;
 import com.google.type.DateTime;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
@@ -123,30 +118,12 @@ public class AddFuelEntryActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //Toast.makeText(AddFuelEntryActivity.this, "It worked!", Toast.LENGTH_SHORT).show();
                 getInformationFromDisplay();
-                if(insertRecord()) {
-                    Intent intent = MainActivity.mainActivityIntentFactory(getApplicationContext(), -1);
-                    startActivity(intent);
-                }
+                insertRecord();
             }
         });
 
     }
-//    //Cancel icon
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.cancel_item, menu);
-//        return true;
-//    }
-//    @Override
-//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-//        int id = item.getItemId();
-//        if (id == R.id.action_cancel) {
-//            finish();
-//            return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
-//    //End Cancel icon
+
     private void getInformationFromDisplay() {
         String odometerText = binding.odometerInputEditText.getText().toString().trim();
         if (!odometerText.isEmpty()) {
@@ -213,25 +190,68 @@ public class AddFuelEntryActivity extends AppCompatActivity {
             Toast.makeText(this, "Error creating a record. Did you select your Car?", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if( odometer < 0 || gasGal < 0 || pricePerGal <0){
+        if (odometer < 0 || gasGal < 0 || pricePerGal < 0) {
             Log.d(TAG, "odometer, gasGal, pricePerGal must be positive");
             Toast.makeText(this, "Missing value.", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (!isValidOdometer()){
-            Log.d(TAG, "Wrong odometer or Date reading");
-            Toast.makeText(this, "Odometer out of bounds. Check odometer or date value.", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
-        FuelEntry fuelLog = new FuelEntry(selectedCarId, odometer, gasGal, pricePerGal, dateTime);
-        repository.insertFuelEntry(fuelLog);
+        int carId = selectedCarId;
+        repository.checkOdometerAsync(carId, dateTime, odometer, (ok, prev, next) -> {
+            if (ok) {
+                FuelEntry fuelLog = new FuelEntry(carId, odometer, gasGal, pricePerGal, dateTime);
+                repository.insertFuelEntry(fuelLog);
+                Intent intent = MainActivity.mainActivityIntentFactory(getApplicationContext(), -1);
+                startActivity(intent);
+            } else {
+                String msg;
+                if (prev != null && next != null) {
+                    msg = "Odometer must be > " + prev + " and < " + next + ".";
+                } else if (prev != null) {
+                    msg = "Odometer must be > " + prev + ".";
+                } else if (next != null) {
+                    msg = "Odometer must be < " + next + ".";
+                } else {
+                    msg = "Couldn’t validate odometer.";
+                }
+                Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+            }
+        });
         return true;
     }
 
-    private boolean isValidOdometer(){
-        return true;
-    }
+//    private boolean isValidOdometer(){
+//        boolean result;
+//        int selectedCarId = -1;
+//        try {
+//            selectedCarId = CarSelectorHelper.getSelectedOptionKey();
+//            if (selectedCarId == -1) {
+//                throw new IllegalArgumentException("Invalid selected car ID");
+//            }
+//        } catch (Exception e) {
+//            Log.d(TAG, "Error getting selected car ID", e);
+//            Toast.makeText(this, "Error creating a record. Did you select your Car?", Toast.LENGTH_SHORT).show();
+//            return false;
+//        }
+//        final Integer carId = selectedCarId;
+//        ExecutorService io = Executors.newSingleThreadExecutor();
+//
+//        io.execute(() -> {
+//            Integer prev = repository.getPreviousOdometer(carId, dateTime).getValue();
+//            Integer next = repository.getNextOdometer(carId, dateTime).getValue();
+//
+//            boolean ok =
+//                    (prev == null || odometer > prev) &&
+//                            (next == null || odometer < next);
+//
+//            runOnUiThread(() -> {
+//                if (ok) {
+//                    result = true;
+//                } else {
+//                    // error
+//                }
+//            });
+//        });
+//    }
 
     static Intent addFuelEntryIntentFactory(Context context, int userId) {
         Intent intent = new Intent(context, AddFuelEntryActivity.class);
