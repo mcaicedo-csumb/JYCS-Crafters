@@ -4,7 +4,7 @@
 package com.stanissudo.jycs_crafters;
 
 import android.widget.TextView;
-import com.stanissudo.jycs_crafters.network.QuoteResponse;
+import com.stanissudo.jycs_crafters.network.AdviceResponse;
 import com.stanissudo.jycs_crafters.network.QuoteService;
 import com.stanissudo.jycs_crafters.network.RetrofitClient;
 import retrofit2.Call;
@@ -89,9 +89,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private void loadQuoteInto(TextView target) {
         QuoteService service = RetrofitClient.getInstance().create(QuoteService.class);
-        service.getRandomQuote().enqueue(new Callback<QuoteResponse>() {
+        service.getRandomQuote().enqueue(new Callback<AdviceResponse>() {
             @Override
-            public void onResponse(Call<QuoteResponse> call, Response<QuoteResponse> response) {
+            public void onResponse(Call<AdviceResponse> call, Response<AdviceResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     String text = "“" + response.body().getContent() + "” — " + response.body().getAuthor();
                     target.setText(text);
@@ -100,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
             @Override
-            public void onFailure(Call<QuoteResponse> call, Throwable t) {
+            public void onFailure(Call<AdviceResponse> call, Throwable t) {
                 target.setText("Error loading quote.");
             }
         });

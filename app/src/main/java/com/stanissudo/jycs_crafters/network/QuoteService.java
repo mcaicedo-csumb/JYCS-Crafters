@@ -5,5 +5,5 @@ import retrofit2.http.GET;
 
 public interface QuoteService {
     @GET("random")
-    Call<QuoteResponse> getRandomQuote();
+    Call<AdviceResponse> getRandomQuote();
 }
