@@ -10,8 +10,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -36,7 +34,6 @@ public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
     private FuelTrackAppRepository repository;
     private SharedPreferences sharedPreferences;
-
     private GoogleSignInClient googleSignInClient;
     private FirebaseAuth firebaseAuth;
 
