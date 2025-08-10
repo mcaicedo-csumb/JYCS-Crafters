@@ -3,6 +3,15 @@
 
 package com.stanissudo.jycs_crafters;
 
+import android.widget.TextView;
+import com.stanissudo.jycs_crafters.network.QuoteResponse;
+import com.stanissudo.jycs_crafters.network.QuoteService;
+import com.stanissudo.jycs_crafters.network.RetrofitClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -55,6 +64,11 @@ public class LoginActivity extends AppCompatActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+
+        TextView quoteText = findViewById(R.id.quoteText);
+        loadQuoteInto(quoteText);
+
+
         repository = FuelTrackAppRepository.getRepository(getApplication());
         firebaseAuth = FirebaseAuth.getInstance();
 
@@ -70,6 +84,25 @@ public class LoginActivity extends AppCompatActivity {
         binding.googleSignInButton.setOnClickListener(v -> {
             Intent signInIntent = googleSignInClient.getSignInIntent();
             startActivityForResult(signInIntent, RC_SIGN_IN);
+        });
+    }
+
+    private void loadQuoteInto(TextView target) {
+        QuoteService service = RetrofitClient.getInstance().create(QuoteService.class);
+        service.getRandomQuote().enqueue(new Callback<QuoteResponse>() {
+            @Override
+            public void onResponse(Call<QuoteResponse> call, Response<QuoteResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String text = "“" + response.body().getContent() + "” — " + response.body().getAuthor();
+                    target.setText(text);
+                } else {
+                    target.setText("Could not load quote.");
+                }
+            }
+            @Override
+            public void onFailure(Call<QuoteResponse> call, Throwable t) {
+                target.setText("Error loading quote.");
+            }
         });
     }
 
