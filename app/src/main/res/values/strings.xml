@@ -15,5 +15,6 @@
     <string name="fuel_entry_recycler_item_placeholder">fuel entry recycler item</string>
     <string name="default_web_client_id">1044064229113-v06rrb28ghe96dgtgj3hrts35qflbtc9.apps.googleusercontent.com</string>
     <string name="cancel">Cancel</string>
+    <string name="change_password">Change Password</string>
 
 </resources>

@@ -93,9 +93,9 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
                 }
             } else if (id == R.id.nav_fuel_entry) {
                 //if (!(this instanceof AddFuelEntryActivity)) {
-                    Intent intent = AddFuelEntryActivity.addFuelEntryIntentFactory(getApplicationContext(), -1);
-                    startActivity(intent);
-               // }
+                Intent intent = AddFuelEntryActivity.addFuelEntryIntentFactory(getApplicationContext(), -1);
+                startActivity(intent);
+                // }
             } else if (id == R.id.nav_fuel_log) {
                 if (!(this instanceof FuelLogActivity)) {
                     Intent intent = FuelLogActivity.fuelLogIntentFactory(getApplicationContext(), -1);
@@ -106,6 +106,10 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, VehicleActivity.class);
                 startActivity(intent);
                 // }
+            }
+            // ✅ ADDED: open Settings from the drawer
+            else if (id == R.id.nav_settings) {
+                startActivity(SettingsActivity.intentFactory(this)); // or: new Intent(this, SettingsActivity.class)
             }
 
             getDrawerLayout().closeDrawer(GravityCompat.START);
