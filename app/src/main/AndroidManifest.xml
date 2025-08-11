@@ -32,8 +32,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true" />
-        <activity
-            android:name=".SignupActivity" />
+        <activity android:name=".SignupActivity" />
         <activity
             android:name=".LoginActivity"
             android:exported="true">
@@ -42,6 +41,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".SettingsActivity" />
+
     </application>
 
 </manifest>

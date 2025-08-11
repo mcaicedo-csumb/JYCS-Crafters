@@ -16,6 +16,7 @@ import com.stanissudo.jycs_crafters.MainActivity;
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.database.entities.User;
 import com.stanissudo.jycs_crafters.database.entities.Vehicle;
+import com.stanissudo.jycs_crafters.database.pojos.CarCostStats;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -156,6 +157,7 @@ public class FuelTrackAppRepository {
     public LiveData<List<Vehicle>> getVehiclesForUser(int userId) {
         return vehicleDAO.getVehiclesForUser(userId);
     }
+
     public void updateVehicleName(int vehicleID, String newName) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.updateVehicleName(vehicleID, newName));
     }
@@ -168,4 +170,95 @@ public class FuelTrackAppRepository {
     public void updateVehicleYear(int vehicleID, int newYear) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.updateVehicleYear(vehicleID, newYear));
     }
+
+    public LiveData<CarCostStats> getCostStatsForVehicle(int vehicleId) {
+        return fuelEntryDAO.getCostStatsForVehicle(vehicleId);
+    }
+
+    // ====== Add near your other callbacks ======
+    public interface ExistsCallback {
+        void onResult(boolean exists);
+    }
+
+    public interface ResultCallback {
+        void onResult(boolean ok, String message);
+    }
+
+    // ✅ Check if a username exists (async)
+    public void userExistsAsync(String username, ExistsCallback cb) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> {
+            boolean exists = userDAO.exists(username) == 1;
+            main.post(() -> cb.onResult(exists));
+        });
+    }
+
+    // ✅ Change password, but only if the username exists
+    public void changePasswordIfUserExists(String username, String newPassword, ResultCallback cb) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> {
+            boolean exists = userDAO.exists(username) == 1;
+            if (!exists) {
+                main.post(() -> cb.onResult(false, "Username does not exist."));
+                return;
+            }
+            userDAO.updatePassword(username, newPassword);
+            main.post(() -> cb.onResult(true, "Password changed."));
+        });
+    }
+
+    // ✅ Delete user safely: prevent deleting the currently-logged-in admin; validate existence first
+    public void deleteUserSafely(String usernameToDelete, String currentUsername, boolean currentIsAdmin, ResultCallback cb) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> {
+            if (currentIsAdmin && usernameToDelete.equals(currentUsername)) {
+                main.post(() -> cb.onResult(false, "You can't delete the account you're logged in with."));
+                return;
+            }
+            boolean exists = userDAO.exists(usernameToDelete) == 1;
+            if (!exists) {
+                main.post(() -> cb.onResult(false, "Username does not exist."));
+                return;
+            }
+            userDAO.deleteByUsername(usernameToDelete);
+            main.post(() -> cb.onResult(true, "User removed."));
+        });
+    }
+
+    // Add a user ONLY if the username doesn't already exist
+    public void addUserSafely(String username, String password, boolean isAdmin, ResultCallback cb) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> {
+            boolean exists = userDAO.exists(username) == 1;
+            if (exists) {
+                main.post(() -> cb.onResult(false, "Username already exists."));
+                return;
+            }
+            User u = new User(username, password);
+            u.setAdmin(isAdmin);
+            userDAO.insert(u);
+            main.post(() -> cb.onResult(true, "User added."));
+        });
+    }
+
+    public void changePasswordWithCurrentCheck(String currentUsername,
+                                               String currentPassword,
+                                               String newPassword,
+                                               ResultCallback cb) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> {
+            String stored = userDAO.getPasswordForUsername(currentUsername);
+            if (stored == null) {
+                main.post(() -> cb.onResult(false, "Session error: user not found."));
+                return;
+            }
+            if (!stored.equals(currentPassword)) { // if you later hash, update this compare
+                main.post(() -> cb.onResult(false, "Current password is incorrect."));
+                return;
+            }
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                main.post(() -> cb.onResult(false, "New password cannot be empty."));
+                return;
+            }
+            userDAO.updatePassword(currentUsername, newPassword);
+            main.post(() -> cb.onResult(true, "Password changed."));
+        });
+    }
+
+
 }
