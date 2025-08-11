@@ -106,8 +106,6 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, VehicleActivity.class);
                 startActivity(intent);
                 // }
-            } else if (id == R.id.nav_settings && this instanceof MainActivity) {
-                ((MainActivity) this).showSettingsFragment();
             }
 
             getDrawerLayout().closeDrawer(GravityCompat.START);
