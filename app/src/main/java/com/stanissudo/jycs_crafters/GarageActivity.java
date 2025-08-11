@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -15,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityGarageBinding;
-import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
 import com.stanissudo.jycs_crafters.viewHolders.VehicleAdapter;
 import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
 
@@ -54,13 +52,8 @@ public class GarageActivity extends BaseDrawerActivity {
         String username = sharedPreferences.getString("username", "User");
         int userId = sharedPreferences.getInt("userId", -1);
 
-        // Initial car
-        Integer initialCarId = CarSelectorHelper.getSelectedOptionKey();
-        if (initialCarId != null && initialCarId > 0) {
-            // vm.loadUserVehicles(userId);
-        } else {
-            Toast.makeText(this, "No vehicles yet. Tap (+) to add one!", Toast.LENGTH_SHORT).show();
-        }
+        // get list of vehicles
+        vm.loadUserVehicles(userId);
 
         // TODO: on clicking a row, select this vehicle
         //vm.selectVehicle(vehicle);

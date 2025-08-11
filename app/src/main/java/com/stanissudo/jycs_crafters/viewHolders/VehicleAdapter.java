@@ -54,14 +54,14 @@ public class VehicleAdapter extends ListAdapter<Vehicle, VehicleViewHolder> {
         holder.bind(current.toString());
     }
 
-    public static class VehicleDiff extends DiffUtil.ItemCallback<FuelEntry> {
+    public static class VehicleDiff extends DiffUtil.ItemCallback<Vehicle> {
         @Override
-        public boolean areItemsTheSame(@NonNull FuelEntry oldItem, @NonNull FuelEntry newItem) {
+        public boolean areItemsTheSame(@NonNull Vehicle oldItem, @NonNull Vehicle newItem) {
             return oldItem == newItem;
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull FuelEntry oldItem, @NonNull FuelEntry newItem) {
+        public boolean areContentsTheSame(@NonNull Vehicle oldItem, @NonNull Vehicle newItem) {
             return oldItem.equals(newItem);
         }
     }
