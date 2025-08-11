@@ -2,8 +2,9 @@ package com.stanissudo.jycs_crafters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.AutoCompleteTextView;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
@@ -13,11 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
-import com.stanissudo.jycs_crafters.databinding.ActivityFuelLogBinding;
-import com.stanissudo.jycs_crafters.databinding.ActivityVehicleGarageBinding;
+import com.stanissudo.jycs_crafters.databinding.ActivityGarageBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
-import com.stanissudo.jycs_crafters.viewHolders.FuelLogAdapter;
-import com.stanissudo.jycs_crafters.viewHolders.FuelLogViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.VehicleAdapter;
 import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
 
@@ -30,14 +28,15 @@ import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
  * @name GarageActivity.java
  */
 public class GarageActivity extends BaseDrawerActivity {
-    private ActivityVehicleGarageBinding binding;
+    private ActivityGarageBinding binding;
     private static final String GARAGE_USER_ID = "com.stanissudo.jycs-crafters.GARAGE_USER_ID";
+    private SharedPreferences sharedPreferences;
     FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityVehicleGarageBinding.inflate(getLayoutInflater());
+        binding = ActivityGarageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         // RecyclerView
@@ -51,27 +50,32 @@ public class GarageActivity extends BaseDrawerActivity {
         // Observe ONCE
         vm.getUserVehicles().observe(this, adapter::submitList);
 
-        // Dropdown
-        AutoCompleteTextView drop = binding.toolbarDropdown;
-        CarSelectorHelper.setupDropdown(this, drop);
+        sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
+        String username = sharedPreferences.getString("username", "User");
+        int userId = sharedPreferences.getInt("userId", -1);
 
         // Initial car
-        vm.loadUserVehicles(Integer.parseInt(GARAGE_USER_ID));
+        Integer initialCarId = CarSelectorHelper.getSelectedOptionKey();
+        if (initialCarId != null && initialCarId > 0) {
+            // vm.loadUserVehicles(userId);
+        } else {
+            Toast.makeText(this, "No vehicles yet. Tap (+) to add one!", Toast.LENGTH_SHORT).show();
+        }
 
-        // On change
-        drop.setOnItemClickListener((parent, view, position, id) -> {
-            String name = (String) parent.getItemAtPosition(position);
-            CarSelectorHelper.setSelectedOption(this, name);
-            Integer newCarId = CarSelectorHelper.getSelectedOptionKey();
-            if (newCarId == null || newCarId <= 0) {
-                Toast.makeText(this, "Invalid car selection", Toast.LENGTH_SHORT).show();
-                return;
+        // TODO: on clicking a row, select this vehicle
+        //vm.selectVehicle(vehicle);
+
+        // click (+) to send to VehicleActivity
+        binding.vehicleActivityAddButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = VehicleActivity.vehicleIntentFactory(getApplicationContext(), userId);
+                startActivity(intent);
             }
-            vm.setSelectedCarId(newCarId);
         });
     }
-    static Intent fuelLogIntentFactory(Context context, int userId) {
-        Intent intent = new Intent(context, FuelLogActivity.class);
+    static Intent garageIntentFactory(Context context, int userId) {
+        Intent intent = new Intent(context, GarageActivity.class);
         intent.putExtra(GARAGE_USER_ID, userId);
         return intent;
     }

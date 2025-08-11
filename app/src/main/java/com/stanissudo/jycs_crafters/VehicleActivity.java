@@ -41,7 +41,9 @@ import java.util.InputMismatchException;
  */
 public class VehicleActivity extends BaseDrawerActivity {
     private ActivityVehicleBinding binding;
-    FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());;
+    FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
+
+    private static final String VEHICLE_USER_ID = "com.stanissudo.jycs-crafters.VEHICLE_USER_ID";
     private SharedPreferences sharedPreferences;
     private String vehicleName = "";
     private String vehicleMake = "";
@@ -71,7 +73,7 @@ public class VehicleActivity extends BaseDrawerActivity {
             public void onClick(View v) {
                 getInformationFromDisplay();
                 insertRecord(userId);
-                Intent intent = MainActivity.mainActivityIntentFactory(getApplicationContext(), userId);
+                Intent intent = GarageActivity.garageIntentFactory(getApplicationContext(), userId);
                 startActivity(intent);
             }
         });
@@ -105,8 +107,10 @@ public class VehicleActivity extends BaseDrawerActivity {
      * @param context context
      * @return intent
      */
-    static Intent vehicleIntentFactory(Context context) {
-        return new Intent(context, VehicleActivity.class);
+    static Intent vehicleIntentFactory(Context context, int userId) {
+        Intent intent = new Intent(context, VehicleActivity.class);
+        intent.putExtra(VEHICLE_USER_ID, userId);
+        return intent;
     }
 
     @Override
