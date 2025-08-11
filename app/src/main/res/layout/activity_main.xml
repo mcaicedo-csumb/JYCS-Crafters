@@ -42,6 +42,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/mainActivityDisplayRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:padding="2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:listitem="@layout/main_activity_recycler_item" />
+
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/view_pager"
             android:layout_width="match_parent"

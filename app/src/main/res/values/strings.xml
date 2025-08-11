@@ -16,5 +16,7 @@
     <string name="default_web_client_id">1044064229113-v06rrb28ghe96dgtgj3hrts35qflbtc9.apps.googleusercontent.com</string>
     <string name="cancel">Cancel</string>
     <string name="change_password">Change Password</string>
+    <string name="main_activity_recycler_view_item">main activity recycler view item</string>
+    <string name="vehicle_activity_recycler_item">vehicle activity recycler item</string>
 
 </resources>

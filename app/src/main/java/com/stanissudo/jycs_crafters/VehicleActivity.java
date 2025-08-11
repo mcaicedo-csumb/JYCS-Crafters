@@ -14,13 +14,20 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
+import com.stanissudo.jycs_crafters.database.VehicleDAO_Impl;
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 import com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
+import com.stanissudo.jycs_crafters.viewHolders.FuelLogAdapter;
+import com.stanissudo.jycs_crafters.viewHolders.FuelLogViewModel;
+import com.stanissudo.jycs_crafters.viewHolders.VehicleAdapter;
+import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
 
 import java.util.InputMismatchException;
 
@@ -33,8 +40,8 @@ import java.util.InputMismatchException;
  * Explanation: VehicleActivity handles adding new vehicles to a user's account
  */
 public class VehicleActivity extends BaseDrawerActivity {
-    private com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding binding;
-    private FuelTrackAppRepository repository;
+    private ActivityVehicleBinding binding;
+    FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());;
     private SharedPreferences sharedPreferences;
     private String vehicleName = "";
     private String vehicleMake = "";
@@ -51,7 +58,8 @@ public class VehicleActivity extends BaseDrawerActivity {
         binding = ActivityVehicleBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        repository = FuelTrackAppRepository.getRepository(getApplication());
+        // ViewModel
+        VehicleViewModel vm = new ViewModelProvider(this).get(VehicleViewModel.class);
 
         setSupportActionBar(binding.toolbar);
 

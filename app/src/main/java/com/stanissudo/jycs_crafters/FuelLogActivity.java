@@ -5,28 +5,21 @@ import static com.stanissudo.jycs_crafters.MainActivity.TAG;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
-import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.databinding.ActivityFuelLogBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
 import com.stanissudo.jycs_crafters.viewHolders.FuelLogAdapter;
 import com.stanissudo.jycs_crafters.viewHolders.FuelLogViewModel;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class FuelLogActivity extends BaseDrawerActivity {
     private ActivityFuelLogBinding binding;
