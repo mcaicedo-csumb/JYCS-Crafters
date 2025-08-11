@@ -52,7 +52,6 @@ public class MainActivity extends BaseDrawerActivity {
         // 1. Get the ViewModel
         vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
 
-
         // 3. Tell the ViewModel to load the vehicles for this user
         vehicleViewModel.loadUserVehicles(userId);
 
@@ -74,6 +73,19 @@ public class MainActivity extends BaseDrawerActivity {
         TextView usernameText = headerView.findViewById(R.id.nav_header_username);
         usernameText.setText(username);
 
+        // === Settings navigation ===
+        // Open SettingsActivity when the user taps "Settings" in the drawer
+        navView.setNavigationItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.nav_settings) {
+                // Launch Settings for any logged-in user
+                startActivity(SettingsActivity.intentFactory(this));
+                // Close drawer for better UX
+                binding.drawerLayout.closeDrawers();
+                return true;
+            }
+            // Let other items be handled elsewhere (or return false if no other handling)
+            return false;
+        });
 
         // Back button handling
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
