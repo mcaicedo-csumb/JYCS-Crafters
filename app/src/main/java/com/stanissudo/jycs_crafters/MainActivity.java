@@ -13,13 +13,17 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityMainBinding;
 import com.stanissudo.jycs_crafters.fragments.HomeFragment;
 import com.stanissudo.jycs_crafters.fragments.SettingsFragment;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
+import com.stanissudo.jycs_crafters.viewHolders.StatsPagerAdapter;
 import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
 
 public class MainActivity extends BaseDrawerActivity {
@@ -85,33 +89,33 @@ public class MainActivity extends BaseDrawerActivity {
             }
         });
 
-        // Default fragment
-        if (savedInstanceState == null) {
-            showHomeFragment();
-            binding.navView.setCheckedItem(R.id.nav_home);
-        }
-//        AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
-//        CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
+        // --- SETUP TABS AND VIEWPAGER for Stats fragments---
+
+        // 1. Get references to the new views
+        ViewPager2 viewPager = binding.viewPager;
+        TabLayout tabLayout = binding.tabLayout;
+
+        // 2. Create and set the adapter
+        StatsPagerAdapter pagerAdapter = new StatsPagerAdapter(this);
+        viewPager.setAdapter(pagerAdapter);
+
+        // 3. Link the TabLayout and the ViewPager
+        new TabLayoutMediator(tabLayout, viewPager,
+                (tab, position) -> {
+                    if (position == 1) {
+                        tab.setText("Distance");
+                    } else {
+                        tab.setText("Cost");
+                    }
+                }
+        ).attach();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
-    }
-
-    public void showSettingsFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new SettingsFragment())
-                .commit();
-        binding.navView.setCheckedItem(R.id.nav_settings);
-    }
-
-    private void showHomeFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new HomeFragment())
-                .commit();
-        binding.navView.setCheckedItem(R.id.nav_home);
     }
 
     @Override
