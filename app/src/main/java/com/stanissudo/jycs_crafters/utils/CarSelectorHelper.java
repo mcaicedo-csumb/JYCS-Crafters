@@ -26,37 +26,37 @@ public class CarSelectorHelper {
      * @param vehicles The list of vehicles from the database.
      */
     public static void loadVehicleData(Context context, List<Vehicle> vehicles) {
-        fullOptions.clear(); // Clear old data
+        fullOptions.clear(); // Clear old data first
+
         if (vehicles != null && !vehicles.isEmpty()) {
             for (Vehicle vehicle : vehicles) {
-                // Populate the map with the real ID and Name
                 fullOptions.put(vehicle.getVehicleID(), vehicle.getName());
             }
 
-            // Restore the last saved vehicle ID
+            // Restore the last saved vehicle ID from device storage
             SharedPreferences prefs = context.getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
             int lastSelectedId = prefs.getInt("lastSelectedVehicleId", -1);
-            String lastSelectedName = fullOptions.get(lastSelectedId);
+            String lastSelectedName = fullOptions.get(lastSelectedId); // Find car name by its ID
 
             if (lastSelectedName != null) {
-                selectedOption = lastSelectedName; // Restore saved selection
+                // If a valid last-selected car was found, use it
+                selectedOption = lastSelectedName;
             } else {
-                selectedOption = vehicles.get(0).getName(); // Default to first car
+                // Otherwise, default to the first car in the list
+                selectedOption = vehicles.get(0).getName();
             }
 
         } else {
-            selectedOption = "No Vehicle";
+            selectedOption = "No Vehicle"; // Handle case where user has no vehicles
         }
     }
 
     public static void setupDropdown(Activity activity, AutoCompleteTextView dropdown) {
 
         dropdown.setText(selectedOption, false);
-        //final boolean[] isDropdownOpen = {false}; // Track open/close state
 
         dropdown.setOnClickListener(v -> {
             String selected = dropdown.getText().toString();
-
 
             List<String> filteredOptions = new ArrayList<>();
             for (Map.Entry<Integer, String> entry : fullOptions.entrySet()) {
@@ -65,7 +65,6 @@ public class CarSelectorHelper {
                 }
             }
 
-            // Update adapter with filtered list
             ArrayAdapter<String> adapter = new ArrayAdapter<>(
                     activity,
                     R.layout.car_selector_dropdown,
@@ -73,23 +72,17 @@ public class CarSelectorHelper {
             );
             dropdown.setAdapter(adapter);
             dropdown.showDropDown();
+        });
 
-//            // Toggle dropdown manually
-//            if (isDropdownOpen[0]) {
-//                dropdown.dismissDropDown();
-//            } else {
-//                dropdown.showDropDown();
-//            }
-//
-//            isDropdownOpen[0] = !isDropdownOpen[0];
-//        });
-//
-//        // Reset dropdown state when user selects an item
-//        dropdown.setOnItemClickListener((parent, view, position, id) -> {
-//            String newSelected = parent.getItemAtPosition(position).toString();
-//            setSelectedOption(activity, newSelected);
-//            dropdown.setText(newSelected, false);
-//            isDropdownOpen[0] = false;
+        // VVV THIS IS THE PART YOU MUST UNCOMMENT VVV
+        // This listener saves the selection when the user chooses a car.
+        dropdown.setOnItemClickListener((parent, view, position, id) -> {
+            String newSelected = parent.getItemAtPosition(position).toString();
+
+            // This line saves the choice persistently
+            setSelectedOption(activity, newSelected);
+
+            dropdown.setText(newSelected, false);
         });
     }
     public static void updateDropdownText(AutoCompleteTextView dropdown) {
@@ -110,8 +103,10 @@ public class CarSelectorHelper {
 
     public static void setSelectedOption(Context context, String option) {
         selectedOption = option;
-        Integer key = getSelectedOptionKey();
+        Integer key = getSelectedOptionKey(); // Get the ID of the selected car
+
         if (key != -1) {
+            // Save the car's ID to SharedPreferences so it persists
             SharedPreferences prefs = context.getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
             prefs.edit().putInt("lastSelectedVehicleId", key).apply();
         }
