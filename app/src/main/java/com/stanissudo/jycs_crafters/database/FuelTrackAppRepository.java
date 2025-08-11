@@ -157,6 +157,20 @@ public class FuelTrackAppRepository {
     public LiveData<List<Vehicle>> getVehiclesForUser(int userId) {
         return vehicleDAO.getVehiclesForUser(userId);
     }
+
+    public void updateVehicleName(int vehicleID, String newName) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.updateVehicleName(vehicleID, newName));
+    }
+    public void updateVehicleMake(int vehicleID, String newMake) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.updateVehicleMake(vehicleID, newMake));
+    }
+    public void updateVehicleModel(int vehicleID, String newModel) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.updateVehicleModel(vehicleID, newModel));
+    }
+    public void updateVehicleYear(int vehicleID, int newYear) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.updateVehicleYear(vehicleID, newYear));
+    }
+
     public LiveData<CarCostStats> getCostStatsForVehicle(int vehicleId) {
         return fuelEntryDAO.getCostStatsForVehicle(vehicleId);
     }
@@ -245,5 +259,6 @@ public class FuelTrackAppRepository {
             main.post(() -> cb.onResult(true, "Password changed."));
         });
     }
+
 
 }

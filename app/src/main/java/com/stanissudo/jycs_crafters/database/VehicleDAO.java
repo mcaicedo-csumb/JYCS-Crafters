@@ -34,4 +34,16 @@ public interface VehicleDAO {
 
     @Query("SELECT * FROM " + FuelTrackAppDatabase.VEHICLE_TABLE + " WHERE UserId = :userId ORDER BY VehicleID")
     LiveData<List<Vehicle>> getVehiclesForUser(int userId);
+
+    @Query("UPDATE " + FuelTrackAppDatabase.VEHICLE_TABLE + " SET Name = :newName WHERE VehicleID = :vehicleID")
+    void updateVehicleName(int vehicleID, String newName);
+
+    @Query("UPDATE " + FuelTrackAppDatabase.VEHICLE_TABLE + " SET Make = :newMake WHERE VehicleID = :vehicleID")
+    void updateVehicleMake(int vehicleID, String newMake);
+
+    @Query("UPDATE " + FuelTrackAppDatabase.VEHICLE_TABLE + " SET Model = :newModel WHERE VehicleID = :vehicleID")
+    void updateVehicleModel(int vehicleID, String newModel);
+
+    @Query("UPDATE " + FuelTrackAppDatabase.VEHICLE_TABLE + " SET Year = :newYear WHERE VehicleID = :vehicleID")
+    void updateVehicleYear(int vehicleID, int newYear);
 }
