@@ -20,9 +20,8 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityMainBinding;
-import com.stanissudo.jycs_crafters.fragments.HomeFragment;
-import com.stanissudo.jycs_crafters.fragments.SettingsFragment;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
+import com.stanissudo.jycs_crafters.viewHolders.SharedViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.StatsPagerAdapter;
 import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
 
@@ -35,6 +34,7 @@ public class MainActivity extends BaseDrawerActivity {
     private static final String MAIN_ACTIVITY_USER_ID = "com.stanissudo.jycs_crafters.MAIN_ACTIVITY_USER_ID";
 
     private VehicleViewModel vehicleViewModel;
+    private SharedViewModel sharedViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,52 +42,78 @@ public class MainActivity extends BaseDrawerActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        repository = FuelTrackAppRepository.getRepository(getApplication());
+        // --- 1. Initialize ViewModels ---
+        vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
+        sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
-        // Get saved username from SharedPreferences
+        // --- 2. Standard Setup (Repository, SharedPreferences, etc.) ---
+        repository = FuelTrackAppRepository.getRepository(getApplication());
         sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
         String username = sharedPreferences.getString("username", "User");
         int userId = sharedPreferences.getInt("userId", -1);
 
-        // 1. Get the ViewModel
-        vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
+        // --- 3. Setup UI Components (ViewPager, Tabs, Navigation) ---
+        ViewPager2 viewPager = binding.viewPager;
+        TabLayout tabLayout = binding.tabLayout;
+        StatsPagerAdapter pagerAdapter = new StatsPagerAdapter(this);
+        viewPager.setAdapter(pagerAdapter);
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            tab.setText(position == 0 ? "Cost" : "Distance");
+        }).attach();
 
-        // 3. Tell the ViewModel to load the vehicles for this user
-        vehicleViewModel.loadUserVehicles(userId);
-
-        // 4. Observe the data. When it arrives from the database, populate the helper.
-        vehicleViewModel.getUserVehicles().observe(this, vehicles -> {
-            if (vehicles != null) {
-                // 1. First, load the data into the helper.
-                CarSelectorHelper.loadVehicleData(this, vehicles);
-
-                // 2. NOW that the helper has data, set up the dropdown.
-                AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
-                CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
-            }
-        });
-
-        // Display username in drawer header
+        // Setup for Navigation Drawer Header
         NavigationView navView = binding.navView;
         View headerView = navView.getHeaderView(0);
         TextView usernameText = headerView.findViewById(R.id.nav_header_username);
         usernameText.setText(username);
 
-        // === Settings navigation ===
-        // Open SettingsActivity when the user taps "Settings" in the drawer
+        // --- 4. Load Data and Link to UI ---
+        // Observe the list of vehicles from the database
+        vehicleViewModel.loadUserVehicles(userId);
+        vehicleViewModel.getUserVehicles().observe(this, vehicles -> {
+            if (vehicles != null && !vehicles.isEmpty()) {
+                // a. Load vehicle data into the helper, which sets the default selection
+                CarSelectorHelper.loadVehicleData(this, vehicles);
+
+                // b. Setup the dropdown UI with the loaded data
+                AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
+                CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
+
+                // c. **CRITICAL FIX:** Get the initial car ID and push it to the SharedViewModel.
+                //    This immediately informs all listening fragments which car to display.
+                Integer initialCarId = CarSelectorHelper.getSelectedOptionKey();
+                if (initialCarId != -1) {
+                    sharedViewModel.selectCar(initialCarId);
+                }
+            }
+        });
+
+        // --- 5. Set Listeners for User Interactions ---
+        // Listener for future dropdown selections
+        binding.toolbarDropdown.setOnItemClickListener((parent, view, position, id) -> {
+            String newSelected = parent.getItemAtPosition(position).toString();
+            CarSelectorHelper.setSelectedOption(this, newSelected);
+            binding.toolbarDropdown.setText(newSelected, false);
+
+            // Get the new car ID and notify the SharedViewModel of the change
+            Integer selectedId = CarSelectorHelper.getSelectedOptionKey();
+            if (selectedId != -1) {
+                sharedViewModel.selectCar(selectedId);
+            }
+        });
+
+        // Listener for Navigation Drawer item clicks
         navView.setNavigationItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_settings) {
-                // Launch Settings for any logged-in user
-                startActivity(SettingsActivity.intentFactory(this));
-                // Close drawer for better UX
-                binding.drawerLayout.closeDrawers();
+            int id = item.getItemId();
+            if (id == R.id.nav_logout) {
+                logout();
                 return true;
             }
-            // Let other items be handled elsewhere (or return false if no other handling)
+            // Handle other navigation items if you have them
             return false;
         });
 
-        // Back button handling
+        // Listener for the hardware back button
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -100,28 +126,6 @@ public class MainActivity extends BaseDrawerActivity {
                 }
             }
         });
-
-        // --- SETUP TABS AND VIEWPAGER for Stats fragments---
-
-        // 1. Get references to the new views
-        ViewPager2 viewPager = binding.viewPager;
-        TabLayout tabLayout = binding.tabLayout;
-
-        // 2. Create and set the adapter
-        StatsPagerAdapter pagerAdapter = new StatsPagerAdapter(this);
-        viewPager.setAdapter(pagerAdapter);
-
-        // 3. Link the TabLayout and the ViewPager
-        new TabLayoutMediator(tabLayout, viewPager,
-                (tab, position) -> {
-                    if (position == 1) {
-                        tab.setText("Distance");
-                    } else {
-                        tab.setText("Cost");
-                    }
-                }
-        ).attach();
-
     }
 
     @Override
