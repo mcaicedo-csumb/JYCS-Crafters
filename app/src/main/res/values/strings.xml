@@ -18,5 +18,6 @@
     <string name="change_password">Change Password</string>
     <string name="main_activity_recycler_view_item">main activity recycler view item</string>
     <string name="vehicle_activity_recycler_item">vehicle activity recycler item</string>
+    <string name="garage_add_vehicle_button">garage_add_vehicle_button</string>
 
 </resources>

@@ -11,6 +11,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityGarageBinding;
@@ -59,12 +60,10 @@ public class GarageActivity extends BaseDrawerActivity {
         //vm.selectVehicle(vehicle);
 
         // click (+) to send to VehicleActivity
-        binding.vehicleActivityAddButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = VehicleActivity.vehicleIntentFactory(getApplicationContext(), userId);
-                startActivity(intent);
-            }
+        FloatingActionButton fab = findViewById(R.id.garageAddButton);
+        fab.setOnClickListener(view -> {
+            Intent intent = VehicleActivity.vehicleIntentFactory(getApplicationContext(), userId);
+            startActivity(intent);
         });
     }
     static Intent garageIntentFactory(Context context, int userId) {
