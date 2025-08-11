@@ -23,7 +23,7 @@ public class VehicleViewHolder extends RecyclerView.ViewHolder {
 
     private VehicleViewHolder(View vehicleView) {
         super(vehicleView);
-        vehicleViewItem = vehicleView.findViewById(R.id.garageRecyclerView);
+        vehicleViewItem = vehicleView.findViewById(R.id.garageActivityRecyclerItemTextView);
     }
 
     public void bind(String text) {
