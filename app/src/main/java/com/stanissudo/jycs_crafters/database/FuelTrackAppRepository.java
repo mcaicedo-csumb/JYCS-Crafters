@@ -108,6 +108,10 @@ public class FuelTrackAppRepository {
         return fuelEntryDAO.getEntriesForCar(carId);
     }
 
+    public void deleteRecordByID(long carId) {
+        fuelEntryDAO.deleteRecordById(carId);
+    }
+
     // =================== User Methods ===================
     public LiveData<User> getUserByUsername(String username) {
         return userDAO.getUserByUsername(username);

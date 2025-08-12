@@ -23,7 +23,7 @@ public class FuelEntryViewHolder extends RecyclerView.ViewHolder {
 
     private FuelEntryViewHolder(View fuelEntryView) {
         super(fuelEntryView);
-        fuelEntryViewItem = fuelEntryView.findViewById(R.id.fuelEntryRecyclerItemTextView);
+        fuelEntryViewItem = null;// fuelEntryView.findViewById(R.id.fuelEntryRecyclerItemTextView);
     }
 
     public void bind(String text) {

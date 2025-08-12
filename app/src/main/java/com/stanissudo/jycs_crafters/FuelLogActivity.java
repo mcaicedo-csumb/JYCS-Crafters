@@ -2,6 +2,7 @@ package com.stanissudo.jycs_crafters;
 
 import static com.stanissudo.jycs_crafters.MainActivity.TAG;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,24 +25,52 @@ import com.stanissudo.jycs_crafters.viewHolders.FuelLogViewModel;
 public class FuelLogActivity extends BaseDrawerActivity {
     private ActivityFuelLogBinding binding;
     private static final String FUEL_LOG_USER_ID = "com.stanissudo.gymlog.FUEL_LOG_USER_ID";
-    FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
+    private FuelLogViewModel viewModel;
+
+    //FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
 
 @Override
 protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+//    super.onCreate(savedInstanceState);
+//    binding = ActivityFuelLogBinding.inflate(getLayoutInflater());
+//    setContentView(binding.getRoot());
+    // Inflate + set content BEFORE calling super so BaseDrawerActivity can find views
     binding = ActivityFuelLogBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
-
-    // RecyclerView
-    FuelLogAdapter adapter = new FuelLogAdapter();
-    binding.logDisplayRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-    binding.logDisplayRecyclerView.setAdapter(adapter);
+    super.onCreate(savedInstanceState);
 
     // ViewModel
-    FuelLogViewModel vm = new ViewModelProvider(this).get(FuelLogViewModel.class);
+    //FuelLogViewModel vm = new ViewModelProvider(this).get(FuelLogViewModel.class);
+// ViewModel first (so callbacks can reference it)
+    viewModel = new ViewModelProvider(this).get(FuelLogViewModel.class);
+
+    // RecyclerView
+//    FuelLogAdapter adapter = new FuelLogAdapter();
+//    binding.logDisplayRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+//    binding.logDisplayRecyclerView.setAdapter(adapter);
+
+    // New RecyclerView
+    binding.logDisplayRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+    FuelLogAdapter adapter = new FuelLogAdapter(new FuelLogAdapter.Callbacks() {
+        @Override public void onDeleteClicked(long id) {
+            new AlertDialog.Builder(FuelLogActivity.this)
+                    .setMessage("Delete this entry?")
+                    .setPositiveButton("Delete", (d, w) -> viewModel.deleteById(id))
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        }
+        @Override public void onEditClicked(long id) {
+            // TODO: handle edit later
+        }
+    });
+    binding.logDisplayRecyclerView.setAdapter(adapter);
+
 
     // Observe ONCE
-    vm.entries.observe(this, adapter::submitList);
+//    vm.entries.observe(this, adapter::submitList);
+// Observe entries
+    viewModel.entries.observe(this, adapter::submitList);
+
 
     // Dropdown
     AutoCompleteTextView drop = binding.toolbarDropdown;
@@ -50,7 +79,7 @@ protected void onCreate(Bundle savedInstanceState) {
     // Initial car
     Integer initialCarId = CarSelectorHelper.getSelectedOptionKey();
     if (initialCarId != null && initialCarId > 0) {
-        vm.setSelectedCarId(initialCarId);
+        viewModel.setSelectedCarId(initialCarId);
     } else {
         Toast.makeText(this, "Select a car to load entries", Toast.LENGTH_SHORT).show();
     }
@@ -64,7 +93,7 @@ protected void onCreate(Bundle savedInstanceState) {
             Toast.makeText(this, "Invalid car selection", Toast.LENGTH_SHORT).show();
             return;
         }
-        vm.setSelectedCarId(newCarId);
+        viewModel.setSelectedCarId(newCarId);
     });
 }
     static Intent fuelLogIntentFactory(Context context, int userId) {

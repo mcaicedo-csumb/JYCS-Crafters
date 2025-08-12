@@ -38,6 +38,9 @@ public interface FuelEntryDAO {
             "FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " " +
             "WHERE CarID = :carId")
     LiveData<CarCostStats> getCostStatsForVehicle(int carId);
+
+    @Query("DELETE FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE  LogID = :recordId")
+void deleteRecordById(long recordId);
 }
 
 //@PrimaryKey(autoGenerate = true)

@@ -60,11 +60,11 @@ public class GarageActivity extends BaseDrawerActivity {
         //vm.selectVehicle(vehicle);
 
         // click (+) to send to VehicleActivity
-        FloatingActionButton fab = findViewById(R.id.garageAddButton);
-        fab.setOnClickListener(view -> {
-            Intent intent = VehicleActivity.vehicleIntentFactory(getApplicationContext(), userId);
-            startActivity(intent);
-        });
+//        FloatingActionButton fab = findViewById(R.id.garageAddButton);
+//        fab.setOnClickListener(view -> {
+//            Intent intent = VehicleActivity.vehicleIntentFactory(getApplicationContext(), userId);
+//            startActivity(intent);
+//        });
     }
     static Intent garageIntentFactory(Context context, int userId) {
         Intent intent = new Intent(context, GarageActivity.class);
