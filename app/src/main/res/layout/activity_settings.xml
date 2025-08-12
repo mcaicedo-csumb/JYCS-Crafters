@@ -1,15 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/settings_root"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/changePasswordButton"
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="16dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Change Password" />
+        android:layout_height="wrap_content">
 
-</LinearLayout>
+        <!-- CAMILA: pretty header with avatar + display name + @username -->
+        <LinearLayout
+            android:id="@+id/settings_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/settings_avatar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:background="@android:color/darker_gray"
+                android:text="U"
+                android:layout_marginEnd="12dp"
+                android:padding="4dp"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/settings_header_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:text="Display Name"/>
+
+                <TextView
+                    android:id="@+id/settings_header_username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#777777"
+                    android:text="username"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:text="Profile"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Username (read-only) -->
+        <TextView
+            android:id="@+id/settings_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:background="?android:attr/editTextBackground"
+            android:enabled="false"
+            android:textColor="#333333"
+            android:layout_marginTop="8dp" />
+
+        <!-- Display Name (editable) -->
+        <TextView
+            android:text="Display Name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" />
+
+        <EditText
+            android:id="@+id/settings_display_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Your name as shown in the app" />
+
+        <Button
+            android:id="@+id/saveDisplayNameButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Name"
+            android:layout_marginTop="10dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"
+            android:layout_marginTop="16dp" />
+
+        <!-- existing Change Password button -->
+        <Button
+            android:id="@+id/changePasswordButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Change Password"
+            android:layout_marginTop="16dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:text="Danger Zone"
+            android:textStyle="bold"
+            android:textColor="#B00020"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" />
+
+        <Button
+            android:id="@+id/deleteAccountButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Deactivate My Account"
+            android:textColor="#B00020"
+            android:layout_marginTop="10dp" />
+
+    </LinearLayout>
+</ScrollView>

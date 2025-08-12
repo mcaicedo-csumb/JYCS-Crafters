@@ -24,13 +24,22 @@ public class User {
 
     private boolean isAdmin = false;
 
-    // CAMILA: add soft-status flag to support deactivate/reactivate (default active)
+    // CAMILA: optional display name editable in Settings
+    private String displayName;
+
+    // CAMILA: soft-delete flag (active/deactivated)
     private boolean isActive = true;
 
     public User(@NonNull String username, @NonNull String password) {
         this.username = username;
         this.password = password;
         this.isAdmin = false;
+
+        // CAMILA: default display name mirrors username
+        this.displayName = username;
+
+        // CAMILA: new accounts are active by default
+        this.isActive = true;
     }
 
     // Getters and setters
@@ -69,12 +78,20 @@ public class User {
         isAdmin = admin;
     }
 
-    // CAMILA: expose soft-status flag for admin management
+    // CAMILA: displayName accessors for profile editing
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    // CAMILA: active flag accessors (used for login block / soft delete)
     public boolean isActive() {
         return isActive;
     }
 
-    // CAMILA: allow toggling active/inactive instead of hard-deleting
     public void setActive(boolean active) {
         isActive = active;
     }
@@ -84,17 +101,19 @@ public class User {
         if (this == o) return true;
         if (!(o instanceof User)) return false;
         User user = (User) o;
-        // CAMILA: include isActive in equality to reflect soft-status in comparisons
         return id == user.id &&
                 isAdmin == user.isAdmin &&
+                // CAMILA: include isActive in equality
                 isActive == user.isActive &&
                 username.equals(user.username) &&
-                password.equals(user.password);
+                password.equals(user.password) &&
+                // CAMILA: include displayName in equality
+                Objects.equals(displayName, user.displayName);
     }
 
     @Override
     public int hashCode() {
-        // CAMILA: include isActive so hash matches equals contract
-        return Objects.hash(id, username, password, isAdmin, isActive);
+        // CAMILA: include displayName and isActive in hash
+        return Objects.hash(id, username, password, isAdmin, isActive, displayName);
     }
 }

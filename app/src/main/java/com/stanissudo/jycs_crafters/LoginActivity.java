@@ -115,26 +115,37 @@ public class LoginActivity extends AppCompatActivity {
         LiveData<User> userLiveData = repository.getUserByUsername(username);
         userLiveData.observe(this, user -> {
             if (user != null) {
-                if (user.getPassword().equals(password)) {
-                    // CAMILA: block login for inactive users (soft-deactivated)
-                    if (!user.isActive()) {
-                        showToast("Your account is deactivated. Contact an admin.");
-                        return;
-                    }
-
-                    saveUserSession(user.getId(), user.getUsername(), user.isAdmin());
-
-                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
-
-                    if (user.isAdmin()) {
-                        startActivity(LandingPageActivity.intentFactory(this, user.getUsername(), true));
-                    } else {
-                        startActivity(new Intent(this, MainActivity.class));
-                    }
-                    finish();
-                } else {
-                    showToast("Incorrect password");
+                // CAMILA: block login for inactive users
+                if (!user.isActive()) {
+                    showToast("Your account is deactivated. Contact an admin.");
+                    return;
                 }
+
+                // CAMILA: support hashed or legacy plaintext passwords
+                String stored = user.getPassword();
+                boolean storedIsHash = stored != null && stored.matches("(?i)^[0-9a-f]{64}$");
+                String attemptHash = sha256(password);
+
+                boolean ok = storedIsHash ? stored.equalsIgnoreCase(attemptHash) : stored.equals(password);
+                if (!ok) {
+                    showToast("Incorrect password");
+                    return;
+                }
+
+                // CAMILA: upgrade legacy plaintext to hash on successful login
+                if (!storedIsHash) {
+                    repository.updatePasswordById(user.getId(), attemptHash);
+                }
+
+                saveUserSession(user.getId(), user.getUsername(), user.isAdmin());
+                Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
+
+                if (user.isAdmin()) {
+                    startActivity(LandingPageActivity.intentFactory(this, user.getUsername(), true));
+                } else {
+                    startActivity(new Intent(this, MainActivity.class));
+                }
+                finish();
             } else {
                 showToast("User not found");
             }
@@ -163,13 +174,11 @@ public class LoginActivity extends AppCompatActivity {
                                     saveUserSession(newUser.getId(), email, false);
                                     startActivity(new Intent(this, MainActivity.class));
                                 } else {
-                                    // CAMILA: block login for inactive users (Google path too)
+                                    // CAMILA: block Google login for inactive users
                                     if (!user.isActive()) {
                                         showToast("Your account is deactivated. Contact an admin.");
-                                        FirebaseAuth.getInstance().signOut(); // CAMILA: ensure we leave no Firebase session
                                         return;
                                     }
-
                                     saveUserSession(user.getId(), user.getUsername(), user.isAdmin());
                                     if (user.isAdmin()) {
                                         startActivity(LandingPageActivity.intentFactory(this, user.getUsername(), true));
@@ -202,6 +211,9 @@ public class LoginActivity extends AppCompatActivity {
 
     // Save login state for persistence
     private void saveUserSession(int userId, String username, boolean isAdmin) {
+        if (sharedPreferences == null) {
+            sharedPreferences = getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
+        }
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("userId", userId);
         editor.putString("username", username);
@@ -216,5 +228,18 @@ public class LoginActivity extends AppCompatActivity {
 
     public static Intent intentFactory(Context context) {
         return new Intent(context, LoginActivity.class);
+    }
+
+    // CAMILA: simple SHA-256 helper for hashing new/attempt passwords
+    private static String sha256(String s) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] bytes = md.digest(s.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder(bytes.length * 2);
+            for (byte b : bytes) sb.append(String.format("%02x", b));
+            return sb.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
