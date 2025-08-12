@@ -7,6 +7,7 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.PrimaryKey;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 
@@ -18,13 +19,18 @@ import com.stanissudo.jycs_crafters.database.pojos.CarCostStats;
 @Dao
 public interface FuelEntryDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(FuelEntry fuelEntry);
+    void insertRecord(FuelEntry fuelEntry);
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    void updateRecord(FuelEntry fuelEntry);
 
     @Query("SELECT * FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE CarID = :carId ORDER BY logDate DESC")
     LiveData<List<FuelEntry>> getEntriesForCar(int carId);
 
-    @Query("SELECT * FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE  LogID = :logId ORDER BY logDate DESC")
-    LiveData<List<FuelEntry>> getRecordsById(int logId);
+//    @Query("SELECT * FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE  LogID = :logId ORDER BY logDate DESC")
+//    LiveData<List<FuelEntry>> getRecordsById(int logId);
+
+    @Query("SELECT * FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE LogID = :id LIMIT 1")
+    LiveData<FuelEntry> getRecordById(int id);
 
     @Query("SELECT odometer FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE  CarID = :carId AND logDate < :logDate ORDER BY logDate DESC LIMIT 1")
     Integer getPreviousOdometer(int carId, LocalDateTime logDate);

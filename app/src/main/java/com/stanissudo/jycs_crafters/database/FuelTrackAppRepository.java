@@ -89,7 +89,10 @@ public class FuelTrackAppRepository {
     //TODO: Insert your DB methods here
     // =================== FuelEntry Methods ===================
     public void insertFuelEntry(FuelEntry fuelEntry) {
-        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> fuelEntryDAO.insert(fuelEntry));
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> fuelEntryDAO.insertRecord(fuelEntry));
+    }
+    public void updateFuelEntry(FuelEntry fuelEntry) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> fuelEntryDAO.updateRecord(fuelEntry));
     }
 
     interface BoolCallback {
@@ -110,6 +113,9 @@ public class FuelTrackAppRepository {
 
     public void deleteRecordByID(long carId) {
         fuelEntryDAO.deleteRecordById(carId);
+    }
+    public LiveData<FuelEntry> getRecordById(int logId) {
+        return fuelEntryDAO.getRecordById(logId);
     }
 
     // =================== User Methods ===================
@@ -141,9 +147,9 @@ public class FuelTrackAppRepository {
         return userDAO.getAllUsers();
     }
 
-    public LiveData<List<FuelEntry>> getAllLogsByUserId(int loggedInUserId) {
-        return fuelEntryDAO.getRecordsById(loggedInUserId);
-    }
+//    public LiveData<List<FuelEntry>> getAllLogsByUserId(int loggedInUserId) {
+//        return fuelEntryDAO.getRecordsById(loggedInUserId);
+//    }
 
     // =================== Vehicle Methods ===================
     public void insertVehicle(Vehicle vehicle) {

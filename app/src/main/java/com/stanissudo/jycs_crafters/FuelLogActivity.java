@@ -59,8 +59,11 @@ protected void onCreate(Bundle savedInstanceState) {
                     .setNegativeButton("Cancel", null)
                     .show();
         }
-        @Override public void onEditClicked(long id) {
-            // TODO: handle edit later
+
+        @Override
+        public void onEditClicked(long id) {
+            int userId = getIntent().getIntExtra(FUEL_LOG_USER_ID, -1);
+            startActivity(AddFuelEntryActivity.editIntentFactory(FuelLogActivity.this, userId, (int) id));
         }
     });
     binding.logDisplayRecyclerView.setAdapter(adapter);

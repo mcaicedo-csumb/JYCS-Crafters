@@ -2,6 +2,8 @@ package com.stanissudo.jycs_crafters;
 
 import static com.stanissudo.jycs_crafters.MainActivity.TAG;
 
+import static java.lang.String.format;
+
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -15,6 +17,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -30,11 +33,34 @@ import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.databinding.ActivityAddFuelEntryBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
+import com.stanissudo.jycs_crafters.viewHolders.FuelEntryViewModel;
 
 public class AddFuelEntryActivity extends AppCompatActivity {
 
     private ActivityAddFuelEntryBinding binding;
     //private static final String FUEL_ENTRY_USER_ID = "com.stanissudo.gymlog.FUEL_ENTRY_USER_ID";
+
+    //Used to Insert/Update records------------------
+    public static final String EXTRA_LOG_ID = "EXTRA_LOG_ID";
+    public static final String EXTRA_USER_ID = "EXTRA_USER_ID";
+
+    public static Intent editIntentFactory(Context ctx, int userId, int logId) {
+        Intent i = new Intent(ctx, AddFuelEntryActivity.class);
+        i.putExtra(EXTRA_USER_ID, userId);
+        i.putExtra(EXTRA_LOG_ID, logId);
+        return i;
+    }
+
+    public static Intent addIntentFactory(Context ctx, int userId) {
+        Intent i = new Intent(ctx, AddFuelEntryActivity.class);
+        i.putExtra(EXTRA_USER_ID, userId);
+        return i;
+    }
+    private FuelEntryViewModel vm;
+    private boolean isEdit;
+    private int editLogId;
+    //------------------------------------------------
+
     FuelTrackAppRepository repository;
     // int loggedInUserId = -1;
     private int odometer = -1;
@@ -122,6 +148,32 @@ public class AddFuelEntryActivity extends AppCompatActivity {
             }
         });
 
+//Used to Insert/Update records------------------
+        vm = new ViewModelProvider(this).get(FuelEntryViewModel.class);
+
+        editLogId = getIntent().getIntExtra(EXTRA_LOG_ID, -1);
+        isEdit = editLogId > 0;
+
+        if (isEdit) {
+            setTitle("Edit Fuel Entry");
+            vm.getById(editLogId).observe(this, e -> {
+                if (e == null) return;
+                // Prefill UI — adjust to your actual field names/ids
+                binding.odometerInputEditText.setText(String.valueOf(e.getOdometer()));
+                binding.gasVolumeInputEditText.setText(String.valueOf(e.getGallons()));
+                binding.pricePerGallonInputEditText.setText(String.valueOf(e.getPricePerGallon()));
+                binding.totalPriceInputEditText.setText(String.valueOf(e.getTotalCost()));
+                // date picker / car dropdown if you have them:
+                 binding.editTextDateFuelEntry.setText(format(e.getLogDate().toString()));
+                 CarSelectorHelper.setSelectedOption(this, e.getCarID().toString());
+            });
+        } else {
+            setTitle("Add Fuel Entry");
+        }
+
+        binding.saveEntryButton.setOnClickListener(v -> onSave());
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+        //binding.cancelButton.setOnClickListener(v -> finish());
     }
 
     private void getInformationFromDisplay() {
@@ -355,7 +407,7 @@ public class AddFuelEntryActivity extends AppCompatActivity {
                 double gasVolume = totalPrice / pricePerGal;
 
                 // Optional: round to 2 decimal places
-                binding.gasVolumeInputEditText.setText(String.format(Locale.US, "%.3f", gasVolume));
+                binding.gasVolumeInputEditText.setText(format(Locale.US, "%.3f", gasVolume));
             } catch (NumberFormatException e) {
                 // Ignore if invalid numbers are entered
                 binding.gasVolumeInputEditText.setText("");
@@ -377,7 +429,7 @@ public class AddFuelEntryActivity extends AppCompatActivity {
                 double pricePerGal = totalPrice / gasVol;
 
                 // Optional: round to 2 decimal places
-                binding.pricePerGallonInputEditText.setText(String.format(Locale.US, "%.2f", pricePerGal));
+                binding.pricePerGallonInputEditText.setText(format(Locale.US, "%.2f", pricePerGal));
             } catch (NumberFormatException e) {
                 // Ignore if invalid numbers are entered
                 binding.pricePerGallonInputEditText.setText("");
@@ -399,7 +451,7 @@ public class AddFuelEntryActivity extends AppCompatActivity {
                 double total = gasVol * pricePerGal;
 
                 // Optional: round to 2 decimal places
-                binding.totalPriceInputEditText.setText(String.format(Locale.US, "%.2f", total));
+                binding.totalPriceInputEditText.setText(format(Locale.US, "%.2f", total));
             } catch (NumberFormatException e) {
                 // Ignore if invalid numbers are entered
                 binding.totalPriceInputEditText.setText("");
@@ -409,6 +461,48 @@ public class AddFuelEntryActivity extends AppCompatActivity {
             binding.totalPriceInputEditText.setText("");
         }
     }
+    //Used to Insert/Update records------------------
+    private void onSave() {
+//        // Gather values from UI, validate, then build entity
+        int odo = safeInt(binding.odometerInputEditText.getText().toString());
+        double gallons = safeDouble(binding.gasVolumeInputEditText.getText().toString());
+        double price = safeDouble(binding.pricePerGallonInputEditText.getText().toString());
+        double total = safeDouble(binding.totalPriceInputEditText.getText().toString());
+//        // also gather date, carId, notes, etc.
+        int selectedCarId = -1;
+        try {
+            selectedCarId = CarSelectorHelper.getSelectedOptionKey();
+            if (selectedCarId == -1) {
+                throw new IllegalArgumentException("Invalid selected car ID");
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Error getting selected car ID", e);
+            Toast.makeText(this, "Error creating a record. Did you select your Car?", Toast.LENGTH_SHORT).show();
+        }
+        if (odometer < 0 || gasGal < 0 || pricePerGal < 0) {
+            Log.d(TAG, "odometer, gasGal, pricePerGal must be positive");
+            Toast.makeText(this, "Missing value.", Toast.LENGTH_SHORT).show();
+        }
+        int carId = selectedCarId;
 
 
+        FuelEntry e = new FuelEntry();
+        if (isEdit) e.setLogID(editLogId); // <- keep same PK when updating
+        e.setOdometer(odo);
+        e.setGallons(gallons);
+        e.setPricePerGallon(price);
+        e.setTotalCost(total);
+        e.setCarID(carId);
+        // set carId/date/notes...
+
+        if (isEdit) {
+            vm.update(e);
+        } else {
+            vm.insert(e);
+        }
+        finish(); // Room LiveData will refresh your list automatically
+    }
+
+    private int safeInt(String s){ try { return Integer.parseInt(s); } catch(Exception e){ return 0; } }
+    private double safeDouble(String s){ try { return Double.parseDouble(s); } catch(Exception e){ return 0.0; } }
 }

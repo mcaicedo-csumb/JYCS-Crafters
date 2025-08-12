@@ -103,7 +103,8 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
                 }
             } else if (id == R.id.nav_garage) {
                 //if (!(this instanceof GarageActivity)) {
-                Intent intent = GarageActivity.garageIntentFactory(getApplicationContext(), -1);
+                //Intent intent = GarageActivity.garageIntentFactory(getApplicationContext(), -1);
+                Intent intent = VehicleActivity.vehicleIntentFactory(getApplicationContext(), -1);
                 startActivity(intent);
                 // }
             }
