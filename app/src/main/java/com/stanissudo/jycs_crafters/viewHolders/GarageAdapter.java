@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 
-import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 
 import java.util.Objects;
@@ -19,9 +18,9 @@ import java.util.Objects;
  * @project JYCS-Crafters
  * @name VehicleAdapter.java
  */
-public class VehicleAdapter extends ListAdapter<Vehicle, VehicleViewHolder> {
+public class GarageAdapter extends ListAdapter<Vehicle, GarageViewHolder> {
 
-    public VehicleAdapter() {
+    public GarageAdapter() {
         super(DIFF);
     }
 
@@ -38,23 +37,23 @@ public class VehicleAdapter extends ListAdapter<Vehicle, VehicleViewHolder> {
                 }
             };
 
-    public VehicleAdapter(@NonNull DiffUtil.ItemCallback<Vehicle> diffCallback) {
+    public GarageAdapter(@NonNull DiffUtil.ItemCallback<Vehicle> diffCallback) {
         super(diffCallback);
     }
 
     @NonNull
     @Override
-    public VehicleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return VehicleViewHolder.create(parent);
+    public GarageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return GarageViewHolder.create(parent);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull VehicleViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull GarageViewHolder holder, int position) {
         Vehicle current = getItem(position);
         holder.bind(current.toString());
     }
 
-    public static class VehicleDiff extends DiffUtil.ItemCallback<Vehicle> {
+    public static class GarageDiff extends DiffUtil.ItemCallback<Vehicle> {
         @Override
         public boolean areItemsTheSame(@NonNull Vehicle oldItem, @NonNull Vehicle newItem) {
             return oldItem == newItem;

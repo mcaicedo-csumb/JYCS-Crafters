@@ -2,7 +2,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".GarageActivity">
 
     <FrameLayout
         app:layout_constraintEnd_toEndOf="parent"
@@ -13,7 +15,7 @@
         android:layout_gravity="end|bottom">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/garageAddButton"
+            android:id="@+id/garageAddButton_xml"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/garage_add_vehicle_button"
