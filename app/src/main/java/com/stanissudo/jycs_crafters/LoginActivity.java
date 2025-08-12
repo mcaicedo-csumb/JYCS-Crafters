@@ -61,9 +61,7 @@ public class LoginActivity extends AppCompatActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-
         loadAdviceInto(binding.quoteText);
-
 
         repository = FuelTrackAppRepository.getRepository(getApplication());
         firebaseAuth = FirebaseAuth.getInstance();
@@ -118,6 +116,12 @@ public class LoginActivity extends AppCompatActivity {
         userLiveData.observe(this, user -> {
             if (user != null) {
                 if (user.getPassword().equals(password)) {
+                    // CAMILA: block login for inactive users (soft-deactivated)
+                    if (!user.isActive()) {
+                        showToast("Your account is deactivated. Contact an admin.");
+                        return;
+                    }
+
                     saveUserSession(user.getId(), user.getUsername(), user.isAdmin());
 
                     Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
@@ -159,6 +163,13 @@ public class LoginActivity extends AppCompatActivity {
                                     saveUserSession(newUser.getId(), email, false);
                                     startActivity(new Intent(this, MainActivity.class));
                                 } else {
+                                    // CAMILA: block login for inactive users (Google path too)
+                                    if (!user.isActive()) {
+                                        showToast("Your account is deactivated. Contact an admin.");
+                                        FirebaseAuth.getInstance().signOut(); // CAMILA: ensure we leave no Firebase session
+                                        return;
+                                    }
+
                                     saveUserSession(user.getId(), user.getUsername(), user.isAdmin());
                                     if (user.isAdmin()) {
                                         startActivity(LandingPageActivity.intentFactory(this, user.getUsername(), true));

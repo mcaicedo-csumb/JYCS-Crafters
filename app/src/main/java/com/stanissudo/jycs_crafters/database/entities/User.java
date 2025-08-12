@@ -24,6 +24,9 @@ public class User {
 
     private boolean isAdmin = false;
 
+    // CAMILA: add soft-status flag to support deactivate/reactivate (default active)
+    private boolean isActive = true;
+
     public User(@NonNull String username, @NonNull String password) {
         this.username = username;
         this.password = password;
@@ -66,19 +69,32 @@ public class User {
         isAdmin = admin;
     }
 
+    // CAMILA: expose soft-status flag for admin management
+    public boolean isActive() {
+        return isActive;
+    }
+
+    // CAMILA: allow toggling active/inactive instead of hard-deleting
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof User)) return false;
         User user = (User) o;
+        // CAMILA: include isActive in equality to reflect soft-status in comparisons
         return id == user.id &&
                 isAdmin == user.isAdmin &&
+                isActive == user.isActive &&
                 username.equals(user.username) &&
                 password.equals(user.password);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, password, isAdmin);
+        // CAMILA: include isActive so hash matches equals contract
+        return Objects.hash(id, username, password, isAdmin, isActive);
     }
 }
