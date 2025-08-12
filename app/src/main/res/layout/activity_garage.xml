@@ -7,6 +7,24 @@
     android:layout_height="match_parent"
     tools:context=".GarageActivity">
 
+    <FrameLayout
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:padding="12dp"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content" >
+
+        <Button
+            android:id="@+id/garageAddButton"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:text="+"
+            android:textSize="30sp"
+            android:contentDescription="@string/garage_add_vehicle_button"
+            app:backgroundTint="?attr/colorPrimary"
+            android:layout_gravity="bottom|right" />
+    </FrameLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -28,7 +46,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/garageRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="600dp"
                 android:layout_marginTop="16dp"
                 android:padding="2dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -47,4 +65,7 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:menu="@menu/drawer_menu" />
+
+
 </androidx.drawerlayout.widget.DrawerLayout>
+

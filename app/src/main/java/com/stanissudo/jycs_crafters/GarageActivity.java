@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.FrameLayout;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -15,8 +16,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityGarageBinding;
-import com.stanissudo.jycs_crafters.viewHolders.VehicleAdapter;
-import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
+import com.stanissudo.jycs_crafters.viewHolders.GarageAdapter;
+import com.stanissudo.jycs_crafters.viewHolders.GarageViewModel;
 
 /**
  * @author Ysabelle Kim
@@ -39,12 +40,12 @@ public class GarageActivity extends BaseDrawerActivity {
         setContentView(binding.getRoot());
 
         // RecyclerView
-        VehicleAdapter adapter = new VehicleAdapter();
+        GarageAdapter adapter = new GarageAdapter();
         binding.garageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.garageRecyclerView.setAdapter(adapter);
 
         // ViewModel
-        VehicleViewModel vm = new ViewModelProvider(this).get(VehicleViewModel.class);
+        GarageViewModel vm = new ViewModelProvider(this).get(GarageViewModel.class);
 
         // Observe ONCE
         vm.getUserVehicles().observe(this, adapter::submitList);
@@ -59,11 +60,20 @@ public class GarageActivity extends BaseDrawerActivity {
         // TODO: on clicking a row, select this vehicle
         //vm.selectVehicle(vehicle);
 
+        // not working for FloatingActionButton
+//        FloatingActionButton fab = findViewById(R.id.garageAddButton);
+//        fab.setOnClickListener(view -> {
+//            Intent intent = VehicleActivity.vehicleIntentFactory(getApplicationContext(), userId);
+//            startActivity(intent);
+//        });
+
         // click (+) to send to VehicleActivity
-        FloatingActionButton fab = findViewById(R.id.garageAddButton);
-        fab.setOnClickListener(view -> {
-            Intent intent = VehicleActivity.vehicleIntentFactory(getApplicationContext(), userId);
-            startActivity(intent);
+        binding.garageAddButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = VehicleActivity.vehicleIntentFactory(getApplicationContext(), userId);
+                startActivity(intent);
+            }
         });
     }
     static Intent garageIntentFactory(Context context, int userId) {
