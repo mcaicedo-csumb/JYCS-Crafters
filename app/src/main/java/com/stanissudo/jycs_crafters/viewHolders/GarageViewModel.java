@@ -11,7 +11,7 @@ import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 
 import java.util.List;
-public class VehicleViewModel extends AndroidViewModel {
+public class GarageViewModel extends AndroidViewModel {
 
     private final FuelTrackAppRepository repository;
     private LiveData<List<Vehicle>> userVehicles;
@@ -19,7 +19,7 @@ public class VehicleViewModel extends AndroidViewModel {
     // To hold the currently selected vehicle across the app if needed
     private final MutableLiveData<Vehicle> selectedVehicle = new MutableLiveData<>();
 
-    public VehicleViewModel(@NonNull Application application) {
+    public GarageViewModel(@NonNull Application application) {
         super(application);
         repository = FuelTrackAppRepository.getRepository(application);
         // Initialize with an empty list to avoid nulls

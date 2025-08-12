@@ -17,22 +17,22 @@ import com.stanissudo.jycs_crafters.R;
  * @project JYCS-Crafters
  * @name VehicleViewHolder.java
  */
-public class VehicleViewHolder extends RecyclerView.ViewHolder {
+public class GarageViewHolder extends RecyclerView.ViewHolder {
 
-    private final TextView vehicleViewItem;
+    private final TextView garageViewItem;
 
-    private VehicleViewHolder(View vehicleView) {
+    private GarageViewHolder(View vehicleView) {
         super(vehicleView);
-        vehicleViewItem = vehicleView.findViewById(R.id.garageActivityRecyclerItemTextView);
+        garageViewItem = vehicleView.findViewById(R.id.garageActivityRecyclerItemTextView);
     }
 
     public void bind(String text) {
-        vehicleViewItem.setText(text);
+        garageViewItem.setText(text);
     }
 
-    static VehicleViewHolder create(ViewGroup parent) {
+    static GarageViewHolder create(ViewGroup parent) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.garage_activity_recycler_item, parent, false);
-        return new VehicleViewHolder(view);
+        return new GarageViewHolder(view);
     }
 }

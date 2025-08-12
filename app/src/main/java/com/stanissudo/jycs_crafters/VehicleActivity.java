@@ -1,33 +1,21 @@
 package com.stanissudo.jycs_crafters;
 
-import static com.stanissudo.jycs_crafters.MainActivity.TAG;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
-import com.stanissudo.jycs_crafters.database.VehicleDAO_Impl;
-import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 import com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding;
-import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
-import com.stanissudo.jycs_crafters.viewHolders.FuelLogAdapter;
-import com.stanissudo.jycs_crafters.viewHolders.FuelLogViewModel;
-import com.stanissudo.jycs_crafters.viewHolders.VehicleAdapter;
-import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
+import com.stanissudo.jycs_crafters.viewHolders.GarageViewModel;
 
 import java.util.InputMismatchException;
 
@@ -61,7 +49,7 @@ public class VehicleActivity extends BaseDrawerActivity {
         setContentView(binding.getRoot());
 
         // ViewModel
-        VehicleViewModel vm = new ViewModelProvider(this).get(VehicleViewModel.class);
+        GarageViewModel vm = new ViewModelProvider(this).get(GarageViewModel.class);
 
         setSupportActionBar(binding.toolbar);
 
