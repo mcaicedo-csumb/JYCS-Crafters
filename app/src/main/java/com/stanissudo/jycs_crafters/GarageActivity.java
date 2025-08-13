@@ -5,18 +5,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityGarageBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
 import com.stanissudo.jycs_crafters.viewHolders.GarageAdapter;
 import com.stanissudo.jycs_crafters.viewHolders.GarageViewModel;
+import com.stanissudo.jycs_crafters.viewHolders.SharedViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
 
 /**
@@ -33,12 +36,33 @@ public class GarageActivity extends BaseDrawerActivity {
     private SharedPreferences sharedPreferences;
     FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
     private GarageViewModel garageViewModel;
+    private VehicleViewModel vehicleViewModel;
+    private SharedViewModel sharedViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         binding = ActivityGarageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        super.onCreate(savedInstanceState);
+
+        // ViewModels
+        garageViewModel = new ViewModelProvider(this).get(GarageViewModel.class);
+        vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
+        sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+
+        // Load vehicles for this user.
+        SharedPreferences prefs = getSharedPreferences("login_prefs", MODE_PRIVATE);
+        int userId = prefs.getInt("userId", -1);
+        vehicleViewModel.loadUserVehicles(userId);
+        vehicleViewModel.getUserVehicles().observe(this, vehicles -> {
+            if (vehicles == null || vehicles.isEmpty()) {
+                Toast.makeText(this, "No vehicles found for this account.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // (a) Update helper's cache.
+            CarSelectorHelper.loadVehicleData(this, vehicles);
+        });
 
         // RecyclerView
         binding.garageDisplayRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -46,7 +70,7 @@ public class GarageActivity extends BaseDrawerActivity {
             @Override
             public void onDeleteClicked(long id) {
                 new AlertDialog.Builder(GarageActivity.this)
-                        .setMessage("Delete this entry?")
+                        .setMessage("Delete this vehicle?")
                         .setPositiveButton("Delete", (d, w) -> garageViewModel.deleteById(id))
                         .setNegativeButton("Cancel", null)
                         .show();
@@ -62,28 +86,18 @@ public class GarageActivity extends BaseDrawerActivity {
         });
         binding.garageDisplayRecyclerView.setAdapter(adapter);
 
-        // ViewModel
-        VehicleViewModel vm = new ViewModelProvider(this).get(VehicleViewModel.class);
-
-        // Observe ONCE
-        vm.getUserVehicles().observe(this, adapter::submitList);
-
-        sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
-        String username = sharedPreferences.getString("username", "User");
-        int userId = sharedPreferences.getInt("userId", -1);
-
-        // get list of vehicles
-        vm.loadUserVehicles(userId);
+        // Keep the list in sync with the backing data.
+        garageViewModel.getUserVehicles().observe(this, adapter::submitList);
 
         // TODO: on clicking a row, select this vehicle
         //vm.selectVehicle(vehicle);
 
-        // click (+) to send to AddVehicleActivity
-//        FloatingActionButton fab = findViewById(R.id.garageAddButton);
-//        fab.setOnClickListener(view -> {
-//            Intent intent = AddVehicleActivity.vehicleIntentFactory(getApplicationContext(), userId);
-//            startActivity(intent);
-//        });
+        // Add horizontal divider in between items
+        MaterialDividerItemDecoration divider =
+                new MaterialDividerItemDecoration(this, LinearLayoutManager.VERTICAL);
+        divider.setLastItemDecorated(false); // no divider after the last item
+        divider.setDividerThicknessResource(this,R.dimen.list_divider_thickness);
+        binding.garageDisplayRecyclerView.addItemDecoration(divider);
     }
     static Intent garageIntentFactory(Context context, int userId) {
         Intent intent = new Intent(context, GarageActivity.class);
