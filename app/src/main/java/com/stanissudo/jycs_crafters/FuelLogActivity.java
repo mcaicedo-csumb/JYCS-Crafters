@@ -13,6 +13,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.databinding.ActivityFuelLogBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
@@ -22,11 +23,10 @@ import com.stanissudo.jycs_crafters.viewHolders.SharedViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
 
 /**
- *  *  @author Stan Permiakov
- *  *  created: 8/12/2025
- *  *  @project JYCS-Crafters
- *  *  file: VehicleActivity.java
- *  *
+ * *  @author Stan Permiakov
+ * *  created: 8/12/2025
+ * *  @project JYCS-Crafters
+ * *
  * Displays a list of fuel log entries for the currently selected vehicle.
  * <p>
  * Responsibilities:
@@ -45,14 +45,22 @@ import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
  */
 public class FuelLogActivity extends BaseDrawerActivity {
 
-    /** ViewBinding for this Activity's layout. */
+    /**
+     * ViewBinding for this Activity's layout.
+     */
     private ActivityFuelLogBinding binding;
 
-    /** Provides the paged/filtered list of entries for the selected car. */
+    /**
+     * Provides the paged/filtered list of entries for the selected car.
+     */
     private FuelLogViewModel viewModel;
-    /** Supplies the current user's vehicles for the toolbar dropdown. */
+    /**
+     * Supplies the current user's vehicles for the toolbar dropdown.
+     */
     private VehicleViewModel vehicleViewModel;
-    /** Shared car selection model (kept in sync with the dropdown). */
+    /**
+     * Shared car selection model (kept in sync with the dropdown).
+     */
     private SharedViewModel sharedViewModel;
 
     // --------------------------------------------------------------------------------------------
@@ -139,9 +147,19 @@ public class FuelLogActivity extends BaseDrawerActivity {
 
         // Keep the list in sync with the backing data.
         viewModel.entries.observe(this, adapter::submitList);
+
+        // Add horizontal divider in between items
+        MaterialDividerItemDecoration divider =
+                new MaterialDividerItemDecoration(this, LinearLayoutManager.VERTICAL);
+        divider.setLastItemDecorated(false); // no divider after the last item
+        divider.setDividerThicknessResource(this,R.dimen.list_divider_thickness);
+        binding.logDisplayRecyclerView.addItemDecoration(divider);
     }
 
-    /** Ensure the toolbar dropdown text reflects the persisted selection when returning to the UI. */
+
+    /**
+     * Ensure the toolbar dropdown text reflects the persisted selection when returning to the UI.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -166,19 +184,25 @@ public class FuelLogActivity extends BaseDrawerActivity {
     // Drawer wiring for BaseDrawerActivity
     // --------------------------------------------------------------------------------------------
 
-    /** Provides the {@link DrawerLayout} instance used by the base class to wire the drawer. */
+    /**
+     * Provides the {@link DrawerLayout} instance used by the base class to wire the drawer.
+     */
     @Override
     protected DrawerLayout getDrawerLayout() {
         return binding.drawerLayout;
     }
 
-    /** Provides the {@link NavigationView} instance used by the base class to populate the menu. */
+    /**
+     * Provides the {@link NavigationView} instance used by the base class to populate the menu.
+     */
     @Override
     protected NavigationView getNavigationView() {
         return binding.navView;
     }
 
-    /** Provides the top {@link Toolbar} so the base class can set it up as the SupportActionBar. */
+    /**
+     * Provides the top {@link Toolbar} so the base class can set it up as the SupportActionBar.
+     */
     @Override
     protected Toolbar getToolbar() {
         return binding.toolbar;

@@ -25,5 +25,6 @@
     <dimen name="time_width_afe">110dp</dimen>
         <dimen name="datetime_margin_side_afe">16dp</dimen>
     <dimen name="datetime_padding">4dp</dimen>
+    <dimen name="list_divider_thickness">1dp</dimen>
 
 </resources>

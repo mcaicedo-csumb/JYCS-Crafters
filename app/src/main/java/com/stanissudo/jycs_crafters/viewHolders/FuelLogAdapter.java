@@ -7,89 +7,78 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.stanissudo.jycs_crafters.R;
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
+import com.stanissudo.jycs_crafters.utils.NumberFormatter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
-//public class FuelLogAdapter extends ListAdapter<FuelEntry, FuelLogAdapter.VH> {
-//    public FuelLogAdapter() {
-//        super(DIFF);
-//    }
-//
-//    private static final DiffUtil.ItemCallback<FuelEntry> DIFF =
-//            new DiffUtil.ItemCallback<>() {
-//                @Override public boolean areItemsTheSame(@NonNull FuelEntry a, @NonNull FuelEntry b) {
-//                    return a.getLogID() == b.getLogID();   // PK
-//                }
-//                @Override public boolean areContentsTheSame(@NonNull FuelEntry a, @NonNull FuelEntry b) {
-//                    return a.getOdometer().equals(b.getOdometer())
-//                            && Double.compare(a.getGallons(), b.getGallons()) == 0
-//                            && Double.compare(a.getPricePerGallon(), b.getPricePerGallon()) == 0
-//                            && Objects.equals(a.getLogDate(), b.getLogDate());
-//                }
-//            };
-//
-//    static class VH extends RecyclerView.ViewHolder {
-//        TextView dateText, detailText;
-//        VH(View v) {
-//            super(v);
-//            dateText = v.findViewById(R.id.dateText);
-//            detailText = v.findViewById(R.id.detailText);
-//        }
-//    }
-//
-//    @NonNull @Override
-//    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-//        View v = LayoutInflater.from(parent.getContext())
-//                .inflate(R.layout.item_fuel_entry, parent, false);
-//        return new VH(v);
-//    }
-//
-//    @Override
-//    public void onBindViewHolder(@NonNull VH h, int pos) {
-//        FuelEntry e = getItem(pos);
-//
-//        // If you store LocalDateTime (converted by your TypeConverter):
-//        LocalDateTime dt = e.getLogDate();
-//        String when = dt.format(DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a", Locale.US));
-//
-//        h.dateText.setText(when);
-//        h.detailText.setText(
-//                String.format(Locale.US, "Odometer: %d • Gas: %.2f gal • $/gal: %.3f",
-//                        e.getOdometer(), e.getGallons(), e.getPricePerGallon())
-//        );
-//    }
-//}
-
+/**
+ * *  @author Stan Permiakov
+ * *  created: 8/12/2025
+ * *  @project JYCS-Crafters
+ * *
+ * RecyclerView adapter that renders {@link FuelEntry} rows with Edit/Delete actions.
+ * <p>
+ * Responsibilities:
+ * <ul>
+ *   <li>Own a mutable list of {@link FuelEntry} items (updated via {@link #submitList(List)}).</li>
+ *   <li>Bind date, odometer, and detail summary to the row views.</li>
+ *   <li>Expose callbacks for Edit/Delete button clicks.</li>
+ * </ul>
+ * <p>
+ * Notes:
+ * <ul>
+ *   <li>Adapter uses stable IDs so RecyclerView can animate changes predictably.</li>
+ *   <li>For large lists or frequent updates, consider migrating to {@code ListAdapter}
+ *       with {@code DiffUtil.ItemCallback}.</li>
+ * </ul>
+ */
 public class FuelLogAdapter extends RecyclerView.Adapter<FuelLogAdapter.VH> {
 
+    /** Interaction hooks for row actions. */
     public interface Callbacks {
         void onDeleteClicked(long id);
         void onEditClicked(long id);
     }
 
+    /** Internal storage for items currently displayed. */
     private final List<FuelEntry> items = new ArrayList<>();
+
+    /** Receiver for row action events. */
     private final Callbacks callbacks;
 
-    public FuelLogAdapter(Callbacks callbacks) { this.callbacks = callbacks; }
+    /** Single shared formatter for date/time display. */
+    private static final DateTimeFormatter DATE_TIME_FMT =
+            DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a", Locale.US);
 
+    /**
+     * Create the adapter.
+     * @param callbacks Non-null callbacks for edit/delete actions.
+     */
+    public FuelLogAdapter(@NonNull Callbacks callbacks) {
+        this.callbacks = callbacks;
+        setHasStableIds(true);
+    }
+
+    /**
+     * Replace the current list of items.
+     * @param newItems New data (null treated as empty)
+     */
     public void submitList(List<FuelEntry> newItems) {
         items.clear();
         if (newItems != null) items.addAll(newItems);
         notifyDataSetChanged();
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fuelentry_recycler_item, parent, false);
@@ -100,53 +89,84 @@ public class FuelLogAdapter extends RecyclerView.Adapter<FuelLogAdapter.VH> {
     public void onBindViewHolder(@NonNull VH h, int position) {
         FuelEntry e = items.get(position);
 
-        // Bind texts (adjust to your model fields)
-        h.dateText.setText(formatDate(e));          // implement below to suit your model
-        h.detailText.setText(buildDetails(e));      // gallons/price/odo, etc.
+        // Texts
+        h.dateText.setText(formatDate(e.getLogDate()));
+        h.odometerText.setText(buildOdometer(e));
+        h.detailText.setText(buildDetails(e));
 
-        long id = getId(e); // <- uses your LogID getter
+        // Actions
+        long id = getStableId(e);
         h.btnDelete.setOnClickListener(v -> callbacks.onDeleteClicked(id));
         h.btnEdit.setOnClickListener(v -> callbacks.onEditClicked(id));
     }
 
-    @Override public int getItemCount() { return items.size(); }
+    @Override
+    public int getItemCount() { return items.size(); }
 
+    /**
+     * Provide a stable item id derived from the entity's primary key.
+     */
+    @Override
+    public long getItemId(int position) {
+        return getStableId(items.get(position));
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // ViewHolder
+    // --------------------------------------------------------------------------------------------
+
+    /** Simple holder that caches row view references. */
     static class VH extends RecyclerView.ViewHolder {
-        TextView dateText, detailText;
-        ImageButton btnDelete, btnEdit;
+        final TextView dateText;
+        final TextView odometerText;
+        final TextView detailText;
+        final ImageButton btnDelete;
+        final ImageButton btnEdit;
         VH(View v) {
             super(v);
-            dateText  = v.findViewById(R.id.dateText);
-            detailText= v.findViewById(R.id.detailText);
-            btnDelete = v.findViewById(R.id.btnDelete);
-            btnEdit   = v.findViewById(R.id.btnEdit);
+            dateText     = v.findViewById(R.id.dateText);
+            odometerText = v.findViewById(R.id.odometerText);
+            detailText   = v.findViewById(R.id.detailText);
+            btnDelete    = v.findViewById(R.id.btnDelete);
+            btnEdit      = v.findViewById(R.id.btnEdit);
         }
     }
 
-    // ---- helpers you can tailor to your entity ----
-    private long getId(FuelEntry e) {
-        // If your entity has LogID (int):
-        return e.getLogID(); // or (long) e.getLogID();
-        // If your getter is getId(), then just return e.getId();
+    // --------------------------------------------------------------------------------------------
+    // Formatting helpers
+    // --------------------------------------------------------------------------------------------
+
+    /**
+     * Return a stable long id for RecyclerView animations (uses entity LogID).
+     */
+    private long getStableId(FuelEntry e) {
+        return e.getLogID();
     }
 
-    private String formatDate(FuelEntry e) {
-        // Example: if you store millis -> format; if you store a String -> return it.
-        // return DateFormat.getDateInstance().format(new Date(e.getDateMillis()));
-        LocalDateTime dt = e.getLogDate();
-        return dt.format(DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a", Locale.US));
+    /**
+     * Format the entry date/time for display; returns empty string if null.
+     */
+    private String formatDate(LocalDateTime dt) {
+        return dt == null ? "" : dt.format(DATE_TIME_FMT);
     }
 
+    /**
+     * Build the odometer label like: "Odometer: 123,456".
+     */
+    private String buildOdometer(FuelEntry e) {
+        return String.format(Locale.US, "Odometer: %d", e.getOdometer());
+    }
+
+    /**
+     * Build a compact details line like: "Gas: 12.345 gal • $/gal: 4.39 • Total: $54.25".
+     */
     private String buildDetails(FuelEntry e) {
-        // Example composing details:
-        // return String.format(Locale.US, "%.2f gal @ $%.2f • Odo %d", e.getGallons(), e.getPricePerGal(), e.getOdometer());
-        //return e.getSummary(); // or compose as needed
-        //        LocalDateTime dt = e.getLogDate();
-
-
-
-        return
-                String.format(Locale.US, "Odometer: %d • Gas: %.2f gal • $/gal: %.3f",
-                        e.getOdometer(), e.getGallons(), e.getPricePerGallon());
+        return String.format(
+                Locale.US,
+                "Gas: %s gal • $/gal: %s • Total: $%s",
+                NumberFormatter.upTo3(e.getGallons()),
+                NumberFormatter.upTo2(e.getPricePerGallon()),
+                NumberFormatter.upTo2(e.getTotalCost())
+        );
     }
 }
