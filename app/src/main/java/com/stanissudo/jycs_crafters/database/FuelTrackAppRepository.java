@@ -40,11 +40,11 @@ public class FuelTrackAppRepository {
                       @androidx.annotation.Nullable Integer next);
     }
 
-    public void checkOdometerAsync(int carId, java.time.LocalDateTime when, int value,
+    public void checkOdometerAsync(long logId, int carId, java.time.LocalDateTime when, int value,
                                    OdometerCheckCallback cb) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> {
-            Integer prev = fuelEntryDAO.getPreviousOdometer(carId, when);
-            Integer next = fuelEntryDAO.getNextOdometer(carId, when);
+            Integer prev = fuelEntryDAO.getPreviousOdometer(logId, carId, when);
+            Integer next = fuelEntryDAO.getNextOdometer(logId, carId, when);
             boolean ok = (prev == null || value > prev) && (next == null || value < next);
             main.post(() -> cb.onResult(ok, prev, next));
         });
@@ -99,12 +99,12 @@ public class FuelTrackAppRepository {
         void onResult(boolean ok);
     }
 
-    public Integer getPreviousOdometer(int carId, LocalDateTime logDate) {
-        return fuelEntryDAO.getPreviousOdometer(carId, logDate);
+    public Integer getPreviousOdometer(long logId, int carId, LocalDateTime logDate) {
+        return fuelEntryDAO.getPreviousOdometer(logId, carId, logDate);
     }
 
-    public Integer getNextOdometer(int carId, LocalDateTime logDate) {
-        return fuelEntryDAO.getNextOdometer(carId, logDate);
+    public Integer getNextOdometer(long logId, int carId, LocalDateTime logDate) {
+        return fuelEntryDAO.getNextOdometer(logId, carId, logDate);
     }
 
     public LiveData<List<FuelEntry>> getEntriesForCar(int carId) {

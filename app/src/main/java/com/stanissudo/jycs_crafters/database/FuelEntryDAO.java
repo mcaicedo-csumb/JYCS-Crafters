@@ -32,10 +32,10 @@ public interface FuelEntryDAO {
     @Query("SELECT * FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE LogID = :id LIMIT 1")
     LiveData<FuelEntry> getRecordById(int id);
 
-    @Query("SELECT odometer FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE  CarID = :carId AND logDate < :logDate ORDER BY logDate DESC LIMIT 1")
-    Integer getPreviousOdometer(int carId, LocalDateTime logDate);
-    @Query("SELECT odometer FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE  CarID = :carId AND logDate > :logDate ORDER BY logDate LIMIT 1")
-    Integer getNextOdometer(int carId, LocalDateTime logDate);
+    @Query("SELECT odometer FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE LogID != :logId AND CarID = :carId AND logDate < :logDate ORDER BY logDate DESC LIMIT 1")
+    Integer getPreviousOdometer(long logId, int carId, LocalDateTime logDate);
+    @Query("SELECT odometer FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE LogID != :logId AND CarID = :carId AND logDate > :logDate ORDER BY logDate LIMIT 1")
+    Integer getNextOdometer(long logId, int carId, LocalDateTime logDate);
 
     @Query("SELECT " +
             "SUM(TotalCost) as totalCost, " +

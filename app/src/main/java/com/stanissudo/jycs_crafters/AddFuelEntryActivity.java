@@ -1,330 +1,322 @@
 package com.stanissudo.jycs_crafters;
 
-import static com.stanissudo.jycs_crafters.MainActivity.TAG;
-
-import static java.lang.String.format;
-
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
-import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import com.google.type.DateTime;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.databinding.ActivityAddFuelEntryBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
 import com.stanissudo.jycs_crafters.viewHolders.FuelEntryViewModel;
+import com.stanissudo.jycs_crafters.viewHolders.SharedViewModel;
+import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
+import com.stanissudo.jycs_crafters.utils.NumberFormatter;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Calendar;
+import java.util.Locale;
+
+/**
+ *  * @author Stan Permiakov
+ *  * created: 8/12/2025
+ *  * @project JYCS-Crafters
+ *  * file: VehicleActivity.java
+ *  *
+ * Activity for creating or editing a single fuel log entry.
+ * <p>
+ * This screen supports two modes:
+ * <ul>
+ *   <li><b>ADD</b> — Create a brand new {@link FuelEntry}. Launch via
+ *       {@link #addFuelIntentFactory(Context, int)}.</li>
+ *   <li><b>EDIT</b> — Modify an existing entry. Launch via
+ *       {@link #editIntentFactory(Context, int, int)} with the entry's LogID.</li>
+ * </ul>
+ *
+ * <h3>Auto-calculation behavior</h3>
+ * Three TextWatchers keep the following fields in sync:
+ * <ul>
+ *   <li>Gallons</li>
+ *   <li>Price per Gallon</li>
+ *   <li>Total</li>
+ * </ul>
+ * The most recently edited field gets higher <em>priority</em>; dependent values are recalculated
+ * from it to avoid circular updates. Two boolean guards remove re-entrant churn:
+ * <ul>
+ *   <li>{@link #suppressWatchers} — Temporarily mute watchers during programmatic field fills
+ *       (e.g., when preloading in EDIT mode).</li>
+ *   <li>{@link #isUpdating} — Prevent recursive updates while a watcher is actively writing.</li>
+ * </ul>
+ *
+ * <h3>Date & Time handling</h3>
+ * Uses {@link java.time} to maintain a single canonical {@link #recordTimeStamp}. Two inputs (date
+ * and time) write back into the same timestamp so persisted data is always consistent.
+ */
 public class AddFuelEntryActivity extends AppCompatActivity {
 
+    /** ViewBinding for this Activity's layout. */
     private ActivityAddFuelEntryBinding binding;
-    //private static final String FUEL_ENTRY_USER_ID = "com.stanissudo.gymlog.FUEL_ENTRY_USER_ID";
 
-    //Used to Insert/Update records------------------
-    public static final String EXTRA_LOG_ID = "EXTRA_LOG_ID";
-    public static final String EXTRA_USER_ID = "EXTRA_USER_ID";
+    // --------------------------------------------------------------------------------------------
+    // Intent extras
+    // --------------------------------------------------------------------------------------------
 
-    public static Intent editIntentFactory(Context ctx, int userId, int logId) {
-        Intent i = new Intent(ctx, AddFuelEntryActivity.class);
-        i.putExtra(EXTRA_USER_ID, userId);
-        i.putExtra(EXTRA_LOG_ID, logId);
-        return i;
-    }
+    /** Intent extra key: primary key of a {@link FuelEntry} to edit. Only present in EDIT mode. */
+    public static final String EXTRA_LOG_ID  = "EXTRA_LOG_ID";
+    /** Intent extra key: the selected car ID this entry belongs to. */
+    public static final String EXTRA_CAR_ID = "EXTRA_CAR_ID";
 
-    public static Intent addIntentFactory(Context ctx, int userId) {
-        Intent i = new Intent(ctx, AddFuelEntryActivity.class);
-        i.putExtra(EXTRA_USER_ID, userId);
-        return i;
-    }
-    private FuelEntryViewModel vm;
+    // --------------------------------------------------------------------------------------------
+    // ViewModels & data access
+    // --------------------------------------------------------------------------------------------
+
+    /** Screen-scoped ViewModel for CRUD on {@link FuelEntry} objects. */
+    private FuelEntryViewModel viewModel;
+    /** Provides list of user's vehicles for the top toolbar dropdown. */
+    private VehicleViewModel vehicleViewModel;
+    /** Shared selection model for currently chosen car in the toolbar dropdown. */
+    private SharedViewModel sharedViewModel;
+
+    /** True if this Activity was launched to edit an existing record. */
     private boolean isEdit;
+    /** The LogID of the record being edited. Only meaningful if {@link #isEdit} is true. */
     private int editLogId;
-    //------------------------------------------------
+    /** The car this entry is associated with (from the calling context). */
+    private int carId;
 
-    FuelTrackAppRepository repository;
-    // int loggedInUserId = -1;
-    private int odometer = -1;
-    private double gasGal = -1.0;
-    private double pricePerGal = -1.0;
-    private LocalDateTime dateTime;
+    /** Repository used for asynchronous validation (e.g., odometer sanity check). */
+    private FuelTrackAppRepository repository;
+
+    // --------------------------------------------------------------------------------------------
+    // Watcher guards & priority system
+    // --------------------------------------------------------------------------------------------
+
+    /**
+     * Set true to temporarily mute TextWatchers during programmatic {@code setText} calls.
+     * Prevents accidental recalculation when hydrating UI from DB.
+     */
+    private boolean suppressWatchers = false;
+
+    /** Set true while a watcher is actively writing, to avoid recursive onTextChanged loops. */
+    private boolean isUpdating = false;
+
+    /**
+     * Monotonically increasing counter used to decide which of the three pricing fields was
+     * modified most recently; higher value = higher priority.
+     */
     private int priority = 1;
     private int gasVolumePriority = 0;
     private int pricePerGalPriority = 0;
     private int totalPricePriority = 0;
-    private boolean isUpdating = false;
 
+    // --------------------------------------------------------------------------------------------
+    // Date / time state
+    // --------------------------------------------------------------------------------------------
 
+    /** Canonical timestamp of this record (combined date + time from the two UI controls). */
+    private LocalDateTime recordTimeStamp;
+
+    /** Formatter for the date input field (UI only). */
+    private static final DateTimeFormatter UI_DATE_FMT =
+            DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US);
+    /** Formatter for the time input field (UI only, shown as 12-hour). */
+    private static final DateTimeFormatter UI_TIME_FMT =
+            DateTimeFormatter.ofPattern("h:mm a", Locale.US);
+    /** Parser used when persisting merged date + time back into {@link #recordTimeStamp}. */
+    private static final DateTimeFormatter UI_DATE_TIME_PARSE =
+            DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a", Locale.US);
+
+    // --------------------------------------------------------------------------------------------
+    // Intent factories
+    // --------------------------------------------------------------------------------------------
+
+    /**
+     * Build an {@link Intent} to open this Activity in ADD mode for a given car.
+     *
+     * @param context Caller context
+     * @param carId   Car ID the new entry will belong to
+     * @return Intent ready to pass to {@link Context#startActivity(Intent)}
+     */
+    public static Intent addFuelIntentFactory(Context context, int carId) {
+        return new Intent(context, AddFuelEntryActivity.class)
+                .putExtra(EXTRA_CAR_ID, carId);
+    }
+
+    /**
+     * Build an {@link Intent} to open this Activity in EDIT mode.
+     *
+     * @param context Caller context
+     * @param carId   Car ID the entry belongs to
+     * @param logId   Primary key of the existing {@link FuelEntry}
+     * @return Intent ready to pass to {@link Context#startActivity(Intent)}
+     */
+    public static Intent editIntentFactory(Context context, int carId, int logId) {
+        return new Intent(context, AddFuelEntryActivity.class)
+                .putExtra(EXTRA_CAR_ID, carId)
+                .putExtra(EXTRA_LOG_ID, logId);
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Lifecycle
+    // --------------------------------------------------------------------------------------------
+
+    /**
+     * Standard Activity lifecycle entry point. Wires ViewModels, dropdown, pickers, watchers, and
+     * pre-fills UI in EDIT mode.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // For AppCompatActivity, call super FIRST.
         super.onCreate(savedInstanceState);
+
+        // Inflate view binding and set content view.
         binding = ActivityAddFuelEntryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        //Add cancel icon
+        // Toolbar back button behavior is defined in XML; this just finishes the Activity.
         setSupportActionBar(binding.toolbar);
-        // Click = cancel/close
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
-        repository = FuelTrackAppRepository.getRepository(getApplication());
+        // --- 1) Initialize ViewModels ---
+        vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
+        sharedViewModel  = new ViewModelProvider(this).get(SharedViewModel.class);
+        viewModel        = new ViewModelProvider(this).get(FuelEntryViewModel.class);
+        repository       = FuelTrackAppRepository.getRepository(getApplication());
 
+        // Extract intent extras.
+        carId = getIntent().getIntExtra(EXTRA_CAR_ID, -1);
+        editLogId = getIntent().getIntExtra(EXTRA_LOG_ID, -1);
+        isEdit = editLogId > 0;
+        setTitle(isEdit ? "Edit Fuel Entry" : "Add Fuel Entry");
+
+        // Load vehicles for the dropdown and set initial selection.
+        SharedPreferences sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
+        vehicleViewModel.loadUserVehicles(sharedPreferences.getInt("userId", -1));
+        vehicleViewModel.getUserVehicles().observe(this, vehicles -> {
+            if (vehicles != null && !vehicles.isEmpty()) {
+                // (a) Push fresh list into helper (may update its cache)
+                CarSelectorHelper.loadVehicleData(this, vehicles);
+
+                // (b) Recreate dropdown adapter with fresh list
+                AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
+                CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
+
+                // (c) Pick initial selection and propagate it
+                Integer initialCarId = CarSelectorHelper.getSelectedOptionKey();
+                if (initialCarId != -1) {
+                    sharedViewModel.selectCar(initialCarId);
+                }
+            }
+        });
+
+        // Initialize date/time inputs to "now". These will be overridden in EDIT mode below.
+        Calendar calendarNow = Calendar.getInstance();
+        recordTimeStamp = LocalDateTime.ofInstant(calendarNow.toInstant(), ZoneId.systemDefault());
+        binding.editTextDateFuelEntry.setText(UI_DATE_FMT.format(recordTimeStamp));
+        binding.editTextTimeFuelEntry.setText(UI_TIME_FMT.format(recordTimeStamp));
+
+        // Date picker: updates only the date portion of {@link #recordTimeStamp}.
+        binding.editTextDateFuelEntry.setOnClickListener(v -> {
+            Calendar c = Calendar.getInstance();
+            // Start the picker on the currently selected date.
+            c.set(recordTimeStamp.getYear(), recordTimeStamp.getMonthValue() - 1, recordTimeStamp.getDayOfMonth());
+
+            new DatePickerDialog(
+                    this,
+                    (view, y, m, d) -> {
+                        // Keep time; replace date.
+                        recordTimeStamp = recordTimeStamp.withYear(y).withMonth(m + 1).withDayOfMonth(d);
+                        binding.editTextDateFuelEntry.setText(UI_DATE_FMT.format(recordTimeStamp));
+                    },
+                    c.get(Calendar.YEAR),
+                    c.get(Calendar.MONTH),
+                    c.get(Calendar.DAY_OF_MONTH)
+            ).show();
+        });
+
+        // Time picker: updates only the time portion of {@link #recordTimeStamp}.
+        binding.editTextTimeFuelEntry.setOnClickListener(v -> {
+            new TimePickerDialog(
+                    this,
+                    (view, h, m) -> {
+                        // Keep date; replace time.
+                        recordTimeStamp = recordTimeStamp.withHour(h).withMinute(m).withSecond(0).withNano(0);
+                        binding.editTextTimeFuelEntry.setText(UI_TIME_FMT.format(recordTimeStamp));
+                    },
+                    recordTimeStamp.getHour(),
+                    recordTimeStamp.getMinute(),
+                    true // 24-hour picker; display remains 12h via UI_TIME_FMT
+            ).show();
+        });
+
+        // Attach watchers AFTER initial setText so they don't fire during setup.
         binding.gasVolumeInputEditText.addTextChangedListener(volumeWatcher);
         binding.pricePerGallonInputEditText.addTextChangedListener(pricePerGalWatcher);
         binding.totalPriceInputEditText.addTextChangedListener(totalPriceWatcher);
 
-        //loggedInUserId = getIntent().getIntExtra(FUEL_ENTRY_USER_ID, -1);
-
-        AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
-        CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
-
-        Calendar calendar = Calendar.getInstance();
-        // Format date and time
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
-        SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.US);
-
-        binding.editTextDateFuelEntry.setText(dateFormat.format(calendar.getTime()));
-        binding.editTextTimeFuelEntry.setText(timeFormat.format(calendar.getTime()));
-
-        binding.editTextDateFuelEntry.setOnClickListener(v -> {
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-            DatePickerDialog datePickerDialog = new DatePickerDialog(
-                    this,
-                    (view, y, m, d) -> {
-                        // Months are 0-based in Calendar
-                        calendar.set(Calendar.YEAR, y);
-                        calendar.set(Calendar.MONTH, m);
-                        calendar.set(Calendar.DAY_OF_MONTH, d);
-                        binding.editTextDateFuelEntry.setText(dateFormat.format(calendar.getTime()));
-                    },
-                    year, month, day
-            );
-            datePickerDialog.show();
-        });
-
-        binding.editTextTimeFuelEntry.setOnClickListener(v -> {
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            int minute = calendar.get(Calendar.MINUTE);
-
-            TimePickerDialog timePickerDialog = new TimePickerDialog(
-                    this,
-                    (view, h, m) -> {
-                        calendar.set(Calendar.HOUR_OF_DAY, h);
-                        calendar.set(Calendar.MINUTE, m);
-                        binding.editTextTimeFuelEntry.setText(timeFormat.format(calendar.getTime()));
-                    },
-                    hour, minute, true // true = 24-hour
-            );
-            timePickerDialog.show();
-        });
-
-        binding.saveEntryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Toast.makeText(AddFuelEntryActivity.this, "It worked!", Toast.LENGTH_SHORT).show();
-                getInformationFromDisplay();
-                insertRecord();
-            }
-        });
-
-//Used to Insert/Update records------------------
-        vm = new ViewModelProvider(this).get(FuelEntryViewModel.class);
-
-        editLogId = getIntent().getIntExtra(EXTRA_LOG_ID, -1);
-        isEdit = editLogId > 0;
-
+        // EDIT mode: prefill from DB without triggering calculations.
         if (isEdit) {
-            setTitle("Edit Fuel Entry");
-            vm.getById(editLogId).observe(this, e -> {
+            suppressWatchers = true;
+            viewModel.getById(editLogId).observe(this, e -> {
                 if (e == null) return;
-                // Prefill UI — adjust to your actual field names/ids
+
+                // Prefill numeric fields.
                 binding.odometerInputEditText.setText(String.valueOf(e.getOdometer()));
-                binding.gasVolumeInputEditText.setText(String.valueOf(e.getGallons()));
-                binding.pricePerGallonInputEditText.setText(String.valueOf(e.getPricePerGallon()));
-                binding.totalPriceInputEditText.setText(String.valueOf(e.getTotalCost()));
-                // date picker / car dropdown if you have them:
-                 binding.editTextDateFuelEntry.setText(format(e.getLogDate().toString()));
-                 CarSelectorHelper.setSelectedOption(this, e.getCarID().toString());
-            });
-        } else {
-            setTitle("Add Fuel Entry");
-        }
+                binding.gasVolumeInputEditText.setText(NumberFormatter.upTo3(e.getGallons()));
+                binding.pricePerGallonInputEditText.setText(NumberFormatter.upTo2(e.getPricePerGallon()));
+                binding.totalPriceInputEditText.setText(NumberFormatter.upTo2(e.getTotalCost()));
 
-        binding.saveEntryButton.setOnClickListener(v -> onSave());
-        binding.toolbar.setNavigationOnClickListener(v -> finish());
-        //binding.cancelButton.setOnClickListener(v -> finish());
-    }
-
-    private void getInformationFromDisplay() {
-        String odometerText = binding.odometerInputEditText.getText().toString().trim();
-        if (!odometerText.isEmpty()) {
-            try {
-                odometer = Integer.parseInt(odometerText);
-            } catch (NumberFormatException e) {
-                Log.d(TAG, "Invalid number format in Odometer input");
-            }
-        } else {
-            Log.d(TAG, "Odometer input is empty");
-            Toast.makeText(AddFuelEntryActivity.this, "Odometer cannot be empty!", Toast.LENGTH_SHORT).show();
-        }
-        String gasVolumeText = binding.gasVolumeInputEditText.getText().toString().trim();
-        if (!gasVolumeText.isEmpty()) {
-            try {
-                gasGal = Double.parseDouble(gasVolumeText);
-            } catch (NumberFormatException e) {
-                Log.d(TAG, "Error reading value from Gas Gallons edit text.");
-            }
-        } else {
-            Log.d(TAG, "Gas Volume input is empty");
-            Toast.makeText(AddFuelEntryActivity.this, "Gas Volume cannot be empty!", Toast.LENGTH_SHORT).show();
-        }
-        String gasPricePerGalText = binding.pricePerGallonInputEditText.getText().toString().trim();
-        if (!gasPricePerGalText.isEmpty()) {
-            try {
-                pricePerGal = Double.parseDouble(gasPricePerGalText);
-            } catch (NumberFormatException e) {
-                Log.d(TAG, "Error reading value from Gas Price per Gallon edit text.");
-            }
-        } else {
-            Log.d(TAG, "Gas Price per Gallon input is empty");
-            Toast.makeText(AddFuelEntryActivity.this, "Gas Price per Gallon cannot be empty!", Toast.LENGTH_SHORT).show();
-        }
-
-// 📅 Read date & time fields and assign to LocalDateTime
-        String dateStr = binding.editTextDateFuelEntry.getText().toString().trim();
-        String timeStr = binding.editTextTimeFuelEntry.getText().toString().trim();
-
-        if (!dateStr.isEmpty() && !timeStr.isEmpty()) {
-            try {
-                // Match the format used in display
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy h:mm a", Locale.US);
-                dateTime = LocalDateTime.parse(dateStr + " " + timeStr, formatter);
-
-            } catch (DateTimeParseException e) {
-                Log.d(TAG, "Invalid date/time format", e);
-            }
-        } else {
-            Log.d(TAG, "Date or Time is empty");
-            Toast.makeText(this, "Date and Time cannot be empty!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private boolean insertRecord() {
-        int selectedCarId = -1;
-        try {
-            selectedCarId = CarSelectorHelper.getSelectedOptionKey();
-            if (selectedCarId == -1) {
-                throw new IllegalArgumentException("Invalid selected car ID");
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Error getting selected car ID", e);
-            Toast.makeText(this, "Error creating a record. Did you select your Car?", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (odometer < 0 || gasGal < 0 || pricePerGal < 0) {
-            Log.d(TAG, "odometer, gasGal, pricePerGal must be positive");
-            Toast.makeText(this, "Missing value.", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        int carId = selectedCarId;
-        repository.checkOdometerAsync(carId, dateTime, odometer, (ok, prev, next) -> {
-            if (ok) {
-                FuelEntry fuelLog = new FuelEntry(carId, odometer, gasGal, pricePerGal, dateTime);
-                repository.insertFuelEntry(fuelLog);
-                Intent intent = MainActivity.mainActivityIntentFactory(getApplicationContext(), -1);
-                startActivity(intent);
-            } else {
-                String msg;
-                if (prev != null && next != null) {
-                    msg = "Odometer must be > " + prev + " and < " + next + ".";
-                } else if (prev != null) {
-                    msg = "Odometer must be > " + prev + ".";
-                } else if (next != null) {
-                    msg = "Odometer must be < " + next + ".";
-                } else {
-                    msg = "Couldn’t validate odometer.";
+                // Prefill date/time from entity.
+                LocalDateTime ldt = e.getLogDate();
+                if (ldt != null) {
+                    recordTimeStamp = ldt;
+                    binding.editTextDateFuelEntry.setText(UI_DATE_FMT.format(ldt));
+                    binding.editTextTimeFuelEntry.setText(UI_TIME_FMT.format(ldt));
                 }
-                Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-            }
-        });
-        return true;
+
+                // Prefill/lock car selection (helper may choose by ID or by name internally).
+                try {
+                    CarSelectorHelper.setSelectedOptionById(AddFuelEntryActivity.this, carId);
+                } catch (Exception ignore) { /* helper may expect names; best-effort */ }
+                binding.toolbarDropdown.setEnabled(false); // keep car immutable during edit
+
+                suppressWatchers = false;
+            });
+        }
+
+        // Save action: validate + async odometer check + insert/update.
+        binding.saveEntryButton.setOnClickListener(v -> onSave());
     }
 
-//    private boolean isValidOdometer(){
-//        boolean result;
-//        int selectedCarId = -1;
-//        try {
-//            selectedCarId = CarSelectorHelper.getSelectedOptionKey();
-//            if (selectedCarId == -1) {
-//                throw new IllegalArgumentException("Invalid selected car ID");
-//            }
-//        } catch (Exception e) {
-//            Log.d(TAG, "Error getting selected car ID", e);
-//            Toast.makeText(this, "Error creating a record. Did you select your Car?", Toast.LENGTH_SHORT).show();
-//            return false;
-//        }
-//        final Integer carId = selectedCarId;
-//        ExecutorService io = Executors.newSingleThreadExecutor();
-//
-//        io.execute(() -> {
-//            Integer prev = repository.getPreviousOdometer(carId, dateTime).getValue();
-//            Integer next = repository.getNextOdometer(carId, dateTime).getValue();
-//
-//            boolean ok =
-//                    (prev == null || odometer > prev) &&
-//                            (next == null || odometer < next);
-//
-//            runOnUiThread(() -> {
-//                if (ok) {
-//                    result = true;
-//                } else {
-//                    // error
-//                }
-//            });
-//        });
-//    }
-
-    static Intent addFuelEntryIntentFactory(Context context, int userId) {
-        Intent intent = new Intent(context, AddFuelEntryActivity.class);
-        //intent.putExtra(FUEL_ENTRY_USER_ID, userId);
-        return intent;
-    }
-
+    /** Keep the dropdown's visible text in sync with persisted selection. */
     @Override
     protected void onResume() {
         super.onResume();
         CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
     }
 
-    private final TextWatcher volumeWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
+    // --------------------------------------------------------------------------------------------
+    // TextWatchers
+    // --------------------------------------------------------------------------------------------
 
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (isUpdating) return;
+    /** Watches Gallons input and updates dependent fields according to priority rules. */
+    private final TextWatcher volumeWatcher = new TextWatcher() {
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (isUpdating || suppressWatchers) return;
             isUpdating = true;
             try {
                 gasVolumePriority = priority++;
@@ -333,24 +325,16 @@ public class AddFuelEntryActivity extends AppCompatActivity {
                 } else {
                     updateTotalPrice();
                 }
-            } finally {
-                isUpdating = false;
-            }
+            } finally { isUpdating = false; }
         }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-        }
+        @Override public void afterTextChanged(Editable s) { }
     };
 
+    /** Watches Price/Gal input and updates dependent fields according to priority rules. */
     private final TextWatcher pricePerGalWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (isUpdating) return;
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (isUpdating || suppressWatchers) return;
             isUpdating = true;
             try {
                 pricePerGalPriority = priority++;
@@ -359,24 +343,16 @@ public class AddFuelEntryActivity extends AppCompatActivity {
                 } else {
                     updateTotalPrice();
                 }
-            } finally {
-                isUpdating = false;
-            }
+            } finally { isUpdating = false; }
         }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-        }
+        @Override public void afterTextChanged(Editable s) { }
     };
 
+    /** Watches Total input and updates dependent fields according to priority rules. */
     private final TextWatcher totalPriceWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (isUpdating) return;
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (isUpdating || suppressWatchers) return;
             isUpdating = true;
             try {
                 totalPricePriority = priority++;
@@ -385,124 +361,202 @@ public class AddFuelEntryActivity extends AppCompatActivity {
                 } else {
                     updateGallons();
                 }
-
-            } finally {
-                isUpdating = false;
-            }
+            } finally { isUpdating = false; }
         }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-        }
+        @Override public void afterTextChanged(Editable s) { }
     };
 
+    // --------------------------------------------------------------------------------------------
+    // Watcher helpers
+    // --------------------------------------------------------------------------------------------
+
+    /**
+     * Derive Gallons from Total and Price/Gal.
+     * <p>If either input is empty or unparsable, clears the Gallons field.</p>
+     */
     private void updateGallons() {
-        String pricePerGalStr = binding.pricePerGallonInputEditText.getText().toString().trim();
-        String totalPriceStr = binding.totalPriceInputEditText.getText().toString().trim();
+        String pricePerGalStr = text(binding.pricePerGallonInputEditText);
+        String totalPriceStr  = text(binding.totalPriceInputEditText);
 
         if (!pricePerGalStr.isEmpty() && !totalPriceStr.isEmpty()) {
             try {
                 double pricePerGal = Double.parseDouble(pricePerGalStr);
-                double totalPrice = Double.parseDouble(totalPriceStr);
-                double gasVolume = totalPrice / pricePerGal;
-
-                // Optional: round to 2 decimal places
-                binding.gasVolumeInputEditText.setText(format(Locale.US, "%.3f", gasVolume));
+                double totalPrice  = Double.parseDouble(totalPriceStr);
+                double gasVolume   = totalPrice / Math.max(pricePerGal, 0.000001d);
+                binding.gasVolumeInputEditText.setText(NumberFormatter.upTo3(gasVolume));
             } catch (NumberFormatException e) {
-                // Ignore if invalid numbers are entered
                 binding.gasVolumeInputEditText.setText("");
             }
         } else {
-            // Clear if one of them is empty
             binding.gasVolumeInputEditText.setText("");
         }
     }
 
+    /**
+     * Derive Price/Gal from Total and Gallons.
+     * <p>If either input is empty or unparsable, clears the Price/Gal field.</p>
+     */
     private void updatePricePerGallon() {
-        String gasVolumeStr = binding.gasVolumeInputEditText.getText().toString().trim();
-        String totalPriceStr = binding.totalPriceInputEditText.getText().toString().trim();
+        String gasVolumeStr   = text(binding.gasVolumeInputEditText);
+        String totalPriceStr  = text(binding.totalPriceInputEditText);
 
         if (!gasVolumeStr.isEmpty() && !totalPriceStr.isEmpty()) {
             try {
-                double gasVol = Double.parseDouble(gasVolumeStr);
-                double totalPrice = Double.parseDouble(totalPriceStr);
-                double pricePerGal = totalPrice / gasVol;
-
-                // Optional: round to 2 decimal places
-                binding.pricePerGallonInputEditText.setText(format(Locale.US, "%.2f", pricePerGal));
+                double gasVol      = Double.parseDouble(gasVolumeStr);
+                double totalPrice  = Double.parseDouble(totalPriceStr);
+                double pricePerGal = totalPrice / Math.max(gasVol, 0.000001d);
+                binding.pricePerGallonInputEditText.setText(NumberFormatter.upTo2(pricePerGal));
             } catch (NumberFormatException e) {
-                // Ignore if invalid numbers are entered
                 binding.pricePerGallonInputEditText.setText("");
             }
         } else {
-            // Clear if one of them is empty
             binding.pricePerGallonInputEditText.setText("");
         }
     }
 
+    /**
+     * Derive Total from Gallons and Price/Gal.
+     * <p>If either input is empty or unparsable, clears the Total field.</p>
+     */
     private void updateTotalPrice() {
-        String gasVolumeStr = binding.gasVolumeInputEditText.getText().toString().trim();
-        String pricePerGalStr = binding.pricePerGallonInputEditText.getText().toString().trim();
+        String gasVolumeStr   = text(binding.gasVolumeInputEditText);
+        String pricePerGalStr = text(binding.pricePerGallonInputEditText);
 
         if (!gasVolumeStr.isEmpty() && !pricePerGalStr.isEmpty()) {
             try {
-                double gasVol = Double.parseDouble(gasVolumeStr);
+                double gasVol      = Double.parseDouble(gasVolumeStr);
                 double pricePerGal = Double.parseDouble(pricePerGalStr);
-                double total = gasVol * pricePerGal;
-
-                // Optional: round to 2 decimal places
-                binding.totalPriceInputEditText.setText(format(Locale.US, "%.2f", total));
+                double total       = gasVol * pricePerGal;
+                binding.totalPriceInputEditText.setText(NumberFormatter.upTo2(total));
             } catch (NumberFormatException e) {
-                // Ignore if invalid numbers are entered
                 binding.totalPriceInputEditText.setText("");
             }
         } else {
-            // Clear if one of them is empty
             binding.totalPriceInputEditText.setText("");
         }
     }
-    //Used to Insert/Update records------------------
+
+    // --------------------------------------------------------------------------------------------
+    // Save flow
+    // --------------------------------------------------------------------------------------------
+
+    /**
+     * Gather user inputs, perform basic validation, then run an asynchronous odometer sanity check
+     * before committing insert/update via the {@link FuelEntryViewModel}.
+     */
     private void onSave() {
-//        // Gather values from UI, validate, then build entity
-        int odo = safeInt(binding.odometerInputEditText.getText().toString());
-        double gallons = safeDouble(binding.gasVolumeInputEditText.getText().toString());
-        double price = safeDouble(binding.pricePerGallonInputEditText.getText().toString());
-        double total = safeDouble(binding.totalPriceInputEditText.getText().toString());
-//        // also gather date, carId, notes, etc.
-        int selectedCarId = -1;
+        // Read dropdown selection
+        int _carId = CarSelectorHelper.getSelectedOptionKey();
+
+        // Read numeric fields (fallback to 0 on parse issues)
+        int odo        = safeInt(text(binding.odometerInputEditText));
+        double gallons = safeDouble(text(binding.gasVolumeInputEditText));
+        double price   = safeDouble(text(binding.pricePerGallonInputEditText));
+        double total   = gallons * price; // single source of truth; UI Total mirrors this
+
+        // Merge date + time from UI into recordTimeStamp
+        String dateStr = text(binding.editTextDateFuelEntry);
+        String timeStr = text(binding.editTextTimeFuelEntry);
         try {
-            selectedCarId = CarSelectorHelper.getSelectedOptionKey();
-            if (selectedCarId == -1) {
-                throw new IllegalArgumentException("Invalid selected car ID");
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Error getting selected car ID", e);
-            Toast.makeText(this, "Error creating a record. Did you select your Car?", Toast.LENGTH_SHORT).show();
+            recordTimeStamp = LocalDateTime.parse(dateStr + " " + timeStr, UI_DATE_TIME_PARSE);
+        } catch (DateTimeParseException ex) {
+            Toast.makeText(this, "Invalid date/time.", Toast.LENGTH_SHORT).show();
+            return;
         }
-        if (odometer < 0 || gasGal < 0 || pricePerGal < 0) {
-            Log.d(TAG, "odometer, gasGal, pricePerGal must be positive");
-            Toast.makeText(this, "Missing value.", Toast.LENGTH_SHORT).show();
-        }
-        int carId = selectedCarId;
 
-
+        // Build entity
         FuelEntry e = new FuelEntry();
-        if (isEdit) e.setLogID(editLogId); // <- keep same PK when updating
+        if (isEdit) e.setLogID(editLogId);
+        e.setCarID(_carId);
         e.setOdometer(odo);
         e.setGallons(gallons);
         e.setPricePerGallon(price);
         e.setTotalCost(total);
-        e.setCarID(carId);
-        // set carId/date/notes...
+        e.setLogDate(recordTimeStamp);
 
-        if (isEdit) {
-            vm.update(e);
-        } else {
-            vm.insert(e);
-        }
-        finish(); // Room LiveData will refresh your list automatically
+        // Synchronous field validation (basic required checks)
+        if (!validateInputsBasic(e)) return;
+
+        // Async odometer validation. Callback provides bounds of neighboring entries (if any).
+        repository.checkOdometerAsync(
+                e.getLogID(),
+                _carId,
+                e.getLogDate(),
+                e.getOdometer(),
+                (ok, prev, next) -> runOnUiThread(() -> {
+                    if (ok) {
+                        if (isEdit) viewModel.update(e); else viewModel.insert(e);
+                        finish();
+                    } else {
+                        String msg;
+                        if (prev != null && next != null) {
+                            msg = "Odometer must be > " + prev + " and < " + next + ".";
+                        } else if (prev != null) {
+                            msg = "Odometer must be > " + prev + ".";
+                        } else if (next != null) {
+                            msg = "Odometer must be < " + next + ".";
+                        } else {
+                            msg = "Couldn’t validate odometer.";
+                        }
+                        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+                    }
+                })
+        );
     }
 
-    private int safeInt(String s){ try { return Integer.parseInt(s); } catch(Exception e){ return 0; } }
-    private double safeDouble(String s){ try { return Double.parseDouble(s); } catch(Exception e){ return 0.0; } }
+    /**
+     * Perform quick client-side validation for required fields and non-negative values.
+     * <p>
+     * Note: The current implementation allows 0 for <i>gallons</i> and <i>price per gallon</i>
+     * (it checks <code>&lt; 0</code>, not <code>&lt;= 0</code>) while the messages say
+     * "must be &gt; 0". Tighten the comparisons if you want to forbid zeros.
+     * </p>
+     *
+     * @param entry The entity being validated
+     * @return true if basic checks pass; false otherwise (with a Toast shown)
+     */
+    private boolean validateInputsBasic(FuelEntry entry) {
+        if (entry.getCarID() <= 0) {
+            Toast.makeText(this, "Please select a car.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (entry.getOdometer() < 0) {
+            Toast.makeText(this, "Odometer must be ≥ 0.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (entry.getPricePerGallon() < 0) {
+            // Message says > 0, but code allows 0. Change to <= 0 if you want to enforce strictly > 0.
+            Toast.makeText(this, "Price per gallon must be > 0.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (entry.getGallons() < 0) {
+            // Message says > 0, but code allows 0. Change to <= 0 if you want to enforce strictly > 0.
+            Toast.makeText(this, "Gallons must be > 0.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (entry.getLogDate() == null) {
+            Toast.makeText(this, "Date/time required.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Small helpers
+    // --------------------------------------------------------------------------------------------
+
+    /** Return trimmed text from any TextView (empty string if null). */
+    private static String text(android.widget.TextView tv) {
+        return tv.getText() == null ? "" : tv.getText().toString().trim();
+    }
+
+    /** Parse int or return 0 on failure. */
+    private int safeInt(String s) {
+        try { return Integer.parseInt(s); } catch (Exception e) { return 0; }
+    }
+
+    /** Parse double or return 0.0 on failure. */
+    private double safeDouble(String s) {
+        try { return Double.parseDouble(s); } catch (Exception e) { return 0.0; }
+    }
 }

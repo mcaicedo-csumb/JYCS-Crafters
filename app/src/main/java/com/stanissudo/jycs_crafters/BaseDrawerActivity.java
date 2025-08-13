@@ -1,6 +1,5 @@
 package com.stanissudo.jycs_crafters;
 
-import static com.stanissudo.jycs_crafters.AddFuelEntryActivity.addFuelEntryIntentFactory;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
 
 public abstract class BaseDrawerActivity extends AppCompatActivity {
 
@@ -92,13 +92,12 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
                     finish();
                 }
             } else if (id == R.id.nav_fuel_entry) {
-                //if (!(this instanceof AddFuelEntryActivity)) {
-                Intent intent = AddFuelEntryActivity.addFuelEntryIntentFactory(getApplicationContext(), -1);
+                Intent intent = AddFuelEntryActivity.addFuelIntentFactory(getApplicationContext(), CarSelectorHelper.getSelectedOptionKey());
                 startActivity(intent);
                 // }
             } else if (id == R.id.nav_fuel_log) {
                 if (!(this instanceof FuelLogActivity)) {
-                    Intent intent = FuelLogActivity.fuelLogIntentFactory(getApplicationContext(), -1);
+                    Intent intent = FuelLogActivity.fuelLogIntentFactory(getApplicationContext());
                     startActivity(intent);
                 }
             } else if (id == R.id.nav_garage) {

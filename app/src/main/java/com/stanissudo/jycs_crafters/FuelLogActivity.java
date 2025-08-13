@@ -5,6 +5,7 @@ import static com.stanissudo.jycs_crafters.MainActivity.TAG;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
@@ -18,8 +19,11 @@ import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityFuelLogBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
+import com.stanissudo.jycs_crafters.viewHolders.FuelEntryViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.FuelLogAdapter;
 import com.stanissudo.jycs_crafters.viewHolders.FuelLogViewModel;
+import com.stanissudo.jycs_crafters.viewHolders.SharedViewModel;
+import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
 
 
 public class FuelLogActivity extends BaseDrawerActivity {
@@ -27,27 +31,39 @@ public class FuelLogActivity extends BaseDrawerActivity {
     private static final String FUEL_LOG_USER_ID = "com.stanissudo.gymlog.FUEL_LOG_USER_ID";
     private FuelLogViewModel viewModel;
 
-    //FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
+    private VehicleViewModel vehicleViewModel;
+    private SharedViewModel sharedViewModel;
+
 
 @Override
 protected void onCreate(Bundle savedInstanceState) {
-//    super.onCreate(savedInstanceState);
-//    binding = ActivityFuelLogBinding.inflate(getLayoutInflater());
-//    setContentView(binding.getRoot());
-    // Inflate + set content BEFORE calling super so BaseDrawerActivity can find views
     binding = ActivityFuelLogBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
     super.onCreate(savedInstanceState);
 
-    // ViewModel
-    //FuelLogViewModel vm = new ViewModelProvider(this).get(FuelLogViewModel.class);
-// ViewModel first (so callbacks can reference it)
     viewModel = new ViewModelProvider(this).get(FuelLogViewModel.class);
+    // --- 1. Initialize ViewModels ---
+    vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
+    sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
-    // RecyclerView
-//    FuelLogAdapter adapter = new FuelLogAdapter();
-//    binding.logDisplayRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-//    binding.logDisplayRecyclerView.setAdapter(adapter);
+    SharedPreferences sharedPreferences  = getSharedPreferences("login_prefs", MODE_PRIVATE);;
+    vehicleViewModel.loadUserVehicles(sharedPreferences.getInt("userId", -1));
+    vehicleViewModel.getUserVehicles().observe(this, vehicles -> {
+        if (vehicles != null && !vehicles.isEmpty()) {
+            // a) Push the fresh list into the helper (likely replaces an in-memory cache)
+            CarSelectorHelper.loadVehicleData(this, vehicles);
+
+            // b) Re-create / reset the dropdown’s adapter from that fresh list
+            AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
+            CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
+
+            // c) Pick the initial selection and propagate it
+            Integer initialCarId = CarSelectorHelper.getSelectedOptionKey();
+            if (initialCarId != -1) {
+                sharedViewModel.selectCar(initialCarId);
+            }
+        }
+    });
 
     // New RecyclerView
     binding.logDisplayRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -62,8 +78,8 @@ protected void onCreate(Bundle savedInstanceState) {
 
         @Override
         public void onEditClicked(long id) {
-            int userId = getIntent().getIntExtra(FUEL_LOG_USER_ID, -1);
-            startActivity(AddFuelEntryActivity.editIntentFactory(FuelLogActivity.this, userId, (int) id));
+            //int userId = getIntent().getIntExtra(FUEL_LOG_USER_ID, -1);
+            startActivity(AddFuelEntryActivity.editIntentFactory(FuelLogActivity.this, CarSelectorHelper.getSelectedOptionKey(), (int) id));
         }
     });
     binding.logDisplayRecyclerView.setAdapter(adapter);
@@ -75,7 +91,7 @@ protected void onCreate(Bundle savedInstanceState) {
     viewModel.entries.observe(this, adapter::submitList);
 
 
-    // Dropdown
+//    // Dropdown
     AutoCompleteTextView drop = binding.toolbarDropdown;
     CarSelectorHelper.setupDropdown(this, drop);
 
@@ -86,7 +102,7 @@ protected void onCreate(Bundle savedInstanceState) {
     } else {
         Toast.makeText(this, "Select a car to load entries", Toast.LENGTH_SHORT).show();
     }
-
+//
     // On change
     drop.setOnItemClickListener((parent, view, position, id) -> {
         String name = (String) parent.getItemAtPosition(position);
@@ -99,9 +115,9 @@ protected void onCreate(Bundle savedInstanceState) {
         viewModel.setSelectedCarId(newCarId);
     });
 }
-    static Intent fuelLogIntentFactory(Context context, int userId) {
+    static Intent fuelLogIntentFactory(Context context) {
         Intent intent = new Intent(context, FuelLogActivity.class);
-        intent.putExtra(FUEL_LOG_USER_ID, userId);
+       // intent.putExtra(FUEL_LOG_USER_ID, userId);
         return intent;
     }
 
