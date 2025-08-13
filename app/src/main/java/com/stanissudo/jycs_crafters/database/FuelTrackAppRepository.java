@@ -189,7 +189,11 @@ public class FuelTrackAppRepository {
 
     // =================== Vehicle Methods ===================
     public void insertVehicle(Vehicle vehicle) {
-        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.insert(vehicle));
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.insertVehicle(vehicle));
+    }
+
+    public void updateVehicle(Vehicle vehicle) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.updateVehicle(vehicle));
     }
 
     public void deleteVehicleByVehicleName(String name) {

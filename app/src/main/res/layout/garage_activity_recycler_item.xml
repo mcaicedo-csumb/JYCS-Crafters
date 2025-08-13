@@ -18,33 +18,38 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:text="vehicle_name"/>
 
-        <TextView
-            android:id="@+id/makeText"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/vehicleRowLayout"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_width="match_parent"
+            android:layout_alignParentBottom="true">
+            <TextView
+                android:id="@+id/makeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:layout_weight="1"
+                android:text="vehicle_make"/>
 
-        <TextView
-            android:id="@+id/modelText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            <TextView
+                android:id="@+id/modelText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:layout_weight="1"
+                android:text="vehicle_model"/>
 
-        <TextView
-            android:id="@+id/yearText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/vehicleDetailsText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp" />
+            <TextView
+                android:id="@+id/yearText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:layout_weight="1"
+                android:text="vehicle_year"/>
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Edit/Delete -->

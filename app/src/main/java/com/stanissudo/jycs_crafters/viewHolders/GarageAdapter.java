@@ -20,9 +20,9 @@ import java.util.Locale;
  * @author Ysabelle Kim
  * created: 8/11/2025 - 1:48 AM
  * @version VERSION
- * Explanation:
+ * Explanation: Adapter for GarageActivity
  * @project JYCS-Crafters
- * @name VehicleAdapter.java
+ * @name GarageAdapter.java
  */
 public class GarageAdapter extends RecyclerView.Adapter<GarageAdapter.VH> {
 
@@ -74,7 +74,6 @@ public class GarageAdapter extends RecyclerView.Adapter<GarageAdapter.VH> {
         h.makeText.setText(e.getMake());
         h.modelText.setText(e.getModel());
         h.yearText.setText(e.getYear());
-        h.vehicleDetailsText.setText(buildDetails(e));
 
         // Actions
         long id = getStableId(e);
@@ -104,7 +103,6 @@ public class GarageAdapter extends RecyclerView.Adapter<GarageAdapter.VH> {
         final TextView makeText;
         final TextView modelText;
         final TextView yearText;
-        final TextView vehicleDetailsText;
         final ImageButton btnVehicleDelete;
         final ImageButton btnVehicleEdit;
         VH(View v) {
@@ -113,7 +111,6 @@ public class GarageAdapter extends RecyclerView.Adapter<GarageAdapter.VH> {
             makeText = v.findViewById(R.id.makeText);
             modelText   = v.findViewById(R.id.modelText);
             yearText   = v.findViewById(R.id.yearText);
-            vehicleDetailsText = v.findViewById(R.id.vehicleDetailsText);
             btnVehicleDelete    = v.findViewById(R.id.btnVehicleDelete);
             btnVehicleEdit      = v.findViewById(R.id.btnVehicleEdit);
         }
@@ -128,16 +125,5 @@ public class GarageAdapter extends RecyclerView.Adapter<GarageAdapter.VH> {
      */
     private long getStableId(Vehicle e) {
         return e.getVehicleID();
-    }
-
-    /**
-     * Build a compact details line
-     */
-    private String buildDetails(Vehicle e) {
-        return String.format(
-                Locale.US,
-                "Make: %s • Model: %s • Year: %s",
-                e.getMake(), e.getModel(), e.getYear()
-        );
     }
 }

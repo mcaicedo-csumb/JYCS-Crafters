@@ -6,6 +6,7 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 
@@ -23,7 +24,10 @@ import java.util.List;
 public interface VehicleDAO {
     // TODO: add rest of queries to VehicleDAO
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(Vehicle... vehicle);
+    void insertVehicle(Vehicle... vehicle);
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    void updateVehicle(Vehicle vehicle);
     @Delete
     void delete(Vehicle vehicle);
     @Query("DELETE FROM " + FuelTrackAppDatabase.VEHICLE_TABLE + " WHERE Name = :name")
