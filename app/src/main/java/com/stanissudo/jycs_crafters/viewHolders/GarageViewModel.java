@@ -6,15 +6,23 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class GarageViewModel extends AndroidViewModel {
 
     private final FuelTrackAppRepository repository;
     private LiveData<List<Vehicle>> userVehicles;
+
+    /** Single-thread executor for IO-bound work (e.g., deletions). */
+    private final ExecutorService io = Executors.newSingleThreadExecutor();
 
     // To hold the currently selected vehicle across the app if needed
     private final MutableLiveData<Vehicle> selectedVehicle = new MutableLiveData<>();
@@ -50,5 +58,9 @@ public class GarageViewModel extends AndroidViewModel {
 
     public LiveData<Vehicle> getSelectedVehicle() {
         return selectedVehicle;
+    }
+
+    public void deleteById(long id) {
+        io.execute(() -> repository.deleteRecordByID(id));
     }
 }
