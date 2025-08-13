@@ -22,6 +22,11 @@ import com.stanissudo.jycs_crafters.viewHolders.SharedViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
 
 /**
+ *  *  @author Stan Permiakov
+ *  *  created: 8/12/2025
+ *  *  @project JYCS-Crafters
+ *  *  file: VehicleActivity.java
+ *  *
  * Displays a list of fuel log entries for the currently selected vehicle.
  * <p>
  * Responsibilities:
