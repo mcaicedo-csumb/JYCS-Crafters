@@ -216,6 +216,9 @@ public class FuelTrackAppRepository {
     public void updateVehicleYear(int vehicleID, int newYear) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.updateVehicleYear(vehicleID, newYear));
     }
+    public void deleteVehicleById(long vehicleID) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.deleteVehicleById(vehicleID));
+    };
 
     public LiveData<CarCostStats> getCostStatsForVehicle(int vehicleId) {
         return fuelEntryDAO.getCostStatsForVehicle(vehicleId);

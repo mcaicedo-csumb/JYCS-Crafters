@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  *  * @author Stan Permiakov
  *  * created: 8/12/2025
  *  * @project JYCS-Crafters
- *  * file: VehicleActivity.java
+ *  * file: AddVehicleActivity.java
  *  *
  */
 public class DecimalDigitsInputFilter implements InputFilter {

@@ -46,4 +46,6 @@ public interface VehicleDAO {
 
     @Query("UPDATE " + FuelTrackAppDatabase.VEHICLE_TABLE + " SET Year = :newYear WHERE VehicleID = :vehicleID")
     void updateVehicleYear(int vehicleID, int newYear);
+    @Query("DELETE FROM " + FuelTrackAppDatabase.VEHICLE_TABLE + " WHERE  VehicleID = :vehicleID")
+    void deleteVehicleById(long vehicleID);
 }

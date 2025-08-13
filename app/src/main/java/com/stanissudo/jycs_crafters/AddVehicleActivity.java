@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
+import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 import com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding;
 import com.stanissudo.jycs_crafters.viewHolders.GarageViewModel;
@@ -23,11 +24,11 @@ import java.util.InputMismatchException;
  * @author Ysabelle Kim
  * created: 8/1/2025 - 6:42 PM
  * @project JYCS-Crafters
- * file: VehicleActivity.java
+ * file: AddVehicleActivity.java
  * @since 1.0.0
- * Explanation: VehicleActivity handles adding new vehicles to a user's account
+ * Explanation: AddVehicleActivity handles adding new vehicles to a user's account
  */
-public class VehicleActivity extends BaseDrawerActivity {
+public class AddVehicleActivity extends BaseDrawerActivity {
     private ActivityVehicleBinding binding;
     FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
 
@@ -37,6 +38,9 @@ public class VehicleActivity extends BaseDrawerActivity {
     private String vehicleMake = "";
     private String vehicleModel = "";
     private int vehicleYear = 0;
+
+    /** Intent extra key: primary key of a {@link Vehicle} to edit. Only present in EDIT mode. */
+    public static final String EXTRA_VEHICLE_ID  = "EXTRA_VEHICLE_ID";
 
     /**
      * onCreate() creates Vehicle activity to add vehicles
@@ -96,9 +100,21 @@ public class VehicleActivity extends BaseDrawerActivity {
      * @return intent
      */
     static Intent vehicleIntentFactory(Context context, int userId) {
-        Intent intent = new Intent(context, VehicleActivity.class);
+        Intent intent = new Intent(context, AddVehicleActivity.class);
         intent.putExtra(VEHICLE_USER_ID, userId);
         return intent;
+    }
+
+    /**
+     * Build an {@link Intent} to open this Activity in EDIT mode.
+     *
+     * @param context Caller context
+     * @param vehicleID   Primary key of the existing {@link Vehicle}
+     * @return Intent ready to pass to {@link Context#startActivity(Intent)}
+     */
+    public static Intent editVehicleIntentFactory(Context context, int vehicleID) {
+        return new Intent(context, AddFuelEntryActivity.class)
+                .putExtra(EXTRA_VEHICLE_ID, vehicleID);
     }
 
     @Override

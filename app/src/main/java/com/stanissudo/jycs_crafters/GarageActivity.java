@@ -1,21 +1,22 @@
 package com.stanissudo.jycs_crafters;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityGarageBinding;
-import com.stanissudo.jycs_crafters.viewHolders.VehicleAdapter;
+import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
+import com.stanissudo.jycs_crafters.viewHolders.GarageAdapter;
+import com.stanissudo.jycs_crafters.viewHolders.GarageViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
 
 /**
@@ -31,6 +32,7 @@ public class GarageActivity extends BaseDrawerActivity {
     private static final String GARAGE_USER_ID = "com.stanissudo.jycs-crafters.GARAGE_USER_ID";
     private SharedPreferences sharedPreferences;
     FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
+    private GarageViewModel garageViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +41,26 @@ public class GarageActivity extends BaseDrawerActivity {
         setContentView(binding.getRoot());
 
         // RecyclerView
-        VehicleAdapter adapter = new VehicleAdapter();
-        binding.garageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        binding.garageRecyclerView.setAdapter(adapter);
+        binding.garageDisplayRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        GarageAdapter adapter = new GarageAdapter(new GarageAdapter.Callbacks() {
+            @Override
+            public void onDeleteClicked(long id) {
+                new AlertDialog.Builder(GarageActivity.this)
+                        .setMessage("Delete this entry?")
+                        .setPositiveButton("Delete", (d, w) -> garageViewModel.deleteById(id))
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }
+
+            @Override
+            public void onEditClicked(long id) {
+                startActivity(AddVehicleActivity.editVehicleIntentFactory(
+                        GarageActivity.this,
+                        CarSelectorHelper.getSelectedOptionKey()
+                ));
+            }
+        });
+        binding.garageDisplayRecyclerView.setAdapter(adapter);
 
         // ViewModel
         VehicleViewModel vm = new ViewModelProvider(this).get(VehicleViewModel.class);
@@ -59,10 +78,10 @@ public class GarageActivity extends BaseDrawerActivity {
         // TODO: on clicking a row, select this vehicle
         //vm.selectVehicle(vehicle);
 
-        // click (+) to send to VehicleActivity
+        // click (+) to send to AddVehicleActivity
 //        FloatingActionButton fab = findViewById(R.id.garageAddButton);
 //        fab.setOnClickListener(view -> {
-//            Intent intent = VehicleActivity.vehicleIntentFactory(getApplicationContext(), userId);
+//            Intent intent = AddVehicleActivity.vehicleIntentFactory(getApplicationContext(), userId);
 //            startActivity(intent);
 //        });
     }

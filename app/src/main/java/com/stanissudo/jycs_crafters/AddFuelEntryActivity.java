@@ -36,7 +36,7 @@ import java.util.Locale;
  *  * @author Stan Permiakov
  *  * created: 8/12/2025
  *  * @project JYCS-Crafters
- *  * file: VehicleActivity.java
+ *  * file: AddFuelEntryActivity.java
  *  *
  * Activity for creating or editing a single fuel log entry.
  * <p>
