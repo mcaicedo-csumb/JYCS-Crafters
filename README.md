@@ -1,3 +1,18 @@
-# JYCS-Crafters
-Android app for CST 338 Project 2 by Team 4: Jose, Ysabelle, Camila, Stan
-Gas Mileage Log: Our team is planning to develop a mobile application that enables users to track their vehicle’s gas usage and mileage easily. The goal of the project is to provide a clean, simple, and user-friendly tool for logging fuel purchases and monitoring fuel efficiency over time. Users will be able to enter details such as the date of fill-up, odometer reading, amount of fuel added, and cost per gallon. Based on this data, the app will calculate fuel economy and provide users with a quick overview of their average mileage and spending habits.
+# FuelTrack — by JYCS-Crafters 🚗⛽
+
+**JYCS = Jose · Ysabelle · Camila · Stan** — we built FuelTrack with ❤️ to make car life simple: log fill-ups, see costs, and keep your garage tidy.
+
+## What you can do
+- 🛞 **Garage:** manage cars, switch fast, stay organized.
+- ⛽ **Fuel logs:** add fill-ups (date, odo, gallons, price, total, location).
+- 📊 **Stats:** quick insights on spend & cost per mile.
+- 🛠 **Settings:** edit display name, change password (with strength check), or **deactivate** your account (soft delete).
+- 🧑‍💼 **Admin:** add users, deactivate/reactivate, and safe-delete (no deleting the currently logged-in admin).
+
+## Why it’s safe & friendly
+- 🔐 Passwords are **hashed** (no plaintext), inactive users can’t log in.
+- 📴 Works offline with **Room**.
+- ✅ Clear toasts & confirmations so you always know what happened.
+
+Made with love by **JYCS-Crafters** — because better data makes better drives. ❤️  
+🚗💨
