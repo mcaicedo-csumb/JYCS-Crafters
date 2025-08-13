@@ -37,11 +37,12 @@ public class FuelTrackAppRepository {
                       @androidx.annotation.Nullable Integer next);
     }
 
-    public void checkOdometerAsync(int carId, LocalDateTime when, int value,
+    public void checkOdometerAsync(long logId, int carId, java.time.LocalDateTime when, int value,
+
                                    OdometerCheckCallback cb) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> {
-            Integer prev = fuelEntryDAO.getPreviousOdometer(carId, when);
-            Integer next = fuelEntryDAO.getNextOdometer(carId, when);
+            Integer prev = fuelEntryDAO.getPreviousOdometer(logId, carId, when);
+            Integer next = fuelEntryDAO.getNextOdometer(logId, carId, when);
             boolean ok = (prev == null || value > prev) && (next == null || value < next);
             main.post(() -> cb.onResult(ok, prev, next));
         });
@@ -91,19 +92,35 @@ public class FuelTrackAppRepository {
 
     // =================== FuelEntry Methods ===================
     public void insertFuelEntry(FuelEntry fuelEntry) {
-        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> fuelEntryDAO.insert(fuelEntry));
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> fuelEntryDAO.insertRecord(fuelEntry));
+    }
+    public void updateFuelEntry(FuelEntry fuelEntry) {
+        FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> fuelEntryDAO.updateRecord(fuelEntry));
     }
 
-    public Integer getPreviousOdometer(int carId, LocalDateTime logDate) {
-        return fuelEntryDAO.getPreviousOdometer(carId, logDate);
+
+    interface BoolCallback {
+        void onResult(boolean ok);
     }
 
-    public Integer getNextOdometer(int carId, LocalDateTime logDate) {
-        return fuelEntryDAO.getNextOdometer(carId, logDate);
+    public Integer getPreviousOdometer(long logId, int carId, LocalDateTime logDate) {
+        return fuelEntryDAO.getPreviousOdometer(logId, carId, logDate);
+
+    }
+
+    public Integer getNextOdometer(long logId, int carId, LocalDateTime logDate) {
+        return fuelEntryDAO.getNextOdometer(logId, carId, logDate);
     }
 
     public LiveData<List<FuelEntry>> getEntriesForCar(int carId) {
         return fuelEntryDAO.getEntriesForCar(carId);
+    }
+
+    public void deleteRecordByID(long carId) {
+        fuelEntryDAO.deleteRecordById(carId);
+    }
+    public LiveData<FuelEntry> getRecordById(int logId) {
+        return fuelEntryDAO.getRecordById(logId);
     }
 
     // =================== User Methods ===================
@@ -166,9 +183,9 @@ public class FuelTrackAppRepository {
         return userDAO.getAllUsers();
     }
 
-    public LiveData<List<FuelEntry>> getAllLogsByUserId(int loggedInUserId) {
-        return fuelEntryDAO.getRecordsById(loggedInUserId);
-    }
+//    public LiveData<List<FuelEntry>> getAllLogsByUserId(int loggedInUserId) {
+//        return fuelEntryDAO.getRecordsById(loggedInUserId);
+//    }
 
     // =================== Vehicle Methods ===================
     public void insertVehicle(Vehicle vehicle) {

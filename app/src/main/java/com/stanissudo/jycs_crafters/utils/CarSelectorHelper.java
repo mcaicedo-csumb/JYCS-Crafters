@@ -111,4 +111,14 @@ public class CarSelectorHelper {
             prefs.edit().putInt("lastSelectedVehicleId", key).apply();
         }
     }
+
+    public static void setSelectedOptionById(Context context, int key) {
+
+        if (key != -1) {
+            // Save the car's ID to SharedPreferences so it persists
+            SharedPreferences prefs = context.getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
+            prefs.edit().putInt("lastSelectedVehicleId", key).apply();
+        }
+    }
+
 }
