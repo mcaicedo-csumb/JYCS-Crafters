@@ -54,6 +54,19 @@ public class AdminCheckActivity extends AppCompatActivity {
         binding.removeUserButton.setOnClickListener(v -> showRemoveUserDialog());
         binding.changePasswordButton.setOnClickListener(v -> showChangePasswordDialog());
         binding.logoutButton.setOnClickListener(v -> logout());
+
+        // CAMILA: wire new admin actions (Deactivate / Reactivate / Delete permanently)
+        if (binding.deactivateUserButton != null) {
+            binding.deactivateUserButton.setOnClickListener(v -> showDeactivateUserDialog());
+        }
+        // CAMILA: Reactivate button
+        if (binding.reactivateUserButton != null) {
+            binding.reactivateUserButton.setOnClickListener(v -> showReactivateUserDialog());
+        }
+        // CAMILA: Delete permanently button
+        if (binding.deleteUserPermButton != null) {
+            binding.deleteUserPermButton.setOnClickListener(v -> showDeleteUserDialog());
+        }
     }
 
     private void showAddUserDialog() {
@@ -71,6 +84,8 @@ public class AdminCheckActivity extends AppCompatActivity {
 
         android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
         layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int pad = (int) (16 * getResources().getDisplayMetrics().density);
+        layout.setPadding(pad, pad, pad, 0);
         layout.addView(usernameInput);
         layout.addView(passwordInput);
         builder.setView(layout);
@@ -87,7 +102,6 @@ public class AdminCheckActivity extends AppCompatActivity {
             // ✅ Uses repository-level duplicate guard
             repository.addUserSafely(username, password, /*isAdmin=*/false, (ok, msg) -> {
                 Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-                // If your list isn't LiveData, refresh here.
             });
         });
 
@@ -122,14 +136,94 @@ public class AdminCheckActivity extends AppCompatActivity {
         builder.show();
     }
 
-    // 🔒 Updated: requires CURRENT password and calls changePasswordWithCurrentCheck(...)
+    // CAMILA: add Deactivate action dialog (sets isActive = 0)
+    private void showDeactivateUserDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Deactivate User");
+
+        EditText usernameInput = new EditText(this);
+        usernameInput.setHint("Username");
+        builder.setView(usernameInput);
+
+        builder.setPositiveButton("Deactivate", (dialog, which) -> {
+            String username = usernameInput.getText().toString().trim();
+            if (username.isEmpty()) {
+                Toast.makeText(this, "Please enter a username", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String currentUsername = sharedPreferences.getString("username", "");
+            boolean isAdmin = sharedPreferences.getBoolean("isAdmin", false);
+
+            repository.deactivateUserSafely(username, currentUsername, isAdmin,
+                    (ok, msg) -> Toast.makeText(this, msg, Toast.LENGTH_SHORT).show());
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+    // CAMILA: add Reactivate action dialog (sets isActive = 1)
+    private void showReactivateUserDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Reactivate User");
+
+        EditText usernameInput = new EditText(this);
+        usernameInput.setHint("Username");
+        builder.setView(usernameInput);
+
+        builder.setPositiveButton("Reactivate", (dialog, which) -> {
+            String username = usernameInput.getText().toString().trim();
+            if (username.isEmpty()) {
+                Toast.makeText(this, "Please enter a username", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // CAMILA: pass required args to the *Safely* method
+            String currentUsername = sharedPreferences.getString("username", ""); // CAMILA
+            boolean isAdmin = sharedPreferences.getBoolean("isAdmin", false);     // CAMILA
+
+            repository.reactivateUserSafely(username, currentUsername, isAdmin,   // CAMILA
+                    (ok, msg) -> Toast.makeText(this, msg, Toast.LENGTH_SHORT).show());
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+    // CAMILA: add "Delete permanently" dialog with confirmation (keeps self-protection)
+    private void showDeleteUserDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete User Permanently");
+
+        EditText usernameInput = new EditText(this);
+        usernameInput.setHint("Username");
+        builder.setView(usernameInput);
+
+        builder.setPositiveButton("Delete", (dialog, which) -> {
+            String username = usernameInput.getText().toString().trim();
+            if (username.isEmpty()) {
+                Toast.makeText(this, "Please enter a username", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String currentUsername = sharedPreferences.getString("username", "");
+            boolean isAdmin = sharedPreferences.getBoolean("isAdmin", false);
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Confirm Permanent Delete")
+                    .setMessage("This will permanently delete the user '" + username + "'. Continue?")
+                    .setPositiveButton("Yes, delete", (d, w) ->
+                            repository.deleteUserSafely(username, currentUsername, isAdmin,
+                                    (ok, msg) -> Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()))
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
     private void showChangePasswordDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Change Password");
-
-        EditText currentPassInput = new EditText(this);
-        currentPassInput.setHint("Current Password");
-        currentPassInput.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
         EditText newPassInput = new EditText(this);
         newPassInput.setHint("New Password");
@@ -141,29 +235,30 @@ public class AdminCheckActivity extends AppCompatActivity {
 
         android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
         layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.addView(currentPassInput);
+        int pad = (int) (16 * getResources().getDisplayMetrics().density);
+        layout.setPadding(pad, pad, pad, 0);
         layout.addView(newPassInput);
         layout.addView(confirmPassInput);
         builder.setView(layout);
 
         builder.setPositiveButton("Change", (dialog, which) -> {
-            String cur = currentPassInput.getText().toString().trim();
-            String np = newPassInput.getText().toString().trim();
-            String cp = confirmPassInput.getText().toString().trim();
+            String newPass = newPassInput.getText().toString().trim();
+            String confirmPass = confirmPassInput.getText().toString().trim();
 
-            if (cur.isEmpty() || np.isEmpty() || cp.isEmpty()) {
+            if (newPass.isEmpty() || confirmPass.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (!np.equals(cp)) {
+            if (!newPass.equals(confirmPass)) {
                 Toast.makeText(this, "New passwords do not match", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            // Scope to the currently logged-in user
             SharedPreferences sp = getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
             String currentUsername = sp.getString("username", "");
 
-            repository.changePasswordWithCurrentCheck(currentUsername, cur, np, (ok, msg) -> {
+            repository.changePasswordIfUserExists(currentUsername, newPass, (ok, msg) -> {
                 Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
             });
         });

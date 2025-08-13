@@ -37,12 +37,46 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="10dp"/>
 
+    <!-- CAMILA: Deactivate -->
+    <Button
+        android:id="@+id/deactivateUserButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Deactivate User"
+        app:layout_constraintTop_toBottomOf="@id/removeUserButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"/>
+
+    <!-- CAMILA: Reactivate -->
+    <Button
+        android:id="@+id/reactivateUserButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Reactivate User"
+        app:layout_constraintTop_toBottomOf="@id/deactivateUserButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"/>
+
+    <!-- CAMILA: Delete permanently -->
+    <Button
+        android:id="@+id/deleteUserPermButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Delete Permanently"
+        app:layout_constraintTop_toBottomOf="@id/reactivateUserButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="10dp"/>
+
+    <!-- moved below the new buttons -->
     <Button
         android:id="@+id/changePasswordButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Change Password"
-        app:layout_constraintTop_toBottomOf="@id/removeUserButton"
+        app:layout_constraintTop_toBottomOf="@id/deleteUserPermButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="10dp"/>

@@ -24,10 +24,22 @@ public class User {
 
     private boolean isAdmin = false;
 
+    // CAMILA: optional display name editable in Settings
+    private String displayName;
+
+    // CAMILA: soft-delete flag (active/deactivated)
+    private boolean isActive = true;
+
     public User(@NonNull String username, @NonNull String password) {
         this.username = username;
         this.password = password;
         this.isAdmin = false;
+
+        // CAMILA: default display name mirrors username
+        this.displayName = username;
+
+        // CAMILA: new accounts are active by default
+        this.isActive = true;
     }
 
     // Getters and setters
@@ -66,6 +78,24 @@ public class User {
         isAdmin = admin;
     }
 
+    // CAMILA: displayName accessors for profile editing
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    // CAMILA: active flag accessors (used for login block / soft delete)
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -73,12 +103,17 @@ public class User {
         User user = (User) o;
         return id == user.id &&
                 isAdmin == user.isAdmin &&
+                // CAMILA: include isActive in equality
+                isActive == user.isActive &&
                 username.equals(user.username) &&
-                password.equals(user.password);
+                password.equals(user.password) &&
+                // CAMILA: include displayName in equality
+                Objects.equals(displayName, user.displayName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, password, isAdmin);
+        // CAMILA: include displayName and isActive in hash
+        return Objects.hash(id, username, password, isAdmin, isActive, displayName);
     }
 }

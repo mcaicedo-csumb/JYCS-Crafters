@@ -23,7 +23,7 @@ import com.stanissudo.jycs_crafters.databinding.ActivityMainBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
 import com.stanissudo.jycs_crafters.viewHolders.SharedViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.StatsPagerAdapter;
-import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
+import com.stanissudo.jycs_crafters.viewHolders.GarageViewModel;
 
 public class MainActivity extends BaseDrawerActivity {
 
@@ -33,7 +33,7 @@ public class MainActivity extends BaseDrawerActivity {
     public static final String TAG = "FuelTrackApp_Log";
     private static final String MAIN_ACTIVITY_USER_ID = "com.stanissudo.jycs_crafters.MAIN_ACTIVITY_USER_ID";
 
-    private VehicleViewModel vehicleViewModel;
+    private GarageViewModel garageViewModel;
     private SharedViewModel sharedViewModel;
 
     @Override
@@ -43,7 +43,7 @@ public class MainActivity extends BaseDrawerActivity {
         setContentView(binding.getRoot());
 
         // --- 1. Initialize ViewModels ---
-        vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
+        garageViewModel = new ViewModelProvider(this).get(GarageViewModel.class);
         sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
         // --- 2. Standard Setup (Repository, SharedPreferences, etc.) ---
@@ -69,8 +69,8 @@ public class MainActivity extends BaseDrawerActivity {
 
         // --- 4. Load Data and Link to UI ---
         // Observe the list of vehicles from the database
-        vehicleViewModel.loadUserVehicles(userId);
-        vehicleViewModel.getUserVehicles().observe(this, vehicles -> {
+        garageViewModel.loadUserVehicles(userId);
+        garageViewModel.getUserVehicles().observe(this, vehicles -> {
             if (vehicles != null && !vehicles.isEmpty()) {
                 // a. Load vehicle data into the helper, which sets the default selection
                 CarSelectorHelper.loadVehicleData(this, vehicles);
