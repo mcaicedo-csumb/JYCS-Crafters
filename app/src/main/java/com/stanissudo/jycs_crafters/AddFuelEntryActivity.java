@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.databinding.ActivityAddFuelEntryBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
+import com.stanissudo.jycs_crafters.utils.DecimalDigitsInputFilter;
 import com.stanissudo.jycs_crafters.viewHolders.FuelEntryViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.SharedViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
@@ -185,6 +187,21 @@ public class AddFuelEntryActivity extends AppCompatActivity {
         // Inflate view binding and set content view.
         binding = ActivityAddFuelEntryBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Gallons: up to 3 decimals and up to 3 digits before the dot
+        binding.gasVolumeInputEditText.setFilters(new InputFilter[]{
+                new DecimalDigitsInputFilter(3, 3)
+        });
+
+        // Price/gal: up to 2 decimals (and up to 2 digits before the dot)
+        binding.pricePerGallonInputEditText.setFilters(new InputFilter[]{
+                new DecimalDigitsInputFilter(2, 2)
+        });
+
+        // TotalPrice: up to 2 decimals (and up to 4 digits before the dot)
+        binding.totalPriceInputEditText.setFilters(new InputFilter[]{
+                new DecimalDigitsInputFilter(4, 2)
+        });
 
         // Toolbar back button behavior is defined in XML; this just finishes the Activity.
         setSupportActionBar(binding.toolbar);
