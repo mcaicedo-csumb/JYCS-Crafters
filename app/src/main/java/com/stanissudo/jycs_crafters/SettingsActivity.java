@@ -1,6 +1,7 @@
 package com.stanissudo.jycs_crafters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
@@ -12,7 +13,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LiveData;
 
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.database.entities.User;
@@ -20,19 +20,16 @@ import com.stanissudo.jycs_crafters.database.entities.User;
 public class SettingsActivity extends AppCompatActivity {
 
     private FuelTrackAppRepository repository;
-
-    private TextView usernameView;
-    private EditText displayNameInput;
-    private Button saveNameBtn;
-    private Button changePassBtn;
-    private Button deleteAccountBtn;
-
     private SharedPreferences sp;
 
-    // CAMILA: pretty header (optional views; safe if missing in XML)
-    private TextView headerName;      // CAMILA
-    private TextView headerUsername;  // CAMILA
-    private TextView headerAvatar;    // CAMILA
+    private TextView headerName;          // @+id/settings_header_name
+    private TextView headerUsername;      // @+id/settings_header_username
+    private TextView headerAvatar;        // @+id/settings_avatar
+    private TextView usernameText;        // @+id/settings_username
+    private EditText displayNameEdit;     // @+id/settings_display_name
+    private Button saveNameButton;        // @+id/saveDisplayNameButton
+    private Button changePasswordButton;  // @+id/changePasswordButton
+    private Button deleteAccountButton;   // @+id/deleteAccountButton
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,84 +39,87 @@ public class SettingsActivity extends AppCompatActivity {
         repository = FuelTrackAppRepository.getRepository(getApplication());
         sp = getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
 
-        // CAMILA: show @username in the title bar
-        setTitle("Settings — @" + sp.getString("username", "")); // CAMILA
+        // Bind views to IDs from your XML
+        headerName = findViewById(R.id.settings_header_name);
+        headerUsername = findViewById(R.id.settings_header_username);
+        headerAvatar = findViewById(R.id.settings_avatar);
+        usernameText = findViewById(R.id.settings_username);
+        displayNameEdit = findViewById(R.id.settings_display_name);
+        saveNameButton = findViewById(R.id.saveDisplayNameButton);
+        changePasswordButton = findViewById(R.id.changePasswordButton);
+        deleteAccountButton = findViewById(R.id.deleteAccountButton);
 
-        usernameView     = findViewById(R.id.settings_username);
-        displayNameInput = findViewById(R.id.settings_display_name);
-        saveNameBtn      = findViewById(R.id.saveDisplayNameButton);
-        changePassBtn    = findViewById(R.id.changePasswordButton);
-        deleteAccountBtn = findViewById(R.id.deleteAccountButton);
-
-        // CAMILA: bind pretty header (if you added these IDs in XML)
-        headerName     = findViewById(R.id.settings_header_name);     // CAMILA
-        headerUsername = findViewById(R.id.settings_header_username); // CAMILA
-        headerAvatar   = findViewById(R.id.settings_avatar);          // CAMILA
-
+        // Load current session values
         int userId = sp.getInt("userId", -1);
-        if (userId <= 0) {
-            Toast.makeText(this, "No user session.", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
+        String currentUsername = sp.getString("username", "");
 
-        LiveData<User> userLive = repository.getUserById(userId);
-        userLive.observe(this, u -> {
-            if (u == null) return;
+        // Populate static fields
+        usernameText.setText(currentUsername);
+        headerUsername.setText("@" + currentUsername);
 
-            usernameView.setText(u.getUsername());
-            String dn = u.getDisplayName();
-            displayNameInput.setText(dn == null || dn.isEmpty() ? u.getUsername() : dn);
-
-            // CAMILA: fill the header nicely if present
-            if (headerName != null) headerName.setText(displayNameInput.getText().toString());         // CAMILA
-            if (headerUsername != null) headerUsername.setText("@" + u.getUsername());                 // CAMILA
-            if (headerAvatar != null && u.getUsername().length() > 0)                                  // CAMILA
-                headerAvatar.setText(String.valueOf(u.getUsername().charAt(0)).toUpperCase());         // CAMILA
-        });
-
-        if (saveNameBtn != null) {
-            saveNameBtn.setOnClickListener(v -> {
-                String newName = displayNameInput.getText().toString().trim();
-                if (newName.isEmpty()) {
-                    Toast.makeText(this, "Display name cannot be empty.", Toast.LENGTH_SHORT).show();
-                    return;
+        // Observe the current user so header + edit field stay in sync
+        if (userId > 0) {
+            repository.getUserById(userId).observe(this, user -> {
+                if (user != null) {
+                    String dn = (user.getDisplayName() == null || user.getDisplayName().trim().isEmpty())
+                            ? "Display Name" : user.getDisplayName();
+                    headerName.setText(dn);
+                    if (displayNameEdit.getText().toString().trim().isEmpty()) {
+                        displayNameEdit.setText(user.getDisplayName());
+                    }
+                    // Set simple avatar initial
+                    String initial = (dn.trim().isEmpty() ? currentUsername : dn).substring(0, 1).toUpperCase();
+                    headerAvatar.setText(initial);
                 }
-                repository.updateDisplayName(userId, newName);
-                Toast.makeText(this, "Name updated.", Toast.LENGTH_SHORT).show();
-
-                // reflect change in header immediately if present
-                if (headerName != null) headerName.setText(newName);
             });
         }
 
-        if (changePassBtn != null) {
-            changePassBtn.setOnClickListener(v -> showChangePasswordDialog(userId));
-        }
+        // Save display name
+        saveNameButton.setOnClickListener(v -> {
+            String newName = displayNameEdit.getText().toString().trim();
+            if (userId <= 0) {
+                Toast.makeText(this, "Session error: user not found.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (newName.isEmpty()) {
+                Toast.makeText(this, "Display name cannot be empty.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            repository.updateDisplayName(userId, newName);
+            headerName.setText(newName);
+            headerAvatar.setText(newName.substring(0, 1).toUpperCase());
+            Toast.makeText(this, "Name updated.", Toast.LENGTH_SHORT).show();
+        });
 
-        if (deleteAccountBtn != null) {
-            deleteAccountBtn.setOnClickListener(v ->
-                    new AlertDialog.Builder(this)
-                            .setTitle("Deactivate Account")
-                            .setMessage("This will deactivate your account. You can ask an admin to reactivate it later.")
-                            .setPositiveButton("Deactivate", (d, w) -> {
-                                repository.softDeleteUserById(userId);
-                                SharedPreferences.Editor ed = sp.edit();
-                                ed.putBoolean("isLoggedIn", false);
-                                ed.remove("username");
-                                ed.remove("userId");
-                                ed.remove("isAdmin");
-                                ed.apply();
-                                startActivity(LoginActivity.intentFactory(this));
-                                finish();
-                            })
-                            .setNegativeButton("Cancel", null)
-                            .show()
-            );
-        }
+        // Change password flow
+        changePasswordButton.setOnClickListener(v -> showChangePasswordDialog());
+
+        // Soft-delete (deactivate) account
+        deleteAccountButton.setOnClickListener(v -> {
+            if (userId <= 0) {
+                Toast.makeText(this, "Session error: user not found.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            new AlertDialog.Builder(this)
+                    .setTitle("Deactivate Account")
+                    .setMessage("This will deactivate your account. You can restore it later. Continue?")
+                    .setPositiveButton("Deactivate", (d, w) -> {
+                        repository.softDeleteUserById(userId);
+                        // Clear session and go back to Login
+                        SharedPreferences.Editor ed = sp.edit();
+                        ed.putBoolean("isLoggedIn", false);
+                        ed.remove("username");
+                        ed.remove("isAdmin");
+                        ed.apply();
+                        startActivity(LoginActivity.intentFactory(this));
+                        finish();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
     }
 
-    private void showChangePasswordDialog(int userId) {
+    private void showChangePasswordDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Change Password");
 
@@ -146,8 +146,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         builder.setPositiveButton("Change", (dialog, which) -> {
             String cur = currentPass.getText().toString().trim();
-            String np  = newPass.getText().toString().trim();
-            String cp  = confirmPass.getText().toString().trim();
+            String np = newPass.getText().toString().trim();
+            String cp = confirmPass.getText().toString().trim();
 
             if (cur.isEmpty() || np.isEmpty() || cp.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
@@ -157,28 +157,18 @@ public class SettingsActivity extends AppCompatActivity {
                 Toast.makeText(this, "New passwords do not match", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (np.length() < 6) {
-                Toast.makeText(this, "Password must be at least 6 characters.", Toast.LENGTH_SHORT).show();
+
+            // CAMILA: password complexity (>=8 chars and contains letter + digit)
+            if (!isStrongPassword(np)) {
+                Toast.makeText(this,
+                        "Password must be at least 8 characters and include a letter and a number.",
+                        Toast.LENGTH_LONG).show();
                 return;
             }
 
-            LiveData<User> live = repository.getUserById(userId);
-            live.observe(this, u -> {
-                if (u == null) return;
-
-                String stored = u.getPassword();
-                boolean storedIsHash = stored != null && stored.matches("(?i)^[0-9a-f]{64}$");
-                String curHash = sha256(cur);
-
-                boolean ok = storedIsHash ? stored.equalsIgnoreCase(curHash) : stored.equals(cur);
-                if (!ok) {
-                    Toast.makeText(this, "Current password is incorrect.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                String newHash = sha256(np);
-                repository.updatePasswordById(userId, newHash);
-                Toast.makeText(this, "Password updated.", Toast.LENGTH_SHORT).show();
+            String currentUsername = sp.getString("username", "");
+            repository.changePasswordWithCurrentCheck(currentUsername, cur, np, (ok, msg) -> {
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
             });
         });
 
@@ -186,23 +176,21 @@ public class SettingsActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private void confirmSoftDelete(int userId) {
-        // kept inside onClick above; here only if you want to call directly
-    }
-
-    private static String sha256(String s) {
-        try {
-            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
-            byte[] bytes = md.digest(s.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder(bytes.length * 2);
-            for (byte b : bytes) sb.append(String.format("%02x", b));
-            return sb.toString();
-        } catch (java.security.NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+    // CAMILA: simple strength rule
+    private boolean isStrongPassword(String pw) {
+        if (pw == null) return false;
+        if (pw.length() < 8) return false;
+        boolean hasLetter = false, hasDigit = false;
+        for (int i = 0; i < pw.length(); i++) {
+            char c = pw.charAt(i);
+            if (Character.isLetter(c)) hasLetter = true;
+            if (Character.isDigit(c)) hasDigit = true;
+            if (hasLetter && hasDigit) break;
         }
+        return hasLetter && hasDigit;
     }
 
-    public static android.content.Intent intentFactory(Context context) {
-        return new android.content.Intent(context, SettingsActivity.class);
+    public static Intent intentFactory(Context context) {
+        return new Intent(context, SettingsActivity.class);
     }
 }
