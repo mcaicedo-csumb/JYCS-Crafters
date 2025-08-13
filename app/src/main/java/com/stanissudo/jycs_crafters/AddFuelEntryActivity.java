@@ -524,12 +524,12 @@ public class AddFuelEntryActivity extends AppCompatActivity {
             Toast.makeText(this, "Odometer must be ≥ 0.", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (entry.getPricePerGallon() < 0) {
+        if (entry.getPricePerGallon() <= 0) {
             // Message says > 0, but code allows 0. Change to <= 0 if you want to enforce strictly > 0.
             Toast.makeText(this, "Price per gallon must be > 0.", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (entry.getGallons() < 0) {
+        if (entry.getGallons() <= 0) {
             // Message says > 0, but code allows 0. Change to <= 0 if you want to enforce strictly > 0.
             Toast.makeText(this, "Gallons must be > 0.", Toast.LENGTH_SHORT).show();
             return false;
