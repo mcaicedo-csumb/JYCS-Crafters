@@ -178,7 +178,11 @@ public class AdminCheckActivity extends AppCompatActivity {
                 return;
             }
 
-            repository.reactivateUser(username,
+            // CAMILA: pass required args to the *Safely* method
+            String currentUsername = sharedPreferences.getString("username", ""); // CAMILA
+            boolean isAdmin = sharedPreferences.getBoolean("isAdmin", false);     // CAMILA
+
+            repository.reactivateUserSafely(username, currentUsername, isAdmin,   // CAMILA
                     (ok, msg) -> Toast.makeText(this, msg, Toast.LENGTH_SHORT).show());
         });
         builder.setNegativeButton("Cancel", null);
