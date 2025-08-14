@@ -52,4 +52,14 @@ public interface VehicleDAO {
     void updateVehicleYear(int vehicleID, int newYear);
     @Query("DELETE FROM " + FuelTrackAppDatabase.VEHICLE_TABLE + " WHERE  VehicleID = :vehicleID")
     void deleteVehicleById(long vehicleID);
+
+    // Add near your other methods in VehicleDAO.java
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    long insert(Vehicle vehicle);
+
+    @Query("SELECT * FROM " + FuelTrackAppDatabase.VEHICLE_TABLE + " WHERE VehicleID = :vehicleID LIMIT 1")
+    Vehicle findById(long vehicleID);
+
+
 }
