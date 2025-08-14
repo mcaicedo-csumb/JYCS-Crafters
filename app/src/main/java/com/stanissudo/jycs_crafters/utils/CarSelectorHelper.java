@@ -121,12 +121,22 @@ public class CarSelectorHelper {
     }
 
     public static void setSelectedOptionById(Context context, int key) {
+        // Update in-memory label too
+        String name = fullOptions.get(key);
+        if (name != null) selectedOption = name;
 
-        if (key != -1) {
-            // Save the car's ID to SharedPreferences so it persists
-            SharedPreferences prefs = context.getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
-            prefs.edit().putInt("lastSelectedVehicleId", key).apply();
-        }
+        SharedPreferences prefs = context.getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
+        prefs.edit().putInt("lastSelectedVehicleId", key).apply();
+    }
+    public static int getSavedSelectedId(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
+        return prefs.getInt("lastSelectedVehicleId", -1);
     }
 
+    // Call this when you need 'selectedOption' to match what's in prefs
+    public static void syncFromPrefs(Context context) {
+        int id = getSavedSelectedId(context);
+        String name = fullOptions.get(id);
+        if (name != null) selectedOption = name;
+    }
 }

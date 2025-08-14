@@ -166,7 +166,21 @@ public class FuelLogActivity extends BaseDrawerActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        // 1) Update in-memory selectedOption from prefs
+        CarSelectorHelper.syncFromPrefs(this);
+
+        // 2) Update the dropdown text to match
         CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
+
+        // 3) Emit to fragments if changed (or on first resume)
+        int savedId = CarSelectorHelper.getSavedSelectedId(this);
+        if (savedId != -1) {
+            Integer current = sharedViewModel.getSelectedCarId().getValue();
+            if (current == null || !current.equals(savedId)) {
+                sharedViewModel.selectCar(savedId);
+            }
+        }
     }
 
     // --------------------------------------------------------------------------------------------

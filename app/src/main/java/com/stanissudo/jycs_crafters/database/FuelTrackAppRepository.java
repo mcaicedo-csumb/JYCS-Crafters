@@ -17,6 +17,7 @@ import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.database.entities.User;
 import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 import com.stanissudo.jycs_crafters.database.pojos.CarCostStats;
+import com.stanissudo.jycs_crafters.database.pojos.CarDistanceStats;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -226,6 +227,9 @@ public class FuelTrackAppRepository {
 
     public LiveData<CarCostStats> getCostStatsForVehicle(int vehicleId) {
         return fuelEntryDAO.getCostStatsForVehicle(vehicleId);
+    }
+    public LiveData<CarDistanceStats> getDistanceStatsForVehicle(int vehicleId) {
+        return fuelEntryDAO.getDistanceStatsForVehicle(vehicleId);
     }
 
     // ====== Callbacks ======
