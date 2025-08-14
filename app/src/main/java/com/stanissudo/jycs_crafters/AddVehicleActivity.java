@@ -34,6 +34,7 @@ public class AddVehicleActivity extends BaseDrawerActivity {
     private String vehicleMake = "";
     private String vehicleModel = "";
     private int vehicleYear = 0;
+    private int userId;
     private VehicleViewModel viewModel;
     /** True if this Activity was launched to edit an existing record. */
     private boolean isEdit;
@@ -89,7 +90,7 @@ public class AddVehicleActivity extends BaseDrawerActivity {
         setTitle(isEdit ? "Edit Vehicle" : "Add Vehicle");
 
         sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
-        int userId = sharedPreferences.getInt("userId", -1);
+        userId = sharedPreferences.getInt("userId", -1);
 
         // EDIT mode: prefill from DB without triggering calculations.
         if (isEdit) {
@@ -122,6 +123,7 @@ public class AddVehicleActivity extends BaseDrawerActivity {
         // Build entity
         Vehicle vehicle = new Vehicle();
         if (isEdit) vehicle.setVehicleID(editVehicleID);
+        vehicle.setUserId(userId);
         vehicle.setName(name);
         vehicle.setMake(make);
         vehicle.setModel(model);
