@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
@@ -14,18 +12,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
-import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 import com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding;
-import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
-import com.stanissudo.jycs_crafters.utils.NumberFormatter;
-import com.stanissudo.jycs_crafters.viewHolders.FuelEntryViewModel;
-import com.stanissudo.jycs_crafters.viewHolders.GarageViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.InputMismatchException;
 
 /**
  * @author Ysabelle Kim
@@ -37,7 +26,7 @@ import java.util.InputMismatchException;
  */
 public class AddVehicleActivity extends BaseDrawerActivity {
     private ActivityVehicleBinding binding;
-    FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
+    FuelTrackAppRepository repository;
 
     private static final String VEHICLE_USER_ID = "com.stanissudo.jycs-crafters.VEHICLE_USER_ID";
     private SharedPreferences sharedPreferences;
@@ -87,15 +76,17 @@ public class AddVehicleActivity extends BaseDrawerActivity {
         binding = ActivityVehicleBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        setSupportActionBar(binding.toolbar);
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+
         // ViewModel
-        GarageViewModel vm = new ViewModelProvider(this).get(GarageViewModel.class);
+        viewModel  = new ViewModelProvider(this).get(VehicleViewModel.class);
+        repository = FuelTrackAppRepository.getRepository(getApplication());
 
         // Extract intent extras.
         editVehicleID = getIntent().getIntExtra(EXTRA_VEHICLE_ID, -1);
         isEdit = editVehicleID > 0;
         setTitle(isEdit ? "Edit Vehicle" : "Add Vehicle");
-
-        setSupportActionBar(binding.toolbar);
 
         sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
         int userId = sharedPreferences.getInt("userId", -1);
@@ -113,41 +104,8 @@ public class AddVehicleActivity extends BaseDrawerActivity {
             });
         }
 
-        // Save action: validate + async odometer check + insert/update.
+        // Save action: validate + insert/update.
         binding.vehicleSaveButton.setOnClickListener(v -> onSave());
-
-//        binding.vehicleSaveButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                getInformationFromDisplay();
-//                insertRecord(userId);
-//                Intent intent = GarageActivity.garageIntentFactory(getApplicationContext(), userId);
-//                startActivity(intent);
-//            }
-//        });
-    }
-
-    /**
-     * getInformationFromDisplay() sets the user's input from application fields to variables
-     */
-    private void getInformationFromDisplay() {
-
-        try {
-            vehicleName = binding.vehicleNameEditText.getText().toString();
-            vehicleMake = binding.vehicleMakeEditText.getText().toString();
-            vehicleModel = binding.vehicleModelEditText.getText().toString();
-            vehicleYear = Integer.parseInt(binding.vehicleYearEditText.getText().toString());
-        } catch (InputMismatchException e) {
-            Log.e("TAG", "Error reading values.");
-        }
-    }
-
-    /**
-     * insertRecord() inserts a Vehicle record into the database
-     */
-    private void insertRecord(int userId){
-        Vehicle vehicle = new Vehicle(userId, vehicleName, vehicleMake, vehicleModel, vehicleYear);
-        repository.insertVehicle(vehicle);
     }
 
     /**
@@ -171,6 +129,15 @@ public class AddVehicleActivity extends BaseDrawerActivity {
 
         // Synchronous field validation (basic required checks)
         if (!validateInputsBasic(vehicle)) return;
+
+        try {
+            if (isEdit) viewModel.update(vehicle);
+            else viewModel.insert(vehicle);
+        } catch (Exception e) {
+            Toast.makeText(this, "Failed to add or edit vehicle...", Toast.LENGTH_LONG).show();
+            finish();
+        }
+        finish();
     }
 
     /**
@@ -185,10 +152,6 @@ public class AddVehicleActivity extends BaseDrawerActivity {
      * @return true if basic checks pass; false otherwise (with a Toast shown)
      */
     private boolean validateInputsBasic(Vehicle vehicle) {
-        if (vehicle.getVehicleID() <= 0) {
-            Toast.makeText(this, "Please select a car.", Toast.LENGTH_SHORT).show();
-            return false;
-        }
         if (vehicle.getName().equals(null)) {
             Toast.makeText(this, "The vehicle must have a name.", Toast.LENGTH_SHORT).show();
             return false;
