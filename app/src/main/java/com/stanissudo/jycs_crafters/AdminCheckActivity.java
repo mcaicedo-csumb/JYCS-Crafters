@@ -1,3 +1,22 @@
+/**
+ * Author: Jose
+ * Date: 2025-08-13
+ *
+ * Activity for managing administrative actions within the FuelTrack application.
+ * This screen is only accessible to admin users and provides:
+ * - Viewing all registered users in a RecyclerView
+ * - Adding new users
+ * - Removing users
+ * - Changing user passwords
+ * - Maria: Deactivating, reactivating, and permanently deleting users
+ * - Logging out of the application
+ *
+ * Notes:
+ * - Uses LiveData to observe user list changes in real-time.
+ * - Relies on repository-level safety checks for operations such as avoiding self-deletion.
+ * - Includes both Firebase and Google Sign-In logout support.
+ */
+
 package com.stanissudo.jycs_crafters;
 
 import android.content.Context;
@@ -6,10 +25,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.content.Intent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,7 +35,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
-import com.stanissudo.jycs_crafters.database.entities.User;
 import com.stanissudo.jycs_crafters.databinding.ActivityAdminCheckBinding;
 
 public class AdminCheckActivity extends AppCompatActivity {
@@ -30,6 +44,12 @@ public class AdminCheckActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private UserListAdapter adapter;
 
+    /**
+     * Initializes the admin view, sets up UI components, binds click listeners,
+     * and loads the user list for management.
+     *
+     * @param savedInstanceState The saved instance state bundle.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,34 +61,36 @@ public class AdminCheckActivity extends AppCompatActivity {
 
         binding.adminMessage.setText("You have admin privileges!");
 
-        // Set up RecyclerView
+        // RecyclerView setup
         adapter = new UserListAdapter();
         binding.userListRecycler.setLayoutManager(new LinearLayoutManager(this));
         binding.userListRecycler.setAdapter(adapter);
 
-        // Observe the user list
+        // Observe and update user list dynamically
         repository.getAllUsers().observe(this, users -> adapter.setUsers(users));
 
-        // Buttons
+        // Button actions
         binding.addUserButton.setOnClickListener(v -> showAddUserDialog());
         binding.removeUserButton.setOnClickListener(v -> showRemoveUserDialog());
         binding.changePasswordButton.setOnClickListener(v -> showChangePasswordDialog());
         binding.logoutButton.setOnClickListener(v -> logout());
 
-        // CAMILA: wire new admin actions (Deactivate / Reactivate / Delete permanently)
+        // Maria: Extra admin actions (Deactivate / Reactivate / Delete permanently)
         if (binding.deactivateUserButton != null) {
             binding.deactivateUserButton.setOnClickListener(v -> showDeactivateUserDialog());
         }
-        // CAMILA: Reactivate button
         if (binding.reactivateUserButton != null) {
             binding.reactivateUserButton.setOnClickListener(v -> showReactivateUserDialog());
         }
-        // CAMILA: Delete permanently button
         if (binding.deleteUserPermButton != null) {
             binding.deleteUserPermButton.setOnClickListener(v -> showDeleteUserDialog());
         }
     }
 
+    /**
+     * Displays a dialog for adding a new user.
+     * Validates inputs and delegates user creation to the repository.
+     */
     private void showAddUserDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Add User");
@@ -99,8 +121,7 @@ public class AdminCheckActivity extends AppCompatActivity {
                 return;
             }
 
-            // ✅ Uses repository-level duplicate guard
-            repository.addUserSafely(username, password, /*isAdmin=*/false, (ok, msg) -> {
+            repository.addUserSafely(username, password, false, (ok, msg) -> {
                 Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
             });
         });
@@ -109,11 +130,15 @@ public class AdminCheckActivity extends AppCompatActivity {
         builder.show();
     }
 
+    /**
+     * Displays a dialog for removing a user by username.
+     * Prevents deletion of the currently logged-in user unless allowed by repository rules.
+     */
     private void showRemoveUserDialog() {
-        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Remove User");
 
-        android.widget.EditText usernameInput = new android.widget.EditText(this);
+        EditText usernameInput = new EditText(this);
         usernameInput.setHint("Username");
         builder.setView(usernameInput);
 
@@ -136,7 +161,9 @@ public class AdminCheckActivity extends AppCompatActivity {
         builder.show();
     }
 
-    // CAMILA: add Deactivate action dialog (sets isActive = 0)
+    /**
+     * Maria: Shows a dialog to deactivate a user (sets isActive = 0).
+     */
     private void showDeactivateUserDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Deactivate User");
@@ -162,7 +189,9 @@ public class AdminCheckActivity extends AppCompatActivity {
         builder.show();
     }
 
-    // CAMILA: add Reactivate action dialog (sets isActive = 1)
+    /**
+     * Maria: Shows a dialog to reactivate a user (sets isActive = 1).
+     */
     private void showReactivateUserDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Reactivate User");
@@ -178,18 +207,19 @@ public class AdminCheckActivity extends AppCompatActivity {
                 return;
             }
 
-            // CAMILA: pass required args to the *Safely* method
-            String currentUsername = sharedPreferences.getString("username", ""); // CAMILA
-            boolean isAdmin = sharedPreferences.getBoolean("isAdmin", false);     // CAMILA
+            String currentUsername = sharedPreferences.getString("username", "");
+            boolean isAdmin = sharedPreferences.getBoolean("isAdmin", false);
 
-            repository.reactivateUserSafely(username, currentUsername, isAdmin,   // CAMILA
+            repository.reactivateUserSafely(username, currentUsername, isAdmin,
                     (ok, msg) -> Toast.makeText(this, msg, Toast.LENGTH_SHORT).show());
         });
         builder.setNegativeButton("Cancel", null);
         builder.show();
     }
 
-    // CAMILA: add "Delete permanently" dialog with confirmation (keeps self-protection)
+    /**
+     * Maria: Shows a dialog to permanently delete a user, with confirmation prompt.
+     */
     private void showDeleteUserDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete User Permanently");
@@ -221,6 +251,10 @@ public class AdminCheckActivity extends AppCompatActivity {
         builder.show();
     }
 
+    /**
+     * Displays a dialog for changing the current user's password.
+     * Validates new password and confirms match before updating.
+     */
     private void showChangePasswordDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Change Password");
@@ -254,7 +288,6 @@ public class AdminCheckActivity extends AppCompatActivity {
                 return;
             }
 
-            // Scope to the currently logged-in user
             SharedPreferences sp = getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
             String currentUsername = sp.getString("username", "");
 
@@ -267,6 +300,9 @@ public class AdminCheckActivity extends AppCompatActivity {
         builder.show();
     }
 
+    /**
+     * Logs out the current user from Firebase, Google Sign-In, and clears stored preferences.
+     */
     private void logout() {
         FirebaseAuth.getInstance().signOut();
 
@@ -289,6 +325,12 @@ public class AdminCheckActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Factory method for creating an intent to launch this activity.
+     *
+     * @param context The calling context.
+     * @return An Intent configured for AdminCheckActivity.
+     */
     public static Intent intentFactory(Context context) {
         return new Intent(context, AdminCheckActivity.class);
     }
