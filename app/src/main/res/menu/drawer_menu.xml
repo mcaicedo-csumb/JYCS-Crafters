@@ -5,40 +5,40 @@
     <item
         android:id="@+id/nav_home"
         android:enabled="true"
-        android:icon="@android:drawable/ic_dialog_dialer"
+        android:icon="@drawable/ic_home_menu"
         android:iconTintMode="screen"
         android:title="Home" />
 
     <item
         android:id="@+id/nav_fuel_entry"
-        android:icon="@android:drawable/ic_input_add"
+        android:icon="@drawable/ic_fuel_entry_menu"
         android:title="Add Fuel Entry" />
 
     <item
         android:id="@+id/nav_fuel_log"
-        android:icon="@drawable/fuel_log_78"
+        android:icon="@drawable/ic_fuel_log"
         android:title="Fuel Log" />
 
     <item
         android:id="@+id/nav_garage"
-        android:icon="@drawable/ic_garage_menu"
+        android:icon="@drawable/ic_garage_menu_solid"
         android:title="Garage" />
 
     <item
         android:id="@+id/nav_vehicle"
-        android:icon="@drawable/add_vehicle_menu"
+        android:icon="@drawable/ic_new_car_menu"
         android:title="Add Vehicle" />
 
     <item
         android:id="@+id/nav_settings"
-        android:icon="@drawable/settings_icon"
+        android:icon="@drawable/ic_settings_menu"
         android:title="Settings" />
 
     <!-- Logout option for regular users -->
     <item
         android:id="@+id/nav_logout"
         android:title="Logout"
-        android:icon="@drawable/logout_78"
+        android:icon="@drawable/ic_logout_menu"
         android:iconTint="@android:color/holo_red_dark"
         android:titleTextColor="@android:color/holo_red_dark" />
 
