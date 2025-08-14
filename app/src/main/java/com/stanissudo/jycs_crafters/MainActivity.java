@@ -25,15 +25,20 @@ import com.stanissudo.jycs_crafters.viewHolders.SharedViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.StatsPagerAdapter;
 import com.stanissudo.jycs_crafters.viewHolders.GarageViewModel;
 
+/**
+ * @author Stan Permiakov, Ysabelle Kim
+ * created: 7/31/2025
+ * @version 1.0.0
+ * Explanation: <p>MainActivity shows the user a summarized view of a selected vehicle.
+ * There are two fragments that show the vehicle's fuel costs and distance.</p>
+ * @project JYCS-Crafters
+ * @name MainActivity.java
+ */
 public class MainActivity extends BaseDrawerActivity {
 
     private ActivityMainBinding binding;
-    private FuelTrackAppRepository repository;
-    private SharedPreferences sharedPreferences;
     public static final String TAG = "FuelTrackApp_Log";
     private static final String MAIN_ACTIVITY_USER_ID = "com.stanissudo.jycs_crafters.MAIN_ACTIVITY_USER_ID";
-
-    private GarageViewModel garageViewModel;
     private SharedViewModel sharedViewModel;
 
     @Override
@@ -43,12 +48,12 @@ public class MainActivity extends BaseDrawerActivity {
         setContentView(binding.getRoot());
 
         // --- 1. Initialize ViewModels ---
-        garageViewModel = new ViewModelProvider(this).get(GarageViewModel.class);
+        GarageViewModel garageViewModel = new ViewModelProvider(this).get(GarageViewModel.class);
         sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
         // --- 2. Standard Setup (Repository, SharedPreferences, etc.) ---
-        repository = FuelTrackAppRepository.getRepository(getApplication());
-        sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
+        FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
+        SharedPreferences sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
         String username = sharedPreferences.getString("username", "User");
         int userId = sharedPreferences.getInt("userId", -1);
 
@@ -168,12 +173,14 @@ public class MainActivity extends BaseDrawerActivity {
 
     /**
      * intentFactory for MainActivity
+     *
      * @param context context
-     * @param userID int
+     * @param userID  int
      * @return intent to change activity
      */
     static Intent mainActivityIntentFactory(Context context, int userID) {
         Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra(MAIN_ACTIVITY_USER_ID, userID);
         return intent;
     }

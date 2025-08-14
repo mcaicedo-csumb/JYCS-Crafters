@@ -25,6 +25,14 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+/**
+ * @author Ysabelle Kim
+ * created: 8/2/2025
+ * @project JYCS-Crafters
+ * file: FuelTrackAppRepository.java
+ * Explanation: <p>FuelTrackAppRepository stores context-sensitive data and
+ * performs work on the database.</p>
+ */
 public class FuelTrackAppRepository {
     private static FuelTrackAppRepository repository;
     private final FuelEntryDAO fuelEntryDAO;

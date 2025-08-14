@@ -140,10 +140,8 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
 
             if (id == R.id.nav_home) {
                 if (!(this instanceof MainActivity)) {
-                    Intent intent = new Intent(this, MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    Intent intent = MainActivity.mainActivityIntentFactory(getApplicationContext(), -1);
                     startActivity(intent);
-                    finish();
                 }
             } else if (id == R.id.nav_fuel_entry) {
                 Intent intent = AddFuelEntryActivity.addFuelIntentFactory(getApplicationContext(), CarSelectorHelper.getSelectedOptionKey());

@@ -12,10 +12,9 @@ import com.stanissudo.jycs_crafters.R;
 /**
  * @author Ysabelle Kim
  * created: 8/11/2025 - 1:49 AM
- * @version VERSION
- * Explanation:
+ * Explanation: Binds the garage recycler view to GarageActivity.
  * @project JYCS-Crafters
- * @name VehicleViewHolder.java
+ * @name GarageViewHolder.java
  */
 public class GarageViewHolder extends RecyclerView.ViewHolder {
 

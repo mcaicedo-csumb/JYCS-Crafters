@@ -13,8 +13,7 @@ import java.util.Objects;
 /**
  * @author Ysabelle Kim
  * created: 8/11/2025 - 1:48 AM
- * @version VERSION
- * Explanation:
+ * Explanation: <p>VehicleAdapter populates the recycler view.</p>
  * @project JYCS-Crafters
  * @name VehicleAdapter.java
  */

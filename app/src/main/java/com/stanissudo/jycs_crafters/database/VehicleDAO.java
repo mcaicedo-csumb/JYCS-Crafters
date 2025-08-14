@@ -17,13 +17,10 @@ import java.util.List;
  * created: 8/9/2025 - 11:56 PM
  * @project JYCS-Crafters
  * file: VehicleDAO.java
- * @since 1.0.0
- * Explanation: VehicleDAO
+ * Explanation: Vehicle data access object for FuelTrackAppDatabase
  */
 @Dao
 public interface VehicleDAO {
-
-    // TODO: add rest of queries to VehicleDAO
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertVehicle(Vehicle... vehicle);
 
@@ -55,8 +52,6 @@ public interface VehicleDAO {
     void deleteVehicleById(long vehicleID);
     @Query("SELECT * FROM " + FuelTrackAppDatabase.VEHICLE_TABLE + " WHERE VehicleID = :id LIMIT 1")
     LiveData<Vehicle> getVehicleByID(int id);
-
-    // Add near your other methods in VehicleDAO.java
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     long insert(Vehicle vehicle);
