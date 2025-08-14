@@ -8,10 +8,17 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
-import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 
 import java.util.List;
+
+/**
+ * @author Ysabelle Kim
+ * created: 8/10/2025
+ * Explanation: <p>VehicleViewModel stores the state of the UI between changes.</p>
+ * @project JYCS-Crafters
+ * @name VehicleAdapter.java
+ */
 public class VehicleViewModel extends AndroidViewModel {
 
     private final FuelTrackAppRepository repository;

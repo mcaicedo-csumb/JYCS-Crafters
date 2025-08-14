@@ -12,8 +12,7 @@ import com.stanissudo.jycs_crafters.R;
 /**
  * @author Ysabelle Kim
  * created: 8/11/2025 - 1:49 AM
- * @version VERSION
- * Explanation:
+ * Explanation: <p>VehicleViewHolder binds the recycler view to the activity.</p>
  * @project JYCS-Crafters
  * @name VehicleViewHolder.java
  */
