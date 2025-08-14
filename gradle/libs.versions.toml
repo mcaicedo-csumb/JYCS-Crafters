@@ -20,6 +20,8 @@ activity = { group = "androidx.activity", name = "activity", version.ref = "acti
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 core = { group = "androidx.test", name = "core", version.ref = "core" }
+rules = { module = "androidx.test:rules", version.ref = "core" }
+runner = { module = "androidx.test:runner", version.ref = "core" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

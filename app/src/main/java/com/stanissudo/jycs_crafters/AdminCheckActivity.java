@@ -1,29 +1,15 @@
-/**
- * Author: Jose
- * Date: 2025-08-13
- *
- * Activity for managing administrative actions within the FuelTrack application.
- * This screen is only accessible to admin users and provides:
- * - Viewing all registered users in a RecyclerView
- * - Adding new users
- * - Removing users
- * - Changing user passwords
- * - Maria: Deactivating, reactivating, and permanently deleting users
- * - Logging out of the application
- *
- * Notes:
- * - Uses LiveData to observe user list changes in real-time.
- * - Relies on repository-level safety checks for operations such as avoiding self-deletion.
- * - Includes both Firebase and Google Sign-In logout support.
- */
-
 package com.stanissudo.jycs_crafters;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -34,8 +20,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
+
+import com.stanissudo.jycs_crafters.auth.UserSessionManager;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
+import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 import com.stanissudo.jycs_crafters.databinding.ActivityAdminCheckBinding;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AdminCheckActivity extends AppCompatActivity {
 
@@ -44,15 +36,16 @@ public class AdminCheckActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private UserListAdapter adapter;
 
-    /**
-     * Initializes the admin view, sets up UI components, binds click listeners,
-     * and loads the user list for management.
-     *
-     * @param savedInstanceState The saved instance state bundle.
-     */
+    // For admin bulk transfer dialog
+    private java.util.List<Vehicle> vehiclesCache = new java.util.ArrayList<>();
+
+    // Executes admin DB writes off the UI thread
+    private final ExecutorService adminExec = Executors.newSingleThreadExecutor();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         binding = ActivityAdminCheckBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -61,21 +54,36 @@ public class AdminCheckActivity extends AppCompatActivity {
 
         binding.adminMessage.setText("You have admin privileges!");
 
-        // RecyclerView setup
+        // Users RecyclerView
         adapter = new UserListAdapter();
         binding.userListRecycler.setLayoutManager(new LinearLayoutManager(this));
         binding.userListRecycler.setAdapter(adapter);
 
-        // Observe and update user list dynamically
-        repository.getAllUsers().observe(this, users -> adapter.setUsers(users));
+        // Admin-only: list ALL users (gated at repository)
+        repository.adminGetAllUsers(this).observe(this, users -> adapter.setUsers(users));
 
-        // Button actions
+        // Admin-only: load ALL vehicles for transfer dialog (gated at repository)
+        repository.adminGetAllVehicles(this).observe(this, vehicles -> {
+            vehiclesCache = (vehicles != null) ? vehicles : new java.util.ArrayList<>();
+        });
+
+        // Hide admin-only UI if not admin (guard still enforced in repo)
+        if (!UserSessionManager.isAdmin(this)) {
+            if (binding.btnBulkReassign != null) binding.btnBulkReassign.setVisibility(View.GONE);
+        }
+
+        // Wire admin bulk transfer button
+        if (binding.btnBulkReassign != null) {
+            binding.btnBulkReassign.setOnClickListener(v -> showBulkReassignDialog());
+        }
+
+        // Buttons
         binding.addUserButton.setOnClickListener(v -> showAddUserDialog());
         binding.removeUserButton.setOnClickListener(v -> showRemoveUserDialog());
         binding.changePasswordButton.setOnClickListener(v -> showChangePasswordDialog());
         binding.logoutButton.setOnClickListener(v -> logout());
 
-        // Maria: Extra admin actions (Deactivate / Reactivate / Delete permanently)
+        // Maria: Extra admin actions
         if (binding.deactivateUserButton != null) {
             binding.deactivateUserButton.setOnClickListener(v -> showDeactivateUserDialog());
         }
@@ -87,10 +95,85 @@ public class AdminCheckActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Displays a dialog for adding a new user.
-     * Validates inputs and delegates user creation to the repository.
-     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        adminExec.shutdown(); // tidy up the background thread
+    }
+
+    // ---------- Admin dialogs ----------
+
+    private void showBulkReassignDialog() {
+        if (vehiclesCache == null || vehiclesCache.size() < 2) {
+            Toast.makeText(this, "Need at least two vehicles.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        java.util.List<String> names = new java.util.ArrayList<>();
+        for (Vehicle v : vehiclesCache) {
+            names.add("#" + v.getVehicleID() + " • " + v.getName());
+        }
+
+        Spinner fromSpinner = new Spinner(this);
+        Spinner toSpinner   = new Spinner(this);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, names);
+        fromSpinner.setAdapter(adapter);
+        toSpinner.setAdapter(adapter);
+
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.VERTICAL);
+        int p = (int) (16 * getResources().getDisplayMetrics().density);
+        container.setPadding(p, p, p, p);
+
+        TextView tvFrom = new TextView(this);
+        tvFrom.setText("From vehicle");
+        TextView tvTo = new TextView(this);
+        tvTo.setText("To vehicle");
+
+        container.addView(tvFrom);
+        container.addView(fromSpinner);
+        container.addView(tvTo);
+        container.addView(toSpinner);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Transfer Logs (Admin)")
+                .setView(container)
+                .setPositiveButton("Transfer", (d, w) -> {
+                    int fromIdx = fromSpinner.getSelectedItemPosition();
+                    int toIdx   = toSpinner.getSelectedItemPosition();
+                    if (fromIdx == toIdx) {
+                        Toast.makeText(this, "Choose two different vehicles.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    final int oldVehicleId = vehiclesCache.get(fromIdx).getVehicleID();
+                    final int newVehicleId = vehiclesCache.get(toIdx).getVehicleID();
+
+                    // Run the bulk UPDATE off the UI thread
+                    adminExec.execute(() -> {
+                        try {
+                            int changed = repository.adminBulkReassignEntries(getApplicationContext(),
+                                    oldVehicleId, newVehicleId);
+
+                            runOnUiThread(() ->
+                                    Toast.makeText(this, "Moved " + changed + " logs", Toast.LENGTH_LONG).show()
+                            );
+                        } catch (SecurityException se) {
+                            runOnUiThread(() ->
+                                    Toast.makeText(this, "Admin only", Toast.LENGTH_SHORT).show()
+                            );
+                        } catch (Exception e) {
+                            runOnUiThread(() ->
+                                    Toast.makeText(this, "Transfer failed: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                            );
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
     private void showAddUserDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Add User");
@@ -100,12 +183,10 @@ public class AdminCheckActivity extends AppCompatActivity {
 
         EditText passwordInput = new EditText(this);
         passwordInput.setHint("Password");
-        passwordInput.setInputType(
-                android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
-        );
+        passwordInput.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
-        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
         int pad = (int) (16 * getResources().getDisplayMetrics().density);
         layout.setPadding(pad, pad, pad, 0);
         layout.addView(usernameInput);
@@ -130,10 +211,6 @@ public class AdminCheckActivity extends AppCompatActivity {
         builder.show();
     }
 
-    /**
-     * Displays a dialog for removing a user by username.
-     * Prevents deletion of the currently logged-in user unless allowed by repository rules.
-     */
     private void showRemoveUserDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Remove User");
@@ -161,9 +238,6 @@ public class AdminCheckActivity extends AppCompatActivity {
         builder.show();
     }
 
-    /**
-     * Maria: Shows a dialog to deactivate a user (sets isActive = 0).
-     */
     private void showDeactivateUserDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Deactivate User");
@@ -189,9 +263,6 @@ public class AdminCheckActivity extends AppCompatActivity {
         builder.show();
     }
 
-    /**
-     * Maria: Shows a dialog to reactivate a user (sets isActive = 1).
-     */
     private void showReactivateUserDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Reactivate User");
@@ -217,9 +288,6 @@ public class AdminCheckActivity extends AppCompatActivity {
         builder.show();
     }
 
-    /**
-     * Maria: Shows a dialog to permanently delete a user, with confirmation prompt.
-     */
     private void showDeleteUserDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete User Permanently");
@@ -251,10 +319,6 @@ public class AdminCheckActivity extends AppCompatActivity {
         builder.show();
     }
 
-    /**
-     * Displays a dialog for changing the current user's password.
-     * Validates new password and confirms match before updating.
-     */
     private void showChangePasswordDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Change Password");
@@ -267,8 +331,8 @@ public class AdminCheckActivity extends AppCompatActivity {
         confirmPassInput.setHint("Confirm New Password");
         confirmPassInput.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
-        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
         int pad = (int) (16 * getResources().getDisplayMetrics().density);
         layout.setPadding(pad, pad, pad, 0);
         layout.addView(newPassInput);
@@ -300,9 +364,6 @@ public class AdminCheckActivity extends AppCompatActivity {
         builder.show();
     }
 
-    /**
-     * Logs out the current user from Firebase, Google Sign-In, and clears stored preferences.
-     */
     private void logout() {
         FirebaseAuth.getInstance().signOut();
 
@@ -325,12 +386,6 @@ public class AdminCheckActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Factory method for creating an intent to launch this activity.
-     *
-     * @param context The calling context.
-     * @return An Intent configured for AdminCheckActivity.
-     */
     public static Intent intentFactory(Context context) {
         return new Intent(context, AdminCheckActivity.class);
     }

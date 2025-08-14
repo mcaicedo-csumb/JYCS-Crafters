@@ -19,8 +19,7 @@ import java.util.Locale;
 /**
  * @author Ysabelle Kim
  * created: 8/11/2025 - 1:48 AM
- * @version VERSION
- * Explanation: Adapter for GarageActivity
+ * Explanation: Adapter for GarageActivity, populates it with the user's vehicles.
  * @project JYCS-Crafters
  * @name GarageAdapter.java
  */

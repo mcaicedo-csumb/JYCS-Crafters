@@ -22,30 +22,34 @@ import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
  * @project JYCS-Crafters
  * file: AddVehicleActivity.java
  * @since 1.0.0
- * Explanation: AddVehicleActivity handles adding new vehicles to a user's account
+ * Explanation: <p>AddVehicleActivity handles adding new vehicles to a user's account.
+ * If the user chose to edit an existing vehicle from GarageActivity, it pulls this
+ * vehicle's information from the database and prepopulates the input fields.</p>
  */
 public class AddVehicleActivity extends BaseDrawerActivity {
     private ActivityVehicleBinding binding;
     FuelTrackAppRepository repository;
 
     private static final String VEHICLE_USER_ID = "com.stanissudo.jycs-crafters.VEHICLE_USER_ID";
-    private SharedPreferences sharedPreferences;
-    private String vehicleName = "";
-    private String vehicleMake = "";
-    private String vehicleModel = "";
-    private int vehicleYear = 0;
     private int userId;
     private VehicleViewModel viewModel;
-    /** True if this Activity was launched to edit an existing record. */
+    /**
+     * True if this Activity was launched to edit an existing record.
+     */
     private boolean isEdit;
-    /** The LogID of the record being edited. Only meaningful if {@link #isEdit} is true. */
+    /**
+     * The LogID of the record being edited. Only meaningful if {@link #isEdit} is true.
+     */
     private int editVehicleID;
 
-    /** Intent extra key: primary key of a {@link Vehicle} to edit. Only present in EDIT mode. */
-    public static final String EXTRA_VEHICLE_ID  = "EXTRA_VEHICLE_ID";
+    /**
+     * Intent extra key: primary key of a {@link Vehicle} to edit. Only present in EDIT mode.
+     */
+    public static final String EXTRA_VEHICLE_ID = "EXTRA_VEHICLE_ID";
 
     /**
      * vehicleIntentFactory() returns an intent to change the screen
+     *
      * @param context context
      * @return intent
      */
@@ -58,8 +62,8 @@ public class AddVehicleActivity extends BaseDrawerActivity {
     /**
      * Build an {@link Intent} to open this Activity in EDIT mode.
      *
-     * @param context Caller context
-     * @param vehicleID   Primary key of the existing {@link Vehicle}
+     * @param context   Caller context
+     * @param vehicleID Primary key of the existing {@link Vehicle}
      * @return Intent ready to pass to {@link Context#startActivity(Intent)}
      */
     public static Intent editVehicleIntentFactory(Context context, int vehicleID) {
@@ -69,6 +73,7 @@ public class AddVehicleActivity extends BaseDrawerActivity {
 
     /**
      * onCreate() creates Vehicle activity to add vehicles
+     *
      * @param savedInstanceState Bundle object
      */
     @Override
@@ -81,7 +86,7 @@ public class AddVehicleActivity extends BaseDrawerActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         // ViewModel
-        viewModel  = new ViewModelProvider(this).get(VehicleViewModel.class);
+        viewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
         repository = FuelTrackAppRepository.getRepository(getApplication());
 
         // Extract intent extras.
@@ -89,8 +94,8 @@ public class AddVehicleActivity extends BaseDrawerActivity {
         isEdit = editVehicleID > 0;
         setTitle(isEdit ? "Edit Vehicle" : "Add Vehicle");
 
-        sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
-        userId = sharedPreferences.getInt("userId", -1);
+        SharedPreferences prefs = getSharedPreferences("login_prefs", MODE_PRIVATE);
+        userId = prefs.getInt("userId", -1);
 
         // EDIT mode: prefill from DB without triggering calculations.
         if (isEdit) {
@@ -110,15 +115,15 @@ public class AddVehicleActivity extends BaseDrawerActivity {
     }
 
     /**
-     * Gather user inputs, perform basic validation, then run an asynchronous odometer sanity check
+     * onSave() gathers user inputs, perform basic validation, then run an asynchronous odometer sanity check
      * before committing insert/update via the {@link VehicleViewModel}.
      */
     private void onSave() {
         // Read fields (fallback to 0 on parse issues)
-        String name    = binding.vehicleNameEditText.getText().toString();
-        String make    = binding.vehicleMakeEditText.getText().toString();
-        String model   = binding.vehicleModelEditText.getText().toString();
-        int year   = safeInt(text(binding.vehicleYearEditText));
+        String name = binding.vehicleNameEditText.getText().toString();
+        String make = binding.vehicleMakeEditText.getText().toString();
+        String model = binding.vehicleModelEditText.getText().toString();
+        int year = safeInt(text(binding.vehicleYearEditText));
 
         // Build entity
         Vehicle vehicle = new Vehicle();
@@ -143,12 +148,7 @@ public class AddVehicleActivity extends BaseDrawerActivity {
     }
 
     /**
-     * Perform quick client-side validation for required fields and non-negative values.
-     * <p>
-     * Note: The current implementation allows 0 for <i>gallons</i> and <i>price per gallon</i>
-     * (it checks <code>&lt; 0</code>, not <code>&lt;= 0</code>) while the messages say
-     * "must be &gt; 0". Tighten the comparisons if you want to forbid zeros.
-     * </p>
+     * validateInputsBasic(Vehicle) performs quick client-side validation for required fields and non-negative values.
      *
      * @param vehicle The entity being validated
      * @return true if basic checks pass; false otherwise (with a Toast shown)
@@ -175,26 +175,49 @@ public class AddVehicleActivity extends BaseDrawerActivity {
         return true;
     }
 
-    /** Parse int or return 0 on failure. */
+    /**
+     * safeInt(String) parses int or return 0 on failure.
+     */
     private int safeInt(String s) {
-        try { return Integer.parseInt(s); } catch (Exception e) { return 0; }
+        try {
+            return Integer.parseInt(s);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
-    /** Return trimmed text from any TextView (empty string if null). */
+    /**
+     * text(TextView) returns trimmed text from any TextView (empty string if null).
+     */
     private static String text(android.widget.TextView tv) {
         return tv.getText() == null ? "" : tv.getText().toString().trim();
     }
 
+    /**
+     * getDrawerLayout() from BaseDrawerActivity gets the layout of the sidebar
+     *
+     * @return drawerLayout
+     */
     @Override
     protected DrawerLayout getDrawerLayout() {
         return binding.drawerLayout;
     }
 
+    /**
+     * getNavigationView() from BaseDrawerActivity gets the sidebar
+     *
+     * @return navView
+     */
     @Override
     protected NavigationView getNavigationView() {
         return binding.navView;
     }
 
+    /**
+     * getToolbar() from BaseDrawerActivity gets the top toolbar
+     *
+     * @return toolbar
+     */
     @Override
     protected Toolbar getToolbar() {
         return binding.toolbar;

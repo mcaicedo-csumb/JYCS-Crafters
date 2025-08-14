@@ -46,6 +46,8 @@ import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.database.entities.User;
 import com.stanissudo.jycs_crafters.databinding.ActivityLoginBinding;
 
+import com.stanissudo.jycs_crafters.auth.UserSessionManager;
+
 public class LoginActivity extends AppCompatActivity {
 
     /** Request code for Google Sign-In intent. */
@@ -75,6 +77,8 @@ public class LoginActivity extends AppCompatActivity {
             String username = sharedPreferences.getString("username", "");
             boolean isAdmin = sharedPreferences.getBoolean("isAdmin", false);
 
+            int userId = sharedPreferences.getInt("userId", -1);
+            UserSessionManager.setSession(this, userId, isAdmin);
             if (isAdmin) {
                 startActivity(LandingPageActivity.intentFactory(this, username, true));
             } else {
@@ -295,7 +299,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Maria: Helper method to compute SHA-256 hash of a string.
+     * Camila: Helper method to compute SHA-256 hash of a string.
      * Used for password storage and verification.
      *
      * @param s The input string.

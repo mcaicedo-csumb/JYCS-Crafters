@@ -5,6 +5,10 @@
  */
 package com.stanissudo.jycs_crafters.database;
 
+
+
+import com.stanissudo.jycs_crafters.auth.AdminGuard;
+import android.content.Context;
 import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,6 +29,14 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+/**
+ * @author Ysabelle Kim
+ * created: 8/2/2025
+ * @project JYCS-Crafters
+ * file: FuelTrackAppRepository.java
+ * Explanation: <p>FuelTrackAppRepository stores context-sensitive data and
+ * performs work on the database.</p>
+ */
 public class FuelTrackAppRepository {
     private static FuelTrackAppRepository repository;
     private final FuelEntryDAO fuelEntryDAO;
@@ -367,4 +379,37 @@ public class FuelTrackAppRepository {
             throw new RuntimeException(e);
         }
     }
+
+
+    // ===== Admin-gated queries =====
+    public androidx.lifecycle.LiveData<java.util.List<com.stanissudo.jycs_crafters.database.entities.User>>
+    adminGetAllUsers(android.content.Context ctx) {
+        AdminGuard.ensureAdmin(ctx);
+        return userDAO.getAllUsers();
+    }
+
+    public androidx.lifecycle.LiveData<java.util.List<com.stanissudo.jycs_crafters.database.entities.Vehicle>>
+    adminGetAllVehicles(android.content.Context ctx) {
+        AdminGuard.ensureAdmin(ctx);
+        return vehicleDAO.getAllVehicles();
+    }
+
+    public androidx.lifecycle.LiveData<java.util.List<com.stanissudo.jycs_crafters.database.entities.FuelEntry>>
+    adminGetAllEntries(android.content.Context ctx) {
+        AdminGuard.ensureAdmin(ctx);
+        return fuelEntryDAO.adminGetAllEntries();
+    }
+
+    @androidx.room.Transaction
+    public int adminBulkReassignEntries(android.content.Context ctx, int oldVehicleId, int newVehicleId) {
+        AdminGuard.ensureAdmin(ctx);
+        return fuelEntryDAO.bulkReassignVehicle(oldVehicleId, newVehicleId);
+    }
+
+    @androidx.room.Transaction
+    public int adminReassignVehicleOwner(android.content.Context ctx, long vehicleId, int newUserId) {
+        AdminGuard.ensureAdmin(ctx);
+        return vehicleDAO.reassignOwner(vehicleId, newUserId);
+    }
+
 }
