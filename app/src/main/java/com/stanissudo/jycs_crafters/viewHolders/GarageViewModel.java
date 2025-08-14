@@ -16,6 +16,13 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * @author Ysabelle Kim
+ * created: 8/11/2025 - 1:50 AM
+ * Explanation: GarageViewModel stores the state of the UI between changes.
+ * @project JYCS-Crafters
+ * @name GarageViewModel.java
+ */
 public class GarageViewModel extends AndroidViewModel {
 
     private final FuelTrackAppRepository repository;

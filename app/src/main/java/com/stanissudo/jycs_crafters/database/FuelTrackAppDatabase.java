@@ -19,6 +19,13 @@ import com.stanissudo.jycs_crafters.database.typeConverters.LocalDateTypeConvert
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * @author Ysabelle Kim
+ * created: 7/31/2025
+ * @project JYCS-Crafters
+ * file: FuelTrackAppDatabase.java
+ * Explanation: FuelTrackAppDatabase is our database! Stores entity data.
+ */
 @TypeConverters({LocalDateTypeConverter.class})
 // CAMILA: bump version 2 -> 3 to add User.displayName
 @Database(entities = {FuelEntry.class, User.class, Vehicle.class}, version = 3, exportSchema = false)
@@ -27,8 +34,6 @@ public abstract class FuelTrackAppDatabase extends RoomDatabase {
     public static final String FUEL_LOG_TABLE = "FuelEntryTable";
     public static final String USER_TABLE = "UserTable";
     public static final String VEHICLE_TABLE = "VehicleTable";
-
-    //TODO: Add more tables here
     private static volatile FuelTrackAppDatabase INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
     static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
@@ -94,6 +99,4 @@ public abstract class FuelTrackAppDatabase extends RoomDatabase {
     public abstract FuelEntryDAO fuelEntryDAO();
     public abstract UserDAO userDAO();
     public abstract VehicleDAO vehicleDAO();
-
-    //TODO: Add your DAO instances here
 }

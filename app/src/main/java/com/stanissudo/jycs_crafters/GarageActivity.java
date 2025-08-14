@@ -19,36 +19,31 @@ import com.stanissudo.jycs_crafters.databinding.ActivityGarageBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
 import com.stanissudo.jycs_crafters.viewHolders.GarageAdapter;
 import com.stanissudo.jycs_crafters.viewHolders.GarageViewModel;
-import com.stanissudo.jycs_crafters.viewHolders.SharedViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
 
 /**
  * @author Ysabelle Kim
  * created: 8/11/2025 - 2:08 AM
- * @version VERSION
- * Explanation:
+ * Explanation: <p>GarageActivity shows the user a view of all registered vehicles.
+ * Users can edit (sends to AddVehicleActivity) or delete vehicles from this activity.</p>
  * @project JYCS-Crafters
  * @name GarageActivity.java
  */
 public class GarageActivity extends BaseDrawerActivity {
     private ActivityGarageBinding binding;
     private static final String GARAGE_USER_ID = "com.stanissudo.jycs-crafters.GARAGE_USER_ID";
-    private SharedPreferences sharedPreferences;
     FuelTrackAppRepository repository;
     private GarageViewModel garageViewModel;
-    private VehicleViewModel vehicleViewModel;
-    private SharedViewModel sharedViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityGarageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        repository =  FuelTrackAppRepository.getRepository(getApplication());
+        repository = FuelTrackAppRepository.getRepository(getApplication());
         // ViewModels
         garageViewModel = new ViewModelProvider(this).get(GarageViewModel.class);
-        vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
-        sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+        VehicleViewModel vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
 
         // Load vehicles for this user.
         SharedPreferences prefs = getSharedPreferences("login_prefs", MODE_PRIVATE);
@@ -89,35 +84,54 @@ public class GarageActivity extends BaseDrawerActivity {
         // Keep the list in sync with the backing data.
         garageViewModel.getUserVehicles().observe(this, adapter::submitList);
 
-        // TODO: on clicking a row, select this vehicle
-        //vm.selectVehicle(vehicle);
-
         // Add horizontal divider in between items
         MaterialDividerItemDecoration divider =
                 new MaterialDividerItemDecoration(this, LinearLayoutManager.VERTICAL);
         divider.setLastItemDecorated(false); // no divider after the last item
-        divider.setDividerThicknessResource(this,R.dimen.list_divider_thickness);
+        divider.setDividerThicknessResource(this, R.dimen.list_divider_thickness);
         binding.garageDisplayRecyclerView.addItemDecoration(divider);
     }
+
+    /**
+     * garageIntentFactory(Context, int)
+     *
+     * @param context context to send to GarageActivity
+     * @param userId  sends logged in userID to this new GarageActivity
+     * @return intent
+     */
     static Intent garageIntentFactory(Context context, int userId) {
         Intent intent = new Intent(context, GarageActivity.class);
         intent.putExtra(GARAGE_USER_ID, userId);
         return intent;
     }
 
+    /**
+     * getDrawerLayout() from BaseDrawerActivity gets the layout of the sidebar
+     *
+     * @return drawerLayout
+     */
     @Override
     protected DrawerLayout getDrawerLayout() {
         return binding.drawerLayout;
     }
 
+    /**
+     * getNavigationView() from BaseDrawerActivity gets the sidebar
+     *
+     * @return navView
+     */
     @Override
     protected NavigationView getNavigationView() {
         return binding.navView;
     }
 
+    /**
+     * getToolbar() from BaseDrawerActivity gets the top toolbar
+     *
+     * @return toolbar
+     */
     @Override
     protected Toolbar getToolbar() {
         return binding.toolbar;
     }
-
 }
