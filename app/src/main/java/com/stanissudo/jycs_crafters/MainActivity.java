@@ -77,7 +77,10 @@ public class MainActivity extends BaseDrawerActivity {
 
                 // b. Setup the dropdown UI with the loaded data
                 AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
-                CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
+                //CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
+                CarSelectorHelper.setupDropdown(this, carSelectorDropdown, id -> {
+                    if (id != -1) sharedViewModel.selectCar(id); // emits to fragments
+                });
 
                 // c. **CRITICAL FIX:** Get the initial car ID and push it to the SharedViewModel.
                 //    This immediately informs all listening fragments which car to display.

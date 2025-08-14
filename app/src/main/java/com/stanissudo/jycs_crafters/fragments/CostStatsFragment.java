@@ -37,29 +37,45 @@ public class CostStatsFragment extends Fragment {
         // Get the ViewModel that is scoped to the MainActivity
         SharedViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
-        // **This is the key:** Observe the shared LiveData.
-        // This single observer will now handle both the initial load AND all subsequent updates.
-        sharedViewModel.getSelectedCarId().observe(getViewLifecycleOwner(), carId -> {
-            // As soon as a valid carId is pushed from MainActivity, fetch its stats.
-            if (carId != null && carId != -1) {
-                fetchCostStats(carId);
-            }
-        });
-    }
-
-    private void fetchCostStats(int vehicleId) {
-        // Observe the stats LiveData from our local ViewModel
-        costStatsViewModel.getCostStats(vehicleId).observe(getViewLifecycleOwner(), stats -> {
+//        // **This is the key:** Observe the shared LiveData.
+//        // This single observer will now handle both the initial load AND all subsequent updates.
+//        sharedViewModel.getSelectedCarId().observe(getViewLifecycleOwner(), carId -> {
+//            // As soon as a valid carId is pushed from MainActivity, fetch its stats.
+//            if (carId != null && carId != -1) {
+//                fetchCostStats(carId);
+//            }
+//        });
+        // 1) Observe the reactive stats stream ONCE
+        costStatsViewModel.stats.observe(getViewLifecycleOwner(), stats -> {
             if (stats != null) {
                 totalCostText.setText(String.format(Locale.US, "$%.2f", stats.totalCost));
                 avgPriceText.setText(String.format(Locale.US, "$%.2f", stats.avgPricePerGallon));
                 avgFillUpText.setText(String.format(Locale.US, "$%.2f", stats.avgCostPerFillUp));
             } else {
-                // If there are no stats for this car, display zeros.
                 totalCostText.setText("$0.00");
                 avgPriceText.setText("$0.00");
                 avgFillUpText.setText("$0.00");
             }
         });
+
+        // 2) Drive the ViewModel with selection changes
+        sharedViewModel.getSelectedCarId().observe(getViewLifecycleOwner(),
+                id -> { if (id != null) costStatsViewModel.setVehicleId(id); });
     }
+//
+//    private void fetchCostStats(int vehicleId) {
+//        // Observe the stats LiveData from our local ViewModel
+//        costStatsViewModel.getCostStats(vehicleId).observe(getViewLifecycleOwner(), stats -> {
+//            if (stats != null) {
+//                totalCostText.setText(String.format(Locale.US, "$%.2f", stats.totalCost));
+//                avgPriceText.setText(String.format(Locale.US, "$%.2f", stats.avgPricePerGallon));
+//                avgFillUpText.setText(String.format(Locale.US, "$%.2f", stats.avgCostPerFillUp));
+//            } else {
+//                // If there are no stats for this car, display zeros.
+//                totalCostText.setText("$0.00");
+//                avgPriceText.setText("$0.00");
+//                avgFillUpText.setText("$0.00");
+//            }
+//        });
+//    }
 }

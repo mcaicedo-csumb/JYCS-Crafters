@@ -19,6 +19,8 @@ public class CarSelectorHelper {
 
     private static final Map<Integer, String> fullOptions = new LinkedHashMap<>();
     private static String selectedOption = "No Vehicle"; // Default value
+    public interface OnVehicleSelected { void onSelected(int vehicleId); }
+
 
     /**
      * NEW METHOD: This populates the static map with real vehicle data.
@@ -51,7 +53,7 @@ public class CarSelectorHelper {
         }
     }
 
-    public static void setupDropdown(Activity activity, AutoCompleteTextView dropdown) {
+    public static void setupDropdown(Activity activity, AutoCompleteTextView dropdown, OnVehicleSelected onVehicleSelected) {
 
         dropdown.setText(selectedOption, false);
 
@@ -83,6 +85,12 @@ public class CarSelectorHelper {
             setSelectedOption(activity, newSelected);
 
             dropdown.setText(newSelected, false);
+
+            // 🔑 resolve ID here (from your fullOptions map) and emit it
+            Integer selectedId = getSelectedOptionKey();
+            if (selectedId != -1 && onVehicleSelected != null) {
+                onVehicleSelected.onSelected(selectedId);
+            }
         });
     }
     public static void updateDropdownText(AutoCompleteTextView dropdown) {

@@ -97,7 +97,10 @@ public class FuelLogActivity extends BaseDrawerActivity {
             // (a) Update helper's cache and wire the dropdown adapter.
             CarSelectorHelper.loadVehicleData(this, vehicles);
             AutoCompleteTextView dropdown = binding.toolbarDropdown;
-            CarSelectorHelper.setupDropdown(this, dropdown);
+            //CarSelectorHelper.setupDropdown(this, dropdown);
+            CarSelectorHelper.setupDropdown(this, dropdown, id -> {
+                if (id != -1) sharedViewModel.selectCar(id); // emits to fragments
+            });
 
             // (b) Initial selection → update shared model and list filter.
             Integer initialCarId = CarSelectorHelper.getSelectedOptionKey();
