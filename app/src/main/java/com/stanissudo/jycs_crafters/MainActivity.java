@@ -77,7 +77,10 @@ public class MainActivity extends BaseDrawerActivity {
 
                 // b. Setup the dropdown UI with the loaded data
                 AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
-                CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
+                //CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
+                CarSelectorHelper.setupDropdown(this, carSelectorDropdown, id -> {
+                    if (id != -1) sharedViewModel.selectCar(id); // emits to fragments
+                });
 
                 // c. **CRITICAL FIX:** Get the initial car ID and push it to the SharedViewModel.
                 //    This immediately informs all listening fragments which car to display.
@@ -131,7 +134,21 @@ public class MainActivity extends BaseDrawerActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        // 1) Update in-memory selectedOption from prefs
+        CarSelectorHelper.syncFromPrefs(this);
+
+        // 2) Update the dropdown text to match
         CarSelectorHelper.updateDropdownText(binding.toolbarDropdown);
+
+        // 3) Emit to fragments if changed (or on first resume)
+        int savedId = CarSelectorHelper.getSavedSelectedId(this);
+        if (savedId != -1) {
+            Integer current = sharedViewModel.getSelectedCarId().getValue();
+            if (current == null || !current.equals(savedId)) {
+                sharedViewModel.selectCar(savedId);
+            }
+        }
     }
 
     @Override

@@ -9,20 +9,21 @@ import androidx.lifecycle.Transformations;
 
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.database.pojos.CarCostStats;
+import com.stanissudo.jycs_crafters.database.pojos.CarDistanceStats;
 
-public class CostStatsViewModel extends AndroidViewModel {
+public class DistanceStatsViewModel  extends AndroidViewModel {
     private final FuelTrackAppRepository repository;
     private final MutableLiveData<Integer> vehicleId = new MutableLiveData<>();
 
-    public final LiveData<CarCostStats> stats;
+    public final LiveData<CarDistanceStats> stats;
 
-    public CostStatsViewModel(@NonNull Application application) {
+    public DistanceStatsViewModel(@NonNull Application application) {
         super(application);
         repository = FuelTrackAppRepository.getRepository(application);
 
         stats = Transformations.switchMap(vehicleId, id -> {
             if (id == null || id == -1) return emptyLiveData();
-            return repository.getCostStatsForVehicle(id);
+            return repository.getDistanceStatsForVehicle(id);
         });
     }
 
@@ -39,7 +40,3 @@ public class CostStatsViewModel extends AndroidViewModel {
         return m;
     }
 }
-
-
-
-

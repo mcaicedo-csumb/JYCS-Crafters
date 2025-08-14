@@ -19,6 +19,8 @@ public class CarSelectorHelper {
 
     private static final Map<Integer, String> fullOptions = new LinkedHashMap<>();
     private static String selectedOption = "No Vehicle"; // Default value
+    public interface OnVehicleSelected { void onSelected(int vehicleId); }
+
 
     /**
      * NEW METHOD: This populates the static map with real vehicle data.
@@ -51,7 +53,7 @@ public class CarSelectorHelper {
         }
     }
 
-    public static void setupDropdown(Activity activity, AutoCompleteTextView dropdown) {
+    public static void setupDropdown(Activity activity, AutoCompleteTextView dropdown, OnVehicleSelected onVehicleSelected) {
 
         dropdown.setText(selectedOption, false);
 
@@ -83,6 +85,12 @@ public class CarSelectorHelper {
             setSelectedOption(activity, newSelected);
 
             dropdown.setText(newSelected, false);
+
+            // 🔑 resolve ID here (from your fullOptions map) and emit it
+            Integer selectedId = getSelectedOptionKey();
+            if (selectedId != -1 && onVehicleSelected != null) {
+                onVehicleSelected.onSelected(selectedId);
+            }
         });
     }
     public static void updateDropdownText(AutoCompleteTextView dropdown) {
@@ -113,12 +121,22 @@ public class CarSelectorHelper {
     }
 
     public static void setSelectedOptionById(Context context, int key) {
+        // Update in-memory label too
+        String name = fullOptions.get(key);
+        if (name != null) selectedOption = name;
 
-        if (key != -1) {
-            // Save the car's ID to SharedPreferences so it persists
-            SharedPreferences prefs = context.getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
-            prefs.edit().putInt("lastSelectedVehicleId", key).apply();
-        }
+        SharedPreferences prefs = context.getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
+        prefs.edit().putInt("lastSelectedVehicleId", key).apply();
+    }
+    public static int getSavedSelectedId(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("login_prefs", Context.MODE_PRIVATE);
+        return prefs.getInt("lastSelectedVehicleId", -1);
     }
 
+    // Call this when you need 'selectedOption' to match what's in prefs
+    public static void syncFromPrefs(Context context) {
+        int id = getSavedSelectedId(context);
+        String name = fullOptions.get(id);
+        if (name != null) selectedOption = name;
+    }
 }

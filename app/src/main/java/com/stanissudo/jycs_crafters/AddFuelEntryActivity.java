@@ -229,7 +229,10 @@ public class AddFuelEntryActivity extends AppCompatActivity {
 
                 // (b) Recreate dropdown adapter with fresh list
                 AutoCompleteTextView carSelectorDropdown = binding.toolbarDropdown;
-                CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
+                //CarSelectorHelper.setupDropdown(this, carSelectorDropdown);
+                CarSelectorHelper.setupDropdown(this, carSelectorDropdown, id -> {
+                    if (id != -1) sharedViewModel.selectCar(id); // emits to fragments
+                });
 
                 // (c) Pick initial selection and propagate it
                 Integer initialCarId = CarSelectorHelper.getSelectedOptionKey();
