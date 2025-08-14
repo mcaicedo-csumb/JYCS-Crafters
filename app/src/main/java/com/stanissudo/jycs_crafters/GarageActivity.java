@@ -34,17 +34,17 @@ public class GarageActivity extends BaseDrawerActivity {
     private ActivityGarageBinding binding;
     private static final String GARAGE_USER_ID = "com.stanissudo.jycs-crafters.GARAGE_USER_ID";
     private SharedPreferences sharedPreferences;
-    FuelTrackAppRepository repository = FuelTrackAppRepository.getRepository(getApplication());
+    FuelTrackAppRepository repository;
     private GarageViewModel garageViewModel;
     private VehicleViewModel vehicleViewModel;
     private SharedViewModel sharedViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         binding = ActivityGarageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        super.onCreate(savedInstanceState);
-
+repository =  FuelTrackAppRepository.getRepository(getApplication());
         // ViewModels
         garageViewModel = new ViewModelProvider(this).get(GarageViewModel.class);
         vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
@@ -53,7 +53,7 @@ public class GarageActivity extends BaseDrawerActivity {
         // Load vehicles for this user.
         SharedPreferences prefs = getSharedPreferences("login_prefs", MODE_PRIVATE);
         int userId = prefs.getInt("userId", -1);
-        vehicleViewModel.loadUserVehicles(userId);
+        garageViewModel.loadUserVehicles(userId);
         vehicleViewModel.getUserVehicles().observe(this, vehicles -> {
             if (vehicles == null || vehicles.isEmpty()) {
                 Toast.makeText(this, "No vehicles found for this account.", Toast.LENGTH_SHORT).show();

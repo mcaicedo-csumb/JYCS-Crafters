@@ -73,7 +73,7 @@ public class GarageAdapter extends RecyclerView.Adapter<GarageAdapter.VH> {
         h.vehicleNameText.setText(e.getName());
         h.makeText.setText(e.getMake());
         h.modelText.setText(e.getModel());
-        h.yearText.setText(e.getYear());
+        h.yearText.setText(String.valueOf(e.getYear()));
 
         // Actions
         long id = getStableId(e);
