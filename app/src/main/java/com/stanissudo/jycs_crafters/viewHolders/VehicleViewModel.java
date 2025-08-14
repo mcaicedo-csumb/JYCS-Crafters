@@ -50,9 +50,11 @@ public class VehicleViewModel extends AndroidViewModel {
     }
 
     public LiveData<Vehicle> getVehicleByID(int id) { return repository.getVehicleByID(id); }
-    public LiveData<FuelEntry> getById(int id) { return repository.getRecordById(id); }
 
     public LiveData<Vehicle> getSelectedVehicle() {
         return selectedVehicle;
     }
+
+    public void update(Vehicle v) { repository.updateVehicle(v); }
+    public void insert(Vehicle v) { repository.insertVehicle(v); }
 }

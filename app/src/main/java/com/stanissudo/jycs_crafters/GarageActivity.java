@@ -44,7 +44,7 @@ public class GarageActivity extends BaseDrawerActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityGarageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-repository =  FuelTrackAppRepository.getRepository(getApplication());
+        repository =  FuelTrackAppRepository.getRepository(getApplication());
         // ViewModels
         garageViewModel = new ViewModelProvider(this).get(GarageViewModel.class);
         vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
