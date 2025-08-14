@@ -22,6 +22,7 @@ import java.util.List;
  */
 @Dao
 public interface VehicleDAO {
+
     // TODO: add rest of queries to VehicleDAO
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertVehicle(Vehicle... vehicle);
@@ -52,6 +53,8 @@ public interface VehicleDAO {
     void updateVehicleYear(int vehicleID, int newYear);
     @Query("DELETE FROM " + FuelTrackAppDatabase.VEHICLE_TABLE + " WHERE  VehicleID = :vehicleID")
     void deleteVehicleById(long vehicleID);
+    @Query("SELECT * FROM " + FuelTrackAppDatabase.VEHICLE_TABLE + " WHERE VehicleID = :id LIMIT 1")
+    LiveData<Vehicle> getVehicleByID(int id);
 
     // Add near your other methods in VehicleDAO.java
 

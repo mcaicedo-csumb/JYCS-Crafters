@@ -231,6 +231,9 @@ public class FuelTrackAppRepository {
     public LiveData<CarDistanceStats> getDistanceStatsForVehicle(int vehicleId) {
         return fuelEntryDAO.getDistanceStatsForVehicle(vehicleId);
     }
+    public LiveData<Vehicle> getVehicleByID(int id) {
+        return vehicleDAO.getVehicleByID(id);
+    }
 
     // ====== Callbacks ======
     public interface ExistsCallback { void onResult(boolean exists); }

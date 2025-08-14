@@ -49,6 +49,9 @@ public class VehicleViewModel extends AndroidViewModel {
         selectedVehicle.setValue(vehicle);
     }
 
+    public LiveData<Vehicle> getVehicleByID(int id) { return repository.getVehicleByID(id); }
+    public LiveData<FuelEntry> getById(int id) { return repository.getRecordById(id); }
+
     public LiveData<Vehicle> getSelectedVehicle() {
         return selectedVehicle;
     }

@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -16,8 +17,14 @@ import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.database.entities.FuelEntry;
 import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 import com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding;
+import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
+import com.stanissudo.jycs_crafters.utils.NumberFormatter;
+import com.stanissudo.jycs_crafters.viewHolders.FuelEntryViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.GarageViewModel;
+import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.InputMismatchException;
 
 /**
@@ -38,9 +45,37 @@ public class AddVehicleActivity extends BaseDrawerActivity {
     private String vehicleMake = "";
     private String vehicleModel = "";
     private int vehicleYear = 0;
+    private VehicleViewModel viewModel;
+    /** True if this Activity was launched to edit an existing record. */
+    private boolean isEdit;
+    /** The LogID of the record being edited. Only meaningful if {@link #isEdit} is true. */
+    private int editVehicleID;
 
     /** Intent extra key: primary key of a {@link Vehicle} to edit. Only present in EDIT mode. */
     public static final String EXTRA_VEHICLE_ID  = "EXTRA_VEHICLE_ID";
+
+    /**
+     * vehicleIntentFactory() returns an intent to change the screen
+     * @param context context
+     * @return intent
+     */
+    static Intent vehicleIntentFactory(Context context, int userId) {
+        Intent intent = new Intent(context, AddVehicleActivity.class);
+        intent.putExtra(VEHICLE_USER_ID, userId);
+        return intent;
+    }
+
+    /**
+     * Build an {@link Intent} to open this Activity in EDIT mode.
+     *
+     * @param context Caller context
+     * @param vehicleID   Primary key of the existing {@link Vehicle}
+     * @return Intent ready to pass to {@link Context#startActivity(Intent)}
+     */
+    public static Intent editVehicleIntentFactory(Context context, int vehicleID) {
+        return new Intent(context, AddVehicleActivity.class)
+                .putExtra(EXTRA_VEHICLE_ID, vehicleID);
+    }
 
     /**
      * onCreate() creates Vehicle activity to add vehicles
@@ -55,20 +90,41 @@ public class AddVehicleActivity extends BaseDrawerActivity {
         // ViewModel
         GarageViewModel vm = new ViewModelProvider(this).get(GarageViewModel.class);
 
+        // Extract intent extras.
+        editVehicleID = getIntent().getIntExtra(EXTRA_VEHICLE_ID, -1);
+        isEdit = editVehicleID > 0;
+        setTitle(isEdit ? "Edit Vehicle" : "Add Vehicle");
+
         setSupportActionBar(binding.toolbar);
 
         sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
         int userId = sharedPreferences.getInt("userId", -1);
 
-        binding.vehicleSaveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getInformationFromDisplay();
-                insertRecord(userId);
-                Intent intent = GarageActivity.garageIntentFactory(getApplicationContext(), userId);
-                startActivity(intent);
-            }
-        });
+        // EDIT mode: prefill from DB without triggering calculations.
+        if (isEdit) {
+            viewModel.getVehicleByID(editVehicleID).observe(this, e -> {
+                if (e == null) return;
+
+                // Prefill fields.
+                binding.vehicleNameEditText.setText((e.getName()));
+                binding.vehicleMakeEditText.setText(e.getMake());
+                binding.vehicleModelEditText.setText(e.getModel());
+                binding.vehicleYearEditText.setText(String.valueOf(e.getYear()));
+            });
+        }
+
+        // Save action: validate + async odometer check + insert/update.
+        binding.vehicleSaveButton.setOnClickListener(v -> onSave());
+
+//        binding.vehicleSaveButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                getInformationFromDisplay();
+//                insertRecord(userId);
+//                Intent intent = GarageActivity.garageIntentFactory(getApplicationContext(), userId);
+//                startActivity(intent);
+//            }
+//        });
     }
 
     /**
@@ -95,26 +151,73 @@ public class AddVehicleActivity extends BaseDrawerActivity {
     }
 
     /**
-     * vehicleIntentFactory() returns an intent to change the screen
-     * @param context context
-     * @return intent
+     * Gather user inputs, perform basic validation, then run an asynchronous odometer sanity check
+     * before committing insert/update via the {@link VehicleViewModel}.
      */
-    static Intent vehicleIntentFactory(Context context, int userId) {
-        Intent intent = new Intent(context, AddVehicleActivity.class);
-        intent.putExtra(VEHICLE_USER_ID, userId);
-        return intent;
+    private void onSave() {
+        // Read fields (fallback to 0 on parse issues)
+        String name    = binding.vehicleNameEditText.getText().toString();
+        String make    = binding.vehicleMakeEditText.getText().toString();
+        String model   = binding.vehicleModelEditText.getText().toString();
+        int year   = safeInt(text(binding.vehicleYearEditText));
+
+        // Build entity
+        Vehicle vehicle = new Vehicle();
+        if (isEdit) vehicle.setVehicleID(editVehicleID);
+        vehicle.setName(name);
+        vehicle.setMake(make);
+        vehicle.setModel(model);
+        vehicle.setYear(year);
+
+        // Synchronous field validation (basic required checks)
+        if (!validateInputsBasic(vehicle)) return;
     }
 
     /**
-     * Build an {@link Intent} to open this Activity in EDIT mode.
+     * Perform quick client-side validation for required fields and non-negative values.
+     * <p>
+     * Note: The current implementation allows 0 for <i>gallons</i> and <i>price per gallon</i>
+     * (it checks <code>&lt; 0</code>, not <code>&lt;= 0</code>) while the messages say
+     * "must be &gt; 0". Tighten the comparisons if you want to forbid zeros.
+     * </p>
      *
-     * @param context Caller context
-     * @param vehicleID   Primary key of the existing {@link Vehicle}
-     * @return Intent ready to pass to {@link Context#startActivity(Intent)}
+     * @param vehicle The entity being validated
+     * @return true if basic checks pass; false otherwise (with a Toast shown)
      */
-    public static Intent editVehicleIntentFactory(Context context, int vehicleID) {
-        return new Intent(context, AddFuelEntryActivity.class)
-                .putExtra(EXTRA_VEHICLE_ID, vehicleID);
+    private boolean validateInputsBasic(Vehicle vehicle) {
+        if (vehicle.getVehicleID() <= 0) {
+            Toast.makeText(this, "Please select a car.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (vehicle.getName().equals(null)) {
+            Toast.makeText(this, "The vehicle must have a name.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (vehicle.getMake().equals(null)) {
+            // Message says > 0, but code allows 0. Change to <= 0 if you want to enforce strictly > 0.
+            Toast.makeText(this, "The vehicle must have a make (manufacturer).", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (vehicle.getModel().equals(null)) {
+            // Message says > 0, but code allows 0. Change to <= 0 if you want to enforce strictly > 0.
+            Toast.makeText(this, "The vehicle must have a model.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (vehicle.getYear() <= 1885) {
+            Toast.makeText(this, "A valid year is required.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    /** Parse int or return 0 on failure. */
+    private int safeInt(String s) {
+        try { return Integer.parseInt(s); } catch (Exception e) { return 0; }
+    }
+
+    /** Return trimmed text from any TextView (empty string if null). */
+    private static String text(android.widget.TextView tv) {
+        return tv.getText() == null ? "" : tv.getText().toString().trim();
     }
 
     @Override
