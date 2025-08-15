@@ -40,7 +40,7 @@ import com.stanissudo.jycs_crafters.databinding.ActivityAdminCheckBinding;
  * @author Camila Caicedo
  * created: 8/14/2025
  * @project JYCS-Crafters
- * file: AdminCheck
+ * file: AdminCheckActivity.java
  */
 public class AdminCheckActivity extends AppCompatActivity {
 
