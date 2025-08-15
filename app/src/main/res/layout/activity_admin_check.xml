@@ -6,99 +6,147 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <!-- Header -->
     <TextView
         android:id="@+id/adminMessage"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="You have admin privileges!"
         android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:contentDescription="Admin Header"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="40dp"/>
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="32dp"/>
 
-    <Button
-        android:id="@+id/addUserButton"
+    <!-- Row 1: Add / Remove -->
+    <LinearLayout
+        android:id="@+id/row1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Add User"
+        android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/adminMessage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"/>
+        android:layout_marginTop="12dp">
 
-    <Button
-        android:id="@+id/removeUserButton"
+        <Button
+            android:id="@+id/addUserButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="Add User"
+            android:textAllCaps="false"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Add User"/>
+
+        <Button
+            android:id="@+id/removeUserButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="Remove User"
+            android:textAllCaps="false"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:contentDescription="Remove User"/>
+    </LinearLayout>
+
+    <!-- Row 2: Deactivate / Reactivate -->
+    <LinearLayout
+        android:id="@+id/row2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Remove User"
-        app:layout_constraintTop_toBottomOf="@id/addUserButton"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/row1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="12dp">
 
-    <!-- CAMILA: Deactivate -->
-    <Button
-        android:id="@+id/deactivateUserButton"
+        <Button
+            android:id="@+id/deactivateUserButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="Deactivate User"
+            android:textAllCaps="false"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Deactivate User"/>
+
+        <Button
+            android:id="@+id/reactivateUserButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="Reactivate User"
+            android:textAllCaps="false"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:contentDescription="Reactivate User"/>
+    </LinearLayout>
+
+    <!-- Row 3: Delete Permanently / Change Password -->
+    <LinearLayout
+        android:id="@+id/row3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Deactivate User"
-        app:layout_constraintTop_toBottomOf="@id/removeUserButton"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/row2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="12dp">
 
-    <!-- CAMILA: Reactivate -->
-    <Button
-        android:id="@+id/reactivateUserButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Reactivate User"
-        app:layout_constraintTop_toBottomOf="@id/deactivateUserButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp"/>
+        <Button
+            android:id="@+id/deleteUserPermButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="Delete Permanently"
+            android:textAllCaps="false"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Delete User Permanently"/>
 
-    <!-- CAMILA: Delete permanently -->
-    <Button
-        android:id="@+id/deleteUserPermButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Delete Permanently"
-        app:layout_constraintTop_toBottomOf="@id/reactivateUserButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp"/>
+        <Button
+            android:id="@+id/changePasswordButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="Change Password"
+            android:textAllCaps="false"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:contentDescription="Change Password"/>
+    </LinearLayout>
 
-    <!-- moved below the new buttons -->
-    <Button
-        android:id="@+id/changePasswordButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Change Password"
-        app:layout_constraintTop_toBottomOf="@id/deleteUserPermButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="10dp"/>
-
+    <!-- Full-width Logout -->
     <Button
         android:id="@+id/logoutButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:text="Logout"
-        app:layout_constraintTop_toBottomOf="@id/changePasswordButton"
+        android:textAllCaps="false"
+        android:contentDescription="Logout"
+        app:layout_constraintTop_toBottomOf="@id/row3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="30dp"/>
+        android:layout_marginTop="12dp"/>
 
+    <!-- Users list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/userListRecycler"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintTop_toBottomOf="@id/logoutButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"/>
-
+        app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
+

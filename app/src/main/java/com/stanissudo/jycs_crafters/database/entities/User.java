@@ -3,6 +3,7 @@ package com.stanissudo.jycs_crafters.database.entities;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.annotation.NonNull;
+
 import com.stanissudo.jycs_crafters.database.FuelTrackAppDatabase;
 
 import java.util.Objects;
@@ -78,7 +79,7 @@ public class User {
         isAdmin = admin;
     }
 
-    // CAMILA: displayName accessors for profile editing
+
     public String getDisplayName() {
         return displayName;
     }
@@ -87,7 +88,7 @@ public class User {
         this.displayName = displayName;
     }
 
-    // CAMILA: active flag accessors (used for login block / soft delete)
+
     public boolean isActive() {
         return isActive;
     }
@@ -103,17 +104,17 @@ public class User {
         User user = (User) o;
         return id == user.id &&
                 isAdmin == user.isAdmin &&
-                // CAMILA: include isActive in equality
+                // CAMILA: isActive in equality
                 isActive == user.isActive &&
                 username.equals(user.username) &&
                 password.equals(user.password) &&
-                // CAMILA: include displayName in equality
+                // CAMILA: displayName in equality
                 Objects.equals(displayName, user.displayName);
     }
 
     @Override
     public int hashCode() {
-        // CAMILA: include displayName and isActive in hash
+
         return Objects.hash(id, username, password, isAdmin, isActive, displayName);
     }
 }

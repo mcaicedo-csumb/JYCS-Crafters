@@ -25,7 +25,7 @@
             android:exported="false" />
         <activity
             android:name=".GarageActivity"
-            android:exported="false" /><!-- ✅ ADD THESE TWO: -->
+            android:exported="false" />
         <activity
             android:name=".LandingPageActivity"
             android:exported="false" />
