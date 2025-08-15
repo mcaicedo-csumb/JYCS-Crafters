@@ -36,7 +36,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityAdminCheckBinding;
-
+/**
+ * @author Camila Caicedo
+ * created: 8/14/2025
+ * @project JYCS-Crafters
+ * file: AdminCheck
+ */
 public class AdminCheckActivity extends AppCompatActivity {
 
     private ActivityAdminCheckBinding binding;

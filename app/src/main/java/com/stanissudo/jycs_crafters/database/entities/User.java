@@ -25,10 +25,10 @@ public class User {
 
     private boolean isAdmin = false;
 
-    // CAMILA: optional display name editable in Settings
+    // display name editable in Settings
     private String displayName;
 
-    // CAMILA: soft-delete flag (active/deactivated)
+    // (active/deactivated)
     private boolean isActive = true;
 
     public User(@NonNull String username, @NonNull String password) {
@@ -36,10 +36,10 @@ public class User {
         this.password = password;
         this.isAdmin = false;
 
-        // CAMILA: default display name mirrors username
+        // default display name mirrors username
         this.displayName = username;
 
-        // CAMILA: new accounts are active by default
+        // new accounts are active by default
         this.isActive = true;
     }
 
