@@ -36,7 +36,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.databinding.ActivityAdminCheckBinding;
-
+/**
+ * @author Camila Caicedo
+ * created: 8/14/2025
+ * @project JYCS-Crafters
+ * file: AdminCheckActivity.java
+ */
 public class AdminCheckActivity extends AppCompatActivity {
 
     private ActivityAdminCheckBinding binding;
@@ -132,7 +137,7 @@ public class AdminCheckActivity extends AppCompatActivity {
 
     /**
      * Displays a dialog for removing a user by username.
-     * Prevents deletion of the currently logged-in user unless allowed by repository rules.
+     * Prevents deletion of the currently logged-in
      */
     private void showRemoveUserDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
