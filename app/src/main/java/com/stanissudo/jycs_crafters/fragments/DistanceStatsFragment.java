@@ -18,6 +18,11 @@ import com.stanissudo.jycs_crafters.viewHolders.SharedViewModel;
 
 import java.util.Locale;
 
+/**
+ * * @author Stan Permiakov
+ * * created: 8/12/2025
+ * * @project JYCS-Crafters
+ */
 public class DistanceStatsFragment extends Fragment {
 
     private DistanceStatsViewModel distanceStatsViewModel;

@@ -6,11 +6,9 @@ import android.text.Spanned;
 import java.util.regex.Pattern;
 
 /**
- *  * @author Stan Permiakov
- *  * created: 8/12/2025
- *  * @project JYCS-Crafters
- *  * file: AddVehicleActivity.java
- *  *
+ * * @author Stan Permiakov
+ * * created: 8/12/2025
+ * * @project JYCS-Crafters
  */
 public class DecimalDigitsInputFilter implements InputFilter {
     private final Pattern pattern;

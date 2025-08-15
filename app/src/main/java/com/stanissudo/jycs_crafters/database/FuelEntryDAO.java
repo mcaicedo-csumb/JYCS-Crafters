@@ -15,24 +15,28 @@ import java.util.List;
 import com.stanissudo.jycs_crafters.database.pojos.CarCostStats;
 import com.stanissudo.jycs_crafters.database.pojos.CarDistanceStats;
 
+/**
+ * * @author Stan Permiakov
+ * * created: 8/12/2025
+ * * @project JYCS-Crafters
+ */
 @Dao
 public interface FuelEntryDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertRecord(FuelEntry fuelEntry);
+
     @Update(onConflict = OnConflictStrategy.REPLACE)
     void updateRecord(FuelEntry fuelEntry);
 
     @Query("SELECT * FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE CarID = :carId ORDER BY logDate DESC")
     LiveData<List<FuelEntry>> getEntriesForCar(int carId);
 
-//    @Query("SELECT * FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE  LogID = :logId ORDER BY logDate DESC")
-//    LiveData<List<FuelEntry>> getRecordsById(int logId);
-
     @Query("SELECT * FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE LogID = :id LIMIT 1")
     LiveData<FuelEntry> getRecordById(int id);
 
     @Query("SELECT odometer FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE LogID != :logId AND CarID = :carId AND logDate < :logDate ORDER BY logDate DESC LIMIT 1")
     Integer getPreviousOdometer(long logId, int carId, LocalDateTime logDate);
+
     @Query("SELECT odometer FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE LogID != :logId AND CarID = :carId AND logDate > :logDate ORDER BY logDate LIMIT 1")
     Integer getNextOdometer(long logId, int carId, LocalDateTime logDate);
 
@@ -52,17 +56,5 @@ public interface FuelEntryDAO {
     LiveData<CarDistanceStats> getDistanceStatsForVehicle(int carId);
 
     @Query("DELETE FROM " + FuelTrackAppDatabase.FUEL_LOG_TABLE + " WHERE  LogID = :recordId")
-void deleteRecordById(long recordId);
+    void deleteRecordById(long recordId);
 }
-
-//@PrimaryKey(autoGenerate = true)
-//private int LogID;
-//@NonNull
-//private Integer CarID = -1;
-//@NonNull
-//private LocalDateTime logDate = LocalDateTime.now();;
-//private Integer Odometer;
-//private Double Gallons;
-//private Double PricePerGallon;
-//private Double TotalCost;
-//private String Location;

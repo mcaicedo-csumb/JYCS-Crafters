@@ -1,19 +1,28 @@
 package com.stanissudo.jycs_crafters.fragments;
 
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import com.stanissudo.jycs_crafters.R;
 import com.stanissudo.jycs_crafters.viewHolders.CostStatsViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.SharedViewModel;
+
 import java.util.Locale;
 
+/**
+ * * @author Stan Permiakov
+ * * created: 8/12/2025
+ * * @project JYCS-Crafters
+ */
 public class CostStatsFragment extends Fragment {
 
     private CostStatsViewModel costStatsViewModel;
