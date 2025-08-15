@@ -33,6 +33,7 @@ public class GarageActivity extends BaseDrawerActivity {
     private static final String GARAGE_USER_ID = "com.stanissudo.jycs-crafters.GARAGE_USER_ID";
     FuelTrackAppRepository repository;
     private GarageViewModel garageViewModel;
+    private int vehicleID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,9 +73,7 @@ public class GarageActivity extends BaseDrawerActivity {
             @Override
             public void onEditClicked(long id) {
                 startActivity(AddVehicleActivity.editVehicleIntentFactory(
-                        GarageActivity.this,
-                        CarSelectorHelper.getSelectedOptionKey()
-                ));
+                        GarageActivity.this, (int) id));
             }
         });
         binding.garageDisplayRecyclerView.setAdapter(adapter);
