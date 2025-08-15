@@ -30,7 +30,7 @@ public class AddVehicleActivity extends BaseDrawerActivity {
     private ActivityVehicleBinding binding;
     FuelTrackAppRepository repository;
 
-    private static final String VEHICLE_USER_ID = "com.stanissudo.jycs-crafters.VEHICLE_USER_ID";
+    private static final String VEHICLE_USER_ID = "com.stanissudo.jycs_crafters.VEHICLE_USER_ID";
     private int userId;
     private GarageViewModel viewModel;
     /**
