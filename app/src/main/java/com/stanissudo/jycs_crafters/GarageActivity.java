@@ -44,7 +44,7 @@ public class GarageActivity extends BaseDrawerActivity {
         // ViewModels
         garageViewModel = new ViewModelProvider(this).get(GarageViewModel.class);
         VehicleViewModel vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
-
+        updateDrawerHeaderUsername();
         // Load vehicles for this user.
         SharedPreferences prefs = getSharedPreferences("login_prefs", MODE_PRIVATE);
         int userId = prefs.getInt("userId", -1);

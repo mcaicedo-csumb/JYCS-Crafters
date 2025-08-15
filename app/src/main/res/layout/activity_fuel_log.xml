@@ -5,7 +5,8 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FuelLogActivity">
+    tools:context=".FuelLogActivity"
+    android:fitsSystemWindows="true">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -63,6 +64,7 @@
         android:layout_width="@dimen/menu_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:menu="@menu/drawer_menu" />
+        android:fitsSystemWindows="false"
+        app:menu="@menu/drawer_menu"
+        app:headerLayout="@layout/nav_header" />
 </androidx.drawerlayout.widget.DrawerLayout>

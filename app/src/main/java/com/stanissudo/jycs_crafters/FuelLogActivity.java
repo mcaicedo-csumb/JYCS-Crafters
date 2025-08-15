@@ -76,7 +76,6 @@ public class FuelLogActivity extends BaseDrawerActivity {
         binding = ActivityFuelLogBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Now let BaseDrawerActivity do its own setup (menu, toolbar, etc.).
         super.onCreate(savedInstanceState);
 
         // ViewModels
@@ -93,6 +92,7 @@ public class FuelLogActivity extends BaseDrawerActivity {
                 Toast.makeText(this, "No vehicles found for this account.", Toast.LENGTH_SHORT).show();
                 return;
             }
+            updateDrawerHeaderUsername();
 
             // (a) Update helper's cache and wire the dropdown adapter.
             CarSelectorHelper.loadVehicleData(this, vehicles);

@@ -84,7 +84,7 @@ public class AddVehicleActivity extends BaseDrawerActivity {
 
         setSupportActionBar(binding.toolbar);
         binding.toolbar.setNavigationOnClickListener(v -> finish());
-
+        updateDrawerHeaderUsername();
         // ViewModel
         viewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
         repository = FuelTrackAppRepository.getRepository(getApplication());

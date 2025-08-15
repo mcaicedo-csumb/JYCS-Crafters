@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddFuelEntryActivity">
+    tools:context=".AddFuelEntryActivity"
+    android:fitsSystemWindows="true">>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -250,6 +251,6 @@
         android:layout_width="@dimen/menu_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true"
+        android:fitsSystemWindows="false"
         app:menu="@menu/drawer_menu" />
 </androidx.drawerlayout.widget.DrawerLayout>
