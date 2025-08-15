@@ -113,7 +113,7 @@ public class FuelEntryDAOTest {
 
         // Read it back to get the generated id
         FuelEntry before = getOrAwaitValue(dao.getEntriesForCar(99)).get(0);
-        int id = before.getLogID();
+        int id = (int) before.getLogID();
 
         // Modify fields and update
         before.setOdometer(10123);
@@ -146,7 +146,7 @@ public class FuelEntryDAOTest {
         List<FuelEntry> all = getOrAwaitValue(dao.getEntriesForCar(99));
         assertEquals(2, all.size());
 
-        int deleteId = all.get(0).getLogID(); // newest first (ORDER BY logDate DESC)
+        int deleteId = (int) all.get(0).getLogID(); // newest first (ORDER BY logDate DESC)
 
         dao.deleteRecordById(deleteId);
 

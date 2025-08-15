@@ -103,22 +103,9 @@ public class FuelTrackAppRepository {
     public void insertFuelEntry(FuelEntry fuelEntry) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> fuelEntryDAO.insertRecord(fuelEntry));
     }
+
     public void updateFuelEntry(FuelEntry fuelEntry) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> fuelEntryDAO.updateRecord(fuelEntry));
-    }
-
-
-    interface BoolCallback {
-        void onResult(boolean ok);
-    }
-
-    public Integer getPreviousOdometer(long logId, int carId, LocalDateTime logDate) {
-        return fuelEntryDAO.getPreviousOdometer(logId, carId, logDate);
-
-    }
-
-    public Integer getNextOdometer(long logId, int carId, LocalDateTime logDate) {
-        return fuelEntryDAO.getNextOdometer(logId, carId, logDate);
     }
 
     public LiveData<List<FuelEntry>> getEntriesForCar(int carId) {
@@ -128,6 +115,7 @@ public class FuelTrackAppRepository {
     public void deleteRecordByID(long carId) {
         fuelEntryDAO.deleteRecordById(carId);
     }
+
     public LiveData<FuelEntry> getRecordById(int logId) {
         return fuelEntryDAO.getRecordById(logId);
     }
@@ -192,10 +180,6 @@ public class FuelTrackAppRepository {
         return userDAO.getAllUsers();
     }
 
-//    public LiveData<List<FuelEntry>> getAllLogsByUserId(int loggedInUserId) {
-//        return fuelEntryDAO.getRecordsById(loggedInUserId);
-//    }
-
     // =================== Vehicle Methods ===================
     public void insertVehicle(Vehicle vehicle) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.insertVehicle(vehicle));
@@ -220,32 +204,45 @@ public class FuelTrackAppRepository {
     public void updateVehicleName(int vehicleID, String newName) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.updateVehicleName(vehicleID, newName));
     }
+
     public void updateVehicleMake(int vehicleID, String newMake) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.updateVehicleMake(vehicleID, newMake));
     }
+
     public void updateVehicleModel(int vehicleID, String newModel) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.updateVehicleModel(vehicleID, newModel));
     }
+
     public void updateVehicleYear(int vehicleID, int newYear) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.updateVehicleYear(vehicleID, newYear));
     }
+
     public void deleteVehicleById(long vehicleID) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.deleteVehicleById(vehicleID));
-    };
+    }
+
+    ;
 
     public LiveData<CarCostStats> getCostStatsForVehicle(int vehicleId) {
         return fuelEntryDAO.getCostStatsForVehicle(vehicleId);
     }
+
     public LiveData<CarDistanceStats> getDistanceStatsForVehicle(int vehicleId) {
         return fuelEntryDAO.getDistanceStatsForVehicle(vehicleId);
     }
+
     public LiveData<Vehicle> getVehicleByID(int id) {
         return vehicleDAO.getVehicleByID(id);
     }
 
     // ====== Callbacks ======
-    public interface ExistsCallback { void onResult(boolean exists); }
-    public interface ResultCallback { void onResult(boolean ok, String message); }
+    public interface ExistsCallback {
+        void onResult(boolean exists);
+    }
+
+    public interface ResultCallback {
+        void onResult(boolean ok, String message);
+    }
 
     public void userExistsAsync(String username, ExistsCallback cb) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> {

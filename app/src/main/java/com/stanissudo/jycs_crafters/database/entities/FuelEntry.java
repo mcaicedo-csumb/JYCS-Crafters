@@ -10,21 +10,27 @@ import com.stanissudo.jycs_crafters.database.FuelTrackAppDatabase;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+/**
+ * * @author Stan Permiakov
+ * * created: 8/12/2025
+ * * @project JYCS-Crafters
+ */
 @Entity(tableName = FuelTrackAppDatabase.FUEL_LOG_TABLE)
 public class FuelEntry {
     @PrimaryKey(autoGenerate = true)
-    private int LogID;
+    private long LogID;
     @NonNull
     private Integer CarID = -1;
     @NonNull
-    private LocalDateTime logDate = LocalDateTime.now();;
+    private LocalDateTime logDate = LocalDateTime.now();
     private Integer Odometer;
     private Double Gallons;
     private Double PricePerGallon;
     private Double TotalCost;
-    private String Location;
 
-    public FuelEntry() {}
+    public FuelEntry() {
+    }
+
     public FuelEntry(int carID, int odometer, double gallons, double pricePerGallon) {
         CarID = carID;
         logDate = LocalDateTime.now();
@@ -34,27 +40,7 @@ public class FuelEntry {
         PricePerGallon = pricePerGallon;
     }
 
-    public FuelEntry(int carID, int odometer, double gallons, double pricePerGallon, String location) {
-        CarID = carID;
-        logDate = LocalDateTime.now();
-        Odometer = odometer;
-        Gallons = gallons;
-        PricePerGallon = pricePerGallon;
-        TotalCost = gallons * pricePerGallon;
-        Location = location;
-    }
-
-    public FuelEntry(int carID, @NonNull LocalDateTime logDate, int odometer, double gallons, double pricePerGallon, String location) {
-        CarID = carID;
-        this.logDate = logDate;
-        Odometer = odometer;
-        Gallons = gallons;
-        PricePerGallon = pricePerGallon;
-        TotalCost = gallons * pricePerGallon;
-        Location = location;
-    }
-
-    public FuelEntry(int carID, int odometer, double pricePerGallon, double gallons,  @NonNull LocalDateTime logDate) {
+    public FuelEntry(int carID, int odometer, double pricePerGallon, double gallons, @NonNull LocalDateTime logDate) {
         CarID = carID;
         PricePerGallon = pricePerGallon;
         TotalCost = gallons * pricePerGallon;
@@ -67,12 +53,12 @@ public class FuelEntry {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         FuelEntry fuelEntry = (FuelEntry) o;
-        return LogID == fuelEntry.LogID && CarID == fuelEntry.CarID && Odometer == fuelEntry.Odometer && Double.compare(Gallons, fuelEntry.Gallons) == 0 && Double.compare(PricePerGallon, fuelEntry.PricePerGallon) == 0 && Double.compare(TotalCost, fuelEntry.TotalCost) == 0 && Objects.equals(logDate, fuelEntry.logDate) && Objects.equals(Location, fuelEntry.Location);
+        return LogID == fuelEntry.LogID && CarID == fuelEntry.CarID && Odometer == fuelEntry.Odometer && Double.compare(Gallons, fuelEntry.Gallons) == 0 && Double.compare(PricePerGallon, fuelEntry.PricePerGallon) == 0 && Double.compare(TotalCost, fuelEntry.TotalCost) == 0 && Objects.equals(logDate, fuelEntry.logDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(LogID, CarID, logDate, Odometer, Gallons, PricePerGallon, TotalCost, Location);
+        return Objects.hash(LogID, CarID, logDate, Odometer, Gallons, PricePerGallon, TotalCost);
     }
 
     @NonNull
@@ -85,16 +71,15 @@ public class FuelEntry {
                 ", Odometer=" + Odometer +
                 ", Gallons=" + Gallons +
                 ", PricePerGallon=" + PricePerGallon +
-                ", TotalCost=" + TotalCost +
-                ", Location='" + Location + '\'' +
+                ", TotalCost=" + TotalCost + '\'' +
                 '}';
     }
 
-    public int getLogID() {
+    public long getLogID() {
         return LogID;
     }
 
-    public void setLogID(int logID) {
+    public void setLogID(long logID) {
         LogID = logID;
     }
 
@@ -148,11 +133,4 @@ public class FuelEntry {
         TotalCost = totalCost;
     }
 
-    public String getLocation() {
-        return Location;
-    }
-
-    public void setLocation(String location) {
-        Location = location;
-    }
 }

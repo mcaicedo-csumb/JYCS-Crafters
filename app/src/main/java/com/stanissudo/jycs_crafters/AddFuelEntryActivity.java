@@ -22,7 +22,7 @@ import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
 import com.stanissudo.jycs_crafters.utils.DecimalDigitsInputFilter;
 import com.stanissudo.jycs_crafters.viewHolders.FuelEntryViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.SharedViewModel;
-import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
+import com.stanissudo.jycs_crafters.viewHolders.GarageViewModel;
 import com.stanissudo.jycs_crafters.utils.NumberFormatter;
 
 import java.time.LocalDateTime;
@@ -88,7 +88,7 @@ public class AddFuelEntryActivity extends AppCompatActivity {
     /** Screen-scoped ViewModel for CRUD on {@link FuelEntry} objects. */
     private FuelEntryViewModel viewModel;
     /** Provides list of user's vehicles for the top toolbar dropdown. */
-    private VehicleViewModel vehicleViewModel;
+    private GarageViewModel garageViewModel;
     /** Shared selection model for currently chosen car in the toolbar dropdown. */
     private SharedViewModel sharedViewModel;
 
@@ -208,7 +208,7 @@ public class AddFuelEntryActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         // --- 1) Initialize ViewModels ---
-        vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
+        garageViewModel = new ViewModelProvider(this).get(GarageViewModel.class);
         sharedViewModel  = new ViewModelProvider(this).get(SharedViewModel.class);
         viewModel        = new ViewModelProvider(this).get(FuelEntryViewModel.class);
         repository       = FuelTrackAppRepository.getRepository(getApplication());
@@ -221,8 +221,8 @@ public class AddFuelEntryActivity extends AppCompatActivity {
 
         // Load vehicles for the dropdown and set initial selection.
         SharedPreferences sharedPreferences = getSharedPreferences("login_prefs", MODE_PRIVATE);
-        vehicleViewModel.loadUserVehicles(sharedPreferences.getInt("userId", -1));
-        vehicleViewModel.getUserVehicles().observe(this, vehicles -> {
+        garageViewModel.loadUserVehicles(sharedPreferences.getInt("userId", -1));
+        garageViewModel.getUserVehicles().observe(this, vehicles -> {
             if (vehicles != null && !vehicles.isEmpty()) {
                 // (a) Push fresh list into helper (may update its cache)
                 CarSelectorHelper.loadVehicleData(this, vehicles);
