@@ -137,7 +137,7 @@ public class AdminCheckActivity extends AppCompatActivity {
 
     /**
      * Displays a dialog for removing a user by username.
-     * Prevents deletion of the currently logged-in user unless allowed by repository rules.
+     * Prevents deletion of the currently logged-in
      */
     private void showRemoveUserDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
