@@ -14,7 +14,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.stanissudo.jycs_crafters.database.FuelTrackAppRepository;
 import com.stanissudo.jycs_crafters.database.entities.Vehicle;
 import com.stanissudo.jycs_crafters.databinding.ActivityVehicleBinding;
-import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
+import com.stanissudo.jycs_crafters.viewHolders.GarageViewModel;
 
 /**
  * @author Ysabelle Kim
@@ -32,7 +32,7 @@ public class AddVehicleActivity extends BaseDrawerActivity {
 
     private static final String VEHICLE_USER_ID = "com.stanissudo.jycs-crafters.VEHICLE_USER_ID";
     private int userId;
-    private VehicleViewModel viewModel;
+    private GarageViewModel viewModel;
     /**
      * True if this Activity was launched to edit an existing record.
      */
@@ -86,7 +86,7 @@ public class AddVehicleActivity extends BaseDrawerActivity {
         binding.toolbar.setNavigationOnClickListener(v -> finish());
         updateDrawerHeaderUsername();
         // ViewModel
-        viewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
+        viewModel = new ViewModelProvider(this).get(GarageViewModel.class);
         repository = FuelTrackAppRepository.getRepository(getApplication());
 
         // Extract intent extras.
@@ -116,7 +116,7 @@ public class AddVehicleActivity extends BaseDrawerActivity {
 
     /**
      * onSave() gathers user inputs, perform basic validation, then run an asynchronous odometer sanity check
-     * before committing insert/update via the {@link VehicleViewModel}.
+     * before committing insert/update via the {@link GarageViewModel}.
      */
     private void onSave() {
         // Read fields (fallback to 0 on parse issues)

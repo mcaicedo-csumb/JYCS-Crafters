@@ -20,7 +20,7 @@ import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
 import com.stanissudo.jycs_crafters.viewHolders.FuelLogAdapter;
 import com.stanissudo.jycs_crafters.viewHolders.FuelLogViewModel;
 import com.stanissudo.jycs_crafters.viewHolders.SharedViewModel;
-import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
+import com.stanissudo.jycs_crafters.viewHolders.GarageViewModel;
 
 /**
  * *  @author Stan Permiakov
@@ -57,7 +57,7 @@ public class FuelLogActivity extends BaseDrawerActivity {
     /**
      * Supplies the current user's vehicles for the toolbar dropdown.
      */
-    private VehicleViewModel vehicleViewModel;
+    private GarageViewModel garageViewModel;
     /**
      * Shared car selection model (kept in sync with the dropdown).
      */
@@ -80,14 +80,14 @@ public class FuelLogActivity extends BaseDrawerActivity {
 
         // ViewModels
         viewModel = new ViewModelProvider(this).get(FuelLogViewModel.class);
-        vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
+        garageViewModel = new ViewModelProvider(this).get(GarageViewModel.class);
         sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
 
         // Load vehicles for this user and configure the dropdown when data arrives.
         SharedPreferences prefs = getSharedPreferences("login_prefs", MODE_PRIVATE);
         int userId = prefs.getInt("userId", -1);
-        vehicleViewModel.loadUserVehicles(userId);
-        vehicleViewModel.getUserVehicles().observe(this, vehicles -> {
+        garageViewModel.loadUserVehicles(userId);
+        garageViewModel.getUserVehicles().observe(this, vehicles -> {
             if (vehicles == null || vehicles.isEmpty()) {
                 Toast.makeText(this, "No vehicles found for this account.", Toast.LENGTH_SHORT).show();
                 return;
