@@ -27,10 +27,15 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+/*Camila Caicedo
+ *8/15/2025
+ * Tests for VehicleDAO
+ */
+
 @RunWith(AndroidJUnit4.class)
 public class VehicleDaoTest {
 
-    // Makes LiveData execute instantly & treats calls as main-thread for tests
+    // Makes LiveData execute
     @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     private FuelTrackAppDatabase db;
@@ -160,5 +165,6 @@ public class VehicleDaoTest {
             if (it.getVehicleID() == id) { stillThere = true; break; }
         }
         assertFalse(stillThere);
+
     }
 }

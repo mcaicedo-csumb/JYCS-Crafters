@@ -52,7 +52,6 @@ public class AdminCheckActivity extends AppCompatActivity {
     /**
      * Initializes the admin view, sets up UI components, binds click listeners,
      * and loads the user list for management.
-     *
      * @param savedInstanceState The saved instance state bundle.
      */
     @Override
