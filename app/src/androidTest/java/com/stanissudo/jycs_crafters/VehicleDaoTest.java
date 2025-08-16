@@ -27,6 +27,11 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+/*Camila Caicedo
+*8/15/2025
+* Tests for VehicleDAO
+ */
+
 @RunWith(AndroidJUnit4.class)
 public class VehicleDaoTest {
 
