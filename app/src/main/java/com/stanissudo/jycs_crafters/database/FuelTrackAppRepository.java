@@ -99,7 +99,7 @@ public class FuelTrackAppRepository {
         return null;
     }
 
-    // =================== FuelEntry Methods ===================
+    // ==== FuelEntry Methods ====
     public void insertFuelEntry(FuelEntry fuelEntry) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> fuelEntryDAO.insertRecord(fuelEntry));
     }
@@ -120,7 +120,7 @@ public class FuelTrackAppRepository {
         return fuelEntryDAO.getRecordById(logId);
     }
 
-    // =================== User Methods ===================
+    // === User Methods ====
     public LiveData<User> getUserByUsername(String username) {
         return userDAO.getUserByUsername(username);
     }
@@ -180,7 +180,7 @@ public class FuelTrackAppRepository {
         return userDAO.getAllUsers();
     }
 
-    // =================== Vehicle Methods ===================
+    // ==== Vehicle Methods ====
     public void insertVehicle(Vehicle vehicle) {
         FuelTrackAppDatabase.databaseWriteExecutor.execute(() -> vehicleDAO.insertVehicle(vehicle));
     }

@@ -94,9 +94,8 @@ public interface UserDAO {
     LiveData<List<User>> getAllUsers();
 
     /**
-     * Maria: Retrieves all users as a standard List (non-LiveData),
+     * Camila: Retrieves all users as a standard List (non-LiveData),
      * useful for background maintenance tasks.
-     *
      * @return A list of all users.
      */
     @Query("SELECT * FROM " + FuelTrackAppDatabase.USER_TABLE)
@@ -105,7 +104,6 @@ public interface UserDAO {
     /**
      * Maria: Fetches the stored password (hash or legacy plaintext) for the given username.
      * Used for password verification during login.
-     *
      * @param username The username to search for.
      * @return The stored password string.
      */
@@ -113,9 +111,8 @@ public interface UserDAO {
     String getPasswordForUsername(String username);
 
     /**
-     * Maria: Updates the password for a user identified by ID.
+     * Camila: Updates the password for a user identified by ID.
      * This is used by system sweeps and settings.
-     *
      * @param userId       The ID of the user.
      * @param passwordHash The new password hash.
      */
@@ -123,8 +120,7 @@ public interface UserDAO {
     void updatePasswordById(int userId, String passwordHash);
 
     /**
-     * Maria: Updates the display name of a user by ID.
-     *
+     * Camila: Updates the display name of a user by ID.
      * @param userId      The ID of the user.
      * @param displayName The new display name.
      */
@@ -132,8 +128,7 @@ public interface UserDAO {
     void updateDisplayName(int userId, String displayName);
 
     /**
-     * Maria: Soft-deletes a user by setting their "isActive" status to false (0).
-     *
+     * Camila: Soft-deletes a user by setting their "isActive" status to false (0).
      * @param userId The ID of the user to deactivate.
      */
     @Query("UPDATE " + FuelTrackAppDatabase.USER_TABLE + " SET isActive = 0 WHERE id = :userId")
@@ -141,15 +136,13 @@ public interface UserDAO {
 
     /**
      * Reactivates a previously soft-deleted user by ID.
-     *
      * @param userId The ID of the user to reactivate.
      */
     @Query("UPDATE " + FuelTrackAppDatabase.USER_TABLE + " SET isActive = 1 WHERE id = :userId")
     void reactivateUserById(int userId);
 
     /**
-     * Maria: Deactivates a user by their username (used for admin screen convenience).
-     *
+     * Camila: Deactivates a user by their username (used for admin screen convenience).
      * @param username The username of the user to deactivate.
      */
     @Query("UPDATE " + FuelTrackAppDatabase.USER_TABLE + " SET isActive = 0 WHERE username = :username")
@@ -157,15 +150,13 @@ public interface UserDAO {
 
     /**
      * Reactivates a user by their username.
-     *
      * @param username The username of the user to reactivate.
      */
     @Query("UPDATE " + FuelTrackAppDatabase.USER_TABLE + " SET isActive = 1 WHERE username = :username")
     void reactivateByUsername(String username);
 
     /**
-     * Maria: Retrieves the active status of a user by their username.
-     *
+     * Camila: Retrieves the active status of a user by their username.
      * @param u The username.
      * @return 1 if active, 0 if inactive, or null if not found.
      */
@@ -174,7 +165,6 @@ public interface UserDAO {
 
     /**
      * Retrieves a list of all active users ordered by username.
-     *
      * @return LiveData list of active users.
      */
     @Query("SELECT * FROM " + FuelTrackAppDatabase.USER_TABLE + " WHERE isActive = 1 ORDER BY username ASC")
@@ -182,7 +172,6 @@ public interface UserDAO {
 
     /**
      * Retrieves a list of all inactive users ordered by username.
-     *
      * @return LiveData list of inactive users.
      */
     @Query("SELECT * FROM " + FuelTrackAppDatabase.USER_TABLE + " WHERE isActive = 0 ORDER BY username ASC")
