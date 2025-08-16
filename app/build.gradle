@@ -33,6 +33,12 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
+            includeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -72,4 +78,6 @@ dependencies {
     androidTestImplementation 'androidx.arch.core:core-testing:2.2.0' // ADDED (InstantTaskExecutorRule)
     androidTestImplementation libs.runner
     androidTestImplementation libs.rules
+    // for instrumented tests
+    testImplementation libs.junit.v412
 }
