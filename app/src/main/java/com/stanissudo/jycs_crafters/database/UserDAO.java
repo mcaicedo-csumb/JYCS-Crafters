@@ -111,9 +111,8 @@ public interface UserDAO {
     String getPasswordForUsername(String username);
 
     /**
-     * Maria: Updates the password for a user identified by ID.
+     * Camila: Updates the password for a user identified by ID.
      * This is used by system sweeps and settings.
-     *
      * @param userId       The ID of the user.
      * @param passwordHash The new password hash.
      */
