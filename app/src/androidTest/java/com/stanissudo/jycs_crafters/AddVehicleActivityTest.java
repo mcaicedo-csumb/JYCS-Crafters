@@ -3,18 +3,13 @@ package com.stanissudo.jycs_crafters;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import android.content.Context;
 import android.content.Intent;
 
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -48,8 +43,6 @@ public class AddVehicleActivityTest extends TestCase {
 
     public void setUp() throws Exception {
         super.setUp();
-        vehicle = new Vehicle();
-        context = ApplicationProvider.getApplicationContext();
         System.out.println("=== AddVehicleActivityTest Setup Complete===");
     }
 
@@ -59,18 +52,39 @@ public class AddVehicleActivityTest extends TestCase {
     }
 
     @Test
-    public void testUserInput() {
+    public void testOnCreate() {
+        context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        assertNotNull(context);
+        assertEquals("com.stanissudo.jycs_crafters", context.getPackageName());
+    }
+
+    @Test
+    public void testClick() {
         onView(withId(R.id.vehicleNameEditText)).perform(typeText("car"));
         onView(withId(R.id.vehicleMakeEditText)).perform(typeText("carmake"));
         onView(withId(R.id.vehicleModelEditText)).perform(typeText("carmodel"));
         onView(withId(R.id.vehicleYearEditText)).perform(typeText("1999"));
-        onView(withText("Save!")).perform(click());
+        onView(withId(R.id.vehicleSaveButton)).perform(click());
+    }
+
+    @Test
+    public void testUserInput() {
+        context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        vehicle = new Vehicle();
+        vehicle.setVehicleID(1);
+        vehicle.setYear(1999);
+        onView(withId(R.id.vehicleNameEditText)).perform(typeText("car"));
+        onView(withId(R.id.vehicleMakeEditText)).perform(typeText("carmake"));
+        onView(withId(R.id.vehicleModelEditText)).perform(typeText("carmodel"));
+        onView(withId(R.id.vehicleYearEditText)).perform(typeText("1999"));
+        onView(withId(R.id.vehicleSaveButton)).perform(click());
         assertNotNull(vehicle.getVehicleID());
         assertTrue(vehicle.getYear() >= 1885);
     }
 
     @Test
     public void testVehicleIntentFactory() {
+        context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         assertNotNull(context);
         intent = new Intent(context, AddVehicleActivity.class);
         assertNotNull(intent);
@@ -78,6 +92,7 @@ public class AddVehicleActivityTest extends TestCase {
 
     @Test
     public void testEditVehicleIntentFactory() {
+        context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         boolean isEditTest = false;
         int vehicleIDTest = 1;
         assertNotNull(context);
@@ -88,11 +103,5 @@ public class AddVehicleActivityTest extends TestCase {
         isEditTest = vehicleIDTest > 0;
         assertTrue(isEditTest);
         assertNotEquals(intent, intent2);
-    }
-
-    @Test
-    public void testOnCreate() {
-        assertNotNull(context);
-        assertEquals("com.stanissudo.jycs_crafters", context.getPackageName());
     }
 }
