@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 public class VehicleDaoTest {
 
-    // Makes LiveData execute instantly & treats calls as main-thread for tests
+    // Makes LiveData execute
     @Rule public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     private FuelTrackAppDatabase db;
