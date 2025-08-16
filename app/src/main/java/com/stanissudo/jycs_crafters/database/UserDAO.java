@@ -136,7 +136,6 @@ public interface UserDAO {
 
     /**
      * Reactivates a previously soft-deleted user by ID.
-     *
      * @param userId The ID of the user to reactivate.
      */
     @Query("UPDATE " + FuelTrackAppDatabase.USER_TABLE + " SET isActive = 1 WHERE id = :userId")
