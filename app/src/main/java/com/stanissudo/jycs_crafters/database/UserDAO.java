@@ -94,9 +94,8 @@ public interface UserDAO {
     LiveData<List<User>> getAllUsers();
 
     /**
-     * Maria: Retrieves all users as a standard List (non-LiveData),
+     * Camila: Retrieves all users as a standard List (non-LiveData),
      * useful for background maintenance tasks.
-     *
      * @return A list of all users.
      */
     @Query("SELECT * FROM " + FuelTrackAppDatabase.USER_TABLE)
