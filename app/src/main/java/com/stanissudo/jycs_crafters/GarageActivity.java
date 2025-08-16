@@ -19,7 +19,6 @@ import com.stanissudo.jycs_crafters.databinding.ActivityGarageBinding;
 import com.stanissudo.jycs_crafters.utils.CarSelectorHelper;
 import com.stanissudo.jycs_crafters.viewHolders.GarageAdapter;
 import com.stanissudo.jycs_crafters.viewHolders.GarageViewModel;
-import com.stanissudo.jycs_crafters.viewHolders.VehicleViewModel;
 
 /**
  * @author Ysabelle Kim
@@ -34,6 +33,7 @@ public class GarageActivity extends BaseDrawerActivity {
     private static final String GARAGE_USER_ID = "com.stanissudo.jycs-crafters.GARAGE_USER_ID";
     FuelTrackAppRepository repository;
     private GarageViewModel garageViewModel;
+    private int vehicleID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,13 +43,12 @@ public class GarageActivity extends BaseDrawerActivity {
         repository = FuelTrackAppRepository.getRepository(getApplication());
         // ViewModels
         garageViewModel = new ViewModelProvider(this).get(GarageViewModel.class);
-        VehicleViewModel vehicleViewModel = new ViewModelProvider(this).get(VehicleViewModel.class);
-
+        updateDrawerHeaderUsername();
         // Load vehicles for this user.
         SharedPreferences prefs = getSharedPreferences("login_prefs", MODE_PRIVATE);
         int userId = prefs.getInt("userId", -1);
         garageViewModel.loadUserVehicles(userId);
-        vehicleViewModel.getUserVehicles().observe(this, vehicles -> {
+        garageViewModel.getUserVehicles().observe(this, vehicles -> {
             if (vehicles == null || vehicles.isEmpty()) {
                 Toast.makeText(this, "No vehicles found for this account.", Toast.LENGTH_SHORT).show();
                 return;
@@ -74,9 +73,7 @@ public class GarageActivity extends BaseDrawerActivity {
             @Override
             public void onEditClicked(long id) {
                 startActivity(AddVehicleActivity.editVehicleIntentFactory(
-                        GarageActivity.this,
-                        CarSelectorHelper.getSelectedOptionKey()
-                ));
+                        GarageActivity.this, (int) id));
             }
         });
         binding.garageDisplayRecyclerView.setAdapter(adapter);

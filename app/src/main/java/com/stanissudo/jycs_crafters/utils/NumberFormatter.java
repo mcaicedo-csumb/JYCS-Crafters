@@ -5,6 +5,11 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
+/**
+ * * @author Stan Permiakov
+ * * created: 8/12/2025
+ * * @project JYCS-Crafters
+ */
 public final class NumberFormatter {
     private NumberFormatter() {
     }

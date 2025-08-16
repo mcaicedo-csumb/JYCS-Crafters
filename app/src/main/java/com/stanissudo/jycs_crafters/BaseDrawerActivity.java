@@ -4,6 +4,8 @@ package com.stanissudo.jycs_crafters;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -99,7 +101,19 @@ public abstract class BaseDrawerActivity extends AppCompatActivity {
             finish();
         });
     }
+    protected void updateDrawerHeaderUsername() {
+        SharedPreferences prefs = getSharedPreferences("login_prefs", MODE_PRIVATE);
+        String username = prefs.getString("username", "User");
 
+        NavigationView nav = getNavigationView();
+        if (nav == null) return;
+
+        View header = nav.getHeaderView(0);
+        if (header == null) return;
+
+        TextView tv = header.findViewById(R.id.nav_header_username);
+        if (tv != null) tv.setText(username);
+    }
     /**
      * Lifecycle hook executed after {@link #onCreate(Bundle)}. Installs the toolbar as the
      * SupportActionBar, wires the drawer toggle, and attaches a menu item selection listener that

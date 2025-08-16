@@ -68,6 +68,17 @@ public class GarageViewModel extends AndroidViewModel {
     }
 
     public void deleteById(long id) {
-        io.execute(() -> repository.deleteRecordByID(id));
+        io.execute(() -> repository.deleteVehicleById(id));
+    }
+    public LiveData<Vehicle> getVehicleByID(int id) {
+        return repository.getVehicleByID(id);
+    }
+
+    public void update(Vehicle v) {
+        repository.updateVehicle(v);
+    }
+
+    public void insert(Vehicle v) {
+        repository.insertVehicle(v);
     }
 }

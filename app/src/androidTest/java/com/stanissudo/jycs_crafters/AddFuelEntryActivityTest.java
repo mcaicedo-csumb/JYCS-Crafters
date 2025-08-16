@@ -3,9 +3,8 @@ package com.stanissudo.jycs_crafters;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
+
 import static org.junit.Assert.assertNotEquals;
 
 import android.content.Context;
@@ -24,8 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Optional;
-
 /**
  * project: JYCS-Crafters
  * file: AddFuelEntryActivityTest.java
@@ -39,6 +36,7 @@ public class AddFuelEntryActivityTest extends TestCase {
     Context context;
     FuelEntry fuelEntry;
     Vehicle vehicle;
+
     private static final String EXTRA_TEST_ID = "com.stanissudo.jycs_crafters.EXTRA_TEST_ID";
 
     @Rule
