@@ -104,7 +104,6 @@ public interface UserDAO {
     /**
      * Maria: Fetches the stored password (hash or legacy plaintext) for the given username.
      * Used for password verification during login.
-     *
      * @param username The username to search for.
      * @return The stored password string.
      */
